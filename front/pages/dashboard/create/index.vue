@@ -4,7 +4,7 @@
       :class="[
         'w-full max-w-3xl mt-12 transition-all duration-500 space-y-6',
         isGenerating || hasResults
-          ? 'max-w-3xl w-3xl items-start pt-4'
+          ? 'max-w-3xl w-3xl items-start'
           : 'max-w-3xl w-3xl items-center',
       ]"
     >
@@ -14,7 +14,7 @@
           'font-bold text-center mb-8 transition-all duration-500',
           isGenerating || hasResults
             ? 'text-3xl md:text-4xl'
-            : 'text-5xl md:text-6xl',
+            : 'text-3xl md:text-4xl',
         ]"
       >
         Create Your Infograph
@@ -63,7 +63,7 @@
               </button>
               <!-- Tooltip -->
               <div
-                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
               >
                 Aspect Ratio
               </div>
@@ -82,13 +82,13 @@
                   :key="ratio.value"
                   @click="selectAspectRatio(ratio)"
                   :class="[
-                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 transition-colors flex items-center justify-between',
+                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 transition-colors flex items-center gap-2',
                     selectedAspectRatio.value === ratio.value
                       ? 'bg-primary-500/10'
                       : 'hover:bg-background-secondary',
                   ]"
                 >
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <div class="font-medium text-text-primary text-sm">
                       {{ ratio.label }}
                     </div>
@@ -98,7 +98,7 @@
                   </div>
                   <svg
                     v-if="selectedAspectRatio.value === ratio.value"
-                    class="h-5 w-5 text-primary-500 flex-shrink-0 ml-2"
+                    class="h-5 w-5 text-primary-500 flex-shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -140,7 +140,7 @@
               </button>
               <!-- Tooltip -->
               <div
-                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
               >
                 Resolution
               </div>
@@ -159,16 +159,16 @@
                   :key="res"
                   @click="selectResolution(res)"
                   :class="[
-                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center justify-between',
+                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
                     selectedResolution === res
                       ? 'bg-primary-500/10'
                       : 'hover:bg-background-secondary',
                   ]"
                 >
-                  <span>{{ res }}</span>
+                  <span class="flex-1">{{ res }}</span>
                   <svg
                     v-if="selectedResolution === res"
-                    class="h-5 w-5 text-primary-500 flex-shrink-0 ml-2"
+                    class="h-5 w-5 text-primary-500 flex-shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -211,7 +211,7 @@
               </button>
               <!-- Tooltip -->
               <div
-                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
               >
                 Number of Infographs
               </div>
@@ -230,16 +230,16 @@
                   :key="num"
                   @click="selectCount(num)"
                   :class="[
-                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center justify-between',
+                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
                     numberOfInfographs === num
                       ? 'bg-primary-500/10'
                       : 'hover:bg-background-secondary',
                   ]"
                 >
-                  <span>{{ num }}</span>
+                  <span class="flex-1">{{ num }}</span>
                   <svg
                     v-if="numberOfInfographs === num"
-                    class="h-5 w-5 text-primary-500 flex-shrink-0 ml-2"
+                    class="h-5 w-5 text-primary-500 flex-shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -284,7 +284,7 @@
               <!-- Tooltip -->
               <div
                 v-if="!showBlogInput"
-                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
               >
                 Add Blog URL
               </div>
@@ -406,7 +406,7 @@
             <!-- Tooltip -->
             <div
               v-if="!isGenerating"
-              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
             >
               Generate
             </div>
@@ -507,7 +507,7 @@
                 />
                 <!-- Overlay on hover -->
                 <div
-                  class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                  class="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300 flex items-center justify-center"
                 >
                   <div class="text-white text-center">
                     <p class="text-sm">{{ selectedAspectRatio.label }}</p>
@@ -519,64 +519,61 @@
               </div>
 
               <!-- Action Buttons -->
-              <div class="p-4 flex gap-2">
-                <button
-                  @click="handleDownload(result)"
-                  class="flex-1 btn-secondary text-sm flex items-center justify-center gap-2"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              <div class="p-3 flex gap-2">
+                <div class="relative group flex-1">
+                  <button
+                    @click="handleDownload(result)"
+                    class="w-full h-8 bg-primary border border-card-border rounded-md p-2 text-xs flex items-center justify-center gap-1.5"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Download
-                </button>
-                <button
-                  @click="handleEdit(result)"
-                  class="flex-1 btn-secondary text-sm flex items-center justify-center gap-2"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    <span v-if="numberOfInfographs === 1">Download</span>
+                  </button>
+                  <div
+                    v-if="numberOfInfographs > 1"
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  Edit
-                </button>
-                <button
-                  @click="handleSave(result)"
-                  class="flex-1 btn-primary text-sm flex items-center justify-center gap-2"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    Download
+                  </div>
+                </div>
+                <div class="relative group flex-1">
+                  <button
+                    @click="handleEdit(result)"
+                    class="w-full h-8 bg-background-primary border border-card-border rounded-md p-2 text-xs flex items-center justify-center gap-1.5"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Save
-                </button>
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    <span v-if="numberOfInfographs === 1">Edit</span>
+                  </button>
+                  <div
+                    v-if="numberOfInfographs > 1"
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+                  >
+                    Edit
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -740,7 +737,7 @@ watch(blogUrl, () => {
 });
 
 const getGridClass = () => {
-  if (numberOfInfographs.value === 1) return "grid-cols-1 max-w-2xl mx-auto";
+  if (numberOfInfographs.value === 1) return "grid-cols-1 max-w-sm mx-auto";
   if (numberOfInfographs.value === 2) return "grid-cols-1 md:grid-cols-2";
   if (numberOfInfographs.value === 3)
     return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
