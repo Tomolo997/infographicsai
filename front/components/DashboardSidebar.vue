@@ -270,9 +270,9 @@ export default {
       },
       {
         id: "saved-infographs",
-        label: "Generated",
+        label: "Saved",
         icon: "saved",
-        route: "/dashboard/templates",
+        route: "/dashboard/saved",
       },
     ];
 
@@ -323,8 +323,7 @@ export default {
     };
 
     const settings = () => {
-      // TODO: Navigate to settings page
-      console.log("Settings");
+      navigateTo("/dashboard/settings");
       isDropdownOpen.value = false;
     };
 
