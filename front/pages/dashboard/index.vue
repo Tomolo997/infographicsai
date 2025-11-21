@@ -245,7 +245,7 @@ const handleCreateFromTemplates = () => {
 
 const handleUploadTemplate = () => {
   showCreateVideoModal.value = false;
-  navigateTo("/dashboard/create/own-templates");
+  navigateTo("/dashboard/create?type=own-templates");
 };
 </script>
 

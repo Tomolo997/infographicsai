@@ -359,6 +359,92 @@
                 </button>
               </div>
             </div>
+
+            <!-- File Upload -->
+            <div class="relative group">
+              <!-- Hidden file input -->
+              <input
+                id="file-upload-input"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleFileUpload"
+                :disabled="isGenerating"
+              />
+
+              <!-- Upload button (shown when no file uploaded) -->
+              <button
+                v-if="!uploadedFilePreview"
+                @click="toggleFileUpload"
+                class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                :disabled="isGenerating"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span class="text-sm font-medium mt-0.5">Own Template</span>
+              </button>
+
+              <!-- Tooltip -->
+              <div
+                v-if="!uploadedFilePreview"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+              >
+                Own Template
+              </div>
+
+              <!-- File preview (shown when file is uploaded) -->
+              <div
+                v-if="uploadedFilePreview"
+                class="flex items-center gap-2 animate-in"
+              >
+                <div class="relative">
+                  <div
+                    class="h-9 px-3 pr-8 bg-background-primary border border-card-border rounded-md flex items-center gap-2"
+                  >
+                    <img
+                      :src="uploadedFilePreview"
+                      alt="Uploaded preview"
+                      class="h-6 w-6 object-cover rounded"
+                    />
+                    <span
+                      class="text-sm text-text-primary truncate max-w-[150px]"
+                    >
+                      {{ uploadedFile?.name }}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  @click="removeUploadedFile"
+                  class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-background-secondary transition-colors text-text-secondary hover:text-text-primary"
+                  :disabled="isGenerating"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Submit Button -->
@@ -717,12 +803,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted, nextTick } from "vue";
 
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
 });
+
+const route = useRoute();
 
 // State
 const prompt = ref("");
@@ -736,6 +824,9 @@ const blogUrl = ref("");
 const isValidUrl = ref(false);
 const showImageModal = ref(false);
 const selectedImage = ref(null);
+const showFileUpload = ref(false);
+const uploadedFile = ref(null);
+const uploadedFilePreview = ref(null);
 
 // Aspect Ratios with social media recommendations
 const aspectRatios = ref([
@@ -843,6 +934,40 @@ const validateUrl = () => {
   }
 };
 
+const toggleFileUpload = () => {
+  showFileUpload.value = true;
+  // Trigger file input
+  const fileInput = document.getElementById("file-upload-input");
+  if (fileInput) {
+    fileInput.click();
+  }
+};
+
+const handleFileUpload = (event) => {
+  const file = event.target.files?.[0];
+  if (file && file.type.startsWith("image/")) {
+    uploadedFile.value = file;
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      uploadedFilePreview.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    showFileUpload.value = true;
+  }
+};
+
+const removeUploadedFile = () => {
+  uploadedFile.value = null;
+  uploadedFilePreview.value = null;
+  showFileUpload.value = false;
+  // Reset file input
+  const fileInput = document.getElementById("file-upload-input");
+  if (fileInput) {
+    fileInput.value = "";
+  }
+};
+
 // Watch blogUrl for real-time validation
 watch(blogUrl, () => {
   validateUrl();
@@ -911,6 +1036,7 @@ const generateMore = () => {
   showBlogInput.value = false;
   blogUrl.value = "";
   isValidUrl.value = false;
+  removeUploadedFile();
 };
 
 const openImageModal = (result) => {
@@ -960,12 +1086,14 @@ if (typeof window !== "undefined") {
     }
   });
 }
+
+// Check for query parameter on mount
 </script>
 
 <style scoped>
 /* Custom scrollbar for dropdowns */
 .max-h-96::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .max-h-96::-webkit-scrollbar-track {
