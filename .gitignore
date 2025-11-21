@@ -13,6 +13,8 @@
 *.pywzzzz
 
 
+_pycache_/**
+
 .env
 .env.*
 env/

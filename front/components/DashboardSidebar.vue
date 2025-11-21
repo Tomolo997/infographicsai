@@ -11,17 +11,17 @@
         <div
           class="w-8 h-8 bg-sidebar-orange rounded-full flex items-center justify-center"
         >
-          <span class="text-sidebar-text-primary font-bold text-sm">EV</span>
+          <span class="text-sidebar-text-primary font-bold text-sm">AI</span>
         </div>
         <span class="text-sidebar-text-primary font-semibold text-lg"
-          >ainfographic</span
+          >Ainfographic</span
         >
       </div>
       <div v-else class="w-full flex items-center justify-center">
         <div
           class="w-8 h-8 bg-sidebar-orange rounded-full flex items-center justify-center"
         >
-          <span class="text-sidebar-text-primary font-bold text-sm">V</span>
+          <span class="text-sidebar-text-primary font-bold text-sm">AI</span>
         </div>
       </div>
     </div>
@@ -232,17 +232,11 @@ export default {
     const activeItem = computed(() => {
       const path = route.path;
       if (path === "/dashboard") return "dashboard";
-      if (path === "/dashboard/transitions") return "my-transitions";
-      if (path === "/ai-agent") return "ai-agent";
-      if (path === "/subscriptions") return "my-subscriptions";
-      if (path === "/analytics") return "analytics";
-      if (path === "/categories") return "categories";
-      if (path === "/family") return "family";
-      if (path === "/notifications") return "notifications";
-      if (path === "/billing") return "billing";
-      if (path === "/settings") return "settings";
-      if (path === "/feedback") return "feedback";
-      if (path === "/discord") return "discord";
+      if (path === "/dashboard/templates") return "templates";
+      if (path === "/dashboard/saved") return "saved";
+      if (path === "/dashboard/credits") return "credits";
+      if (path === "/dashboard/feedback") return "feedback";
+      if (path === "/dashboard/settings") return "settings";
       return "dashboard";
     });
 
@@ -269,7 +263,7 @@ export default {
         route: "/dashboard/templates",
       },
       {
-        id: "saved-infographs",
+        id: "saved",
         label: "Saved",
         icon: "saved",
         route: "/dashboard/saved",
