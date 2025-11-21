@@ -15,7 +15,9 @@
       <!-- Credits Balance Card -->
       <div class="bg-card-bg border border-card-border rounded-lg p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-text-primary">Credits Balance</h2>
+          <h2 class="text-lg font-semibold text-text-primary">
+            Credits Balance
+          </h2>
           <button
             @click="navigateTo('/dashboard/credits')"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors text-sm font-medium"
@@ -50,59 +52,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Username Card -->
-      <div class="bg-card-bg border border-card-border rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-text-primary mb-4">Username</h2>
-        <form @submit.prevent="handleUsernameUpdate" class="space-y-4">
-          <div>
-            <label
-              for="username"
-              class="block text-sm font-medium text-text-primary mb-2"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              v-model="username"
-              type="text"
-              class="w-full px-4 py-3 bg-background-primary border border-card-border text-text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all placeholder:text-text-secondary"
-              placeholder="Enter your username"
-            />
-          </div>
-          <div class="flex justify-end">
-            <button
-              type="submit"
-              :disabled="isUpdatingUsername"
-              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span v-if="!isUpdatingUsername">Update Username</span>
-              <span v-else class="inline-flex items-center gap-2">
-                <svg
-                  class="w-4 h-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Updating...
-              </span>
-            </button>
-          </div>
-        </form>
       </div>
 
       <!-- Password Change Card -->
@@ -336,8 +285,6 @@ const billingStore = useBillingStore();
 // State
 const creditBalance = ref(0);
 const lastUpdated = ref(new Date());
-const username = ref("");
-const isUpdatingUsername = ref(false);
 const isChangingPassword = ref(false);
 
 // Password form
@@ -365,32 +312,11 @@ const fetchUserData = async () => {
   try {
     const { $api } = useNuxtApp();
     const response = await $api("/account/profile/");
-    username.value = response.username || "";
     creditBalance.value = response.credit_balance || 0;
   } catch (error) {
     console.error("Error fetching user data:", error);
     // Mock data for development
-    username.value = "user123";
     creditBalance.value = 50;
-  }
-};
-
-const handleUsernameUpdate = async () => {
-  try {
-    isUpdatingUsername.value = true;
-    const { $api } = useNuxtApp();
-    await $api("/account/profile/update/", {
-      method: "PATCH",
-      body: { username: username.value },
-    });
-    alert("Username updated successfully!");
-  } catch (error) {
-    console.error("Error updating username:", error);
-    alert(
-      error.response?.data?.message || "Failed to update username. Please try again."
-    );
-  } finally {
-    isUpdatingUsername.value = false;
   }
 };
 
@@ -433,7 +359,8 @@ const handlePasswordChange = async () => {
   } catch (error) {
     console.error("Error changing password:", error);
     alert(
-      error.response?.data?.message || "Failed to change password. Please try again."
+      error.response?.data?.message ||
+        "Failed to change password. Please try again."
     );
   } finally {
     isChangingPassword.value = false;

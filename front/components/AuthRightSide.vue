@@ -3,63 +3,54 @@
     class="w-1/2 h-screen bg-card-bg flex items-center justify-center p-8 overflow-y-auto"
   >
     <div class="max-w-xl w-full space-y-12 border-sidebar-border">
-      <!-- App Preview Section -->
-      <div class="space-y-6">
-        <div class="flex items-center justify-center gap-4">
-          <!-- Front Image -->
-          <div class="flex-shrink-0">
-            <div
-              class="w-48 bg-card-bg border border-card-border rounded-xl flex items-center justify-center overflow-hidden"
-              style="aspect-ratio: 1/1"
-            >
-              <img
-                v-if="frontImageSrc"
-                :src="frontImageSrc"
-                alt="Front image"
-                class="w-full h-full object-cover"
-              />
-              <span v-else class="text-text-secondary text-sm"
-                >front image</span
-              >
-            </div>
-          </div>
+      <!-- Infographics Section -->
+      <div class="flex justify-center items-center gap-4 relative">
+        <!-- Left Infographic -->
+        <div
+          class="w-32 aspect-[9/16] rounded-2xl overflow-hidden shadow-lg relative z-10"
+        >
+          <img
+            v-if="infographicImages[0]"
+            :src="infographicImages[0]"
+            alt="Infographic 1"
+            class="w-full h-full object-cover"
+          />
+          <div
+            v-else
+            class="w-full h-full bg-gradient-to-br from-sidebar-orange/20 to-sidebar-orange/5"
+          ></div>
+        </div>
 
-          <!-- Created Video (Center - Larger) -->
-          <div class="flex-shrink-0">
-            <div
-              class="w-72 bg-card-bg border-2 border-sidebar-orange rounded-2xl flex items-center justify-center overflow-hidden shadow-xl shadow-sidebar-orange/20"
-              style="aspect-ratio: 9/16"
-            >
-              <video
-                v-if="videoSrc"
-                :src="videoSrc"
-                class="w-full h-full object-cover"
-                autoplay
-                loop
-                muted
-                playsinline
-              />
-              <span v-else class="text-text-primary text-sm font-medium"
-                >created video</span
-              >
-            </div>
-          </div>
+        <!-- Middle Infographic (in front) -->
+        <div
+          class="w-40 aspect-[9/16] rounded-2xl overflow-hidden shadow-xl relative z-20"
+        >
+          <img
+            v-if="infographicImages[1]"
+            :src="infographicImages[1]"
+            alt="Infographic 2"
+            class="w-full h-full object-cover"
+          />
+          <div
+            v-else
+            class="w-full h-full bg-gradient-to-br from-sidebar-orange/30 to-sidebar-orange/10"
+          ></div>
+        </div>
 
-          <!-- Tail Image -->
-          <div class="flex-shrink-0">
-            <div
-              class="w-48 bg-card-bg border border-card-border rounded-xl flex items-center justify-center overflow-hidden"
-              style="aspect-ratio: 1/1"
-            >
-              <img
-                v-if="tailImageSrc"
-                :src="tailImageSrc"
-                alt="Tail image"
-                class="w-full h-full object-cover"
-              />
-              <span v-else class="text-text-secondary text-sm">tail image</span>
-            </div>
-          </div>
+        <!-- Right Infographic -->
+        <div
+          class="w-32 aspect-[9/16] rounded-2xl overflow-hidden shadow-lg relative z-10"
+        >
+          <img
+            v-if="infographicImages[2]"
+            :src="infographicImages[2]"
+            alt="Infographic 3"
+            class="w-full h-full object-cover"
+          />
+          <div
+            v-else
+            class="w-full h-full bg-gradient-to-br from-sidebar-orange/20 to-sidebar-orange/5"
+          ></div>
         </div>
       </div>
 
@@ -141,6 +132,13 @@ const userAvatars = ref([
   "",
   "",
   "",
+]);
+
+// Array of infographic images (can be populated with real image URLs)
+const infographicImages = ref([
+  "https://picsum.photos/seed/infographic-left/360/640", // Left infographic (9:16)
+  "https://picsum.photos/seed/infographic-middle/360/640", // Middle infographic (will be in front) (9:16)
+  "https://picsum.photos/seed/infographic-right/360/640", // Right infographic (9:16)
 ]);
 </script>
 
