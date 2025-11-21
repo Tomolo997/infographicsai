@@ -1,0 +1,25 @@
+<p>Dear {{ subscription.user.username }},</p>
+
+<p>Congratulations! Your subscription to our service has been successfully activated.</p>
+
+<h3>Subscription Details:</h3>
+<ul>
+    <li>Subscription Tier: {{ subscription.tier.name }}</li>
+    <li>Status: {{ subscription.get_status_display }}</li>
+    <li>Start Date: {{ subscription.start_date|date:"F j, Y" }}</li>
+    {% if subscription.end_date %}
+        <li>End Date: {{ subscription.end_date|date:"F j, Y" }}</li>
+    {% endif %}
+    {% if subscription.trial_end %}
+        <li>Trial End Date: {{ subscription.trial_end|date:"F j, Y" }}</li>
+    {% endif %}
+</ul>
+
+<p>Your next billing date is set for: {{ subscription.billing_cycle_anchor|date:"F j, Y" }}</p>
+
+<p>Thank you for choosing our service. We're excited to have you on board!</p>
+
+<p>If you have any questions about your subscription or need assistance, please don't hesitate to contact our support team.</p>
+
+<p>Best regards,<br>
+The Team</p>

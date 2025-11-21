@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Credit Purchase Confirmation</title>
+</head>
+
+<body>
+    <h1>Thank you for your purchase, {{ user.username }}!</h1>
+    <p>We're excited to confirm that your credit purchase was successful. Here are the details of your transaction:</p>
+    <ul>
+        <li>Credit Pack: {{ credit_pack.name }}</li>
+        <li>Credits Added: {{ credit_pack.credits }}</li>
+        <li>Amount Paid: ${{ credit_pack.price }}</li>
+    </ul>
+    <p>Your credits have been added to your account and are ready to use.</p>
+    <p> Login with your email</a>
+    <a href="{{ account_url }}"
+        style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+         here.
+    </a>
+    <p>If you have any questions or concerns about your purchase, please don't hesitate to contact our support team at
+        {{ support_email }}.</p>
+    <p>Thank you for choosing our service!</p>
+    <p>Best regards,<br>Your Application Team</p>
+</body>
+
+</html>

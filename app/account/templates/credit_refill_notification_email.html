@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your AI Credits Have Been Refilled</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .email-header {
+            background-color: #4F46E5;
+            padding: 24px;
+            text-align: center;
+        }
+        .logo {
+            width: 180px;
+            height: auto;
+        }
+        .email-body {
+            padding: 32px 24px;
+        }
+        .email-footer {
+            background-color: #f9fafb;
+            padding: 16px 24px;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+        }
+        h1 {
+            color: #111827;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        p {
+            margin-bottom: 16px;
+        }
+        .credits-badge {
+            display: inline-block;
+            background-color: #10B981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .credits-container {
+            text-align: center;
+            margin: 24px 0;
+        }
+        .credit-details {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        .button-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+        .dashboard-button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            text-decoration: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        .ideas-list {
+            padding-left: 24px;
+        }
+        .ideas-list li {
+            margin-bottom: 8px;
+        }
+        .help-section {
+            margin-top: 32px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <img src="https://cdn.formly.so/images/logo-white.png" alt="Ainfographic Logo" class="logo">
+        </div>
+        
+        <div class="email-body">
+            <h1>Your AI Credits Have Been Refilled!</h1>
+            
+            <p>Hello {{ user.email }},</p>
+            
+            <p>Good news! Your monthly AI credits have been automatically refilled as part of your {{ tier_name }} subscription.</p>
+            
+            <div class="credits-container">
+                <div class="credits-badge">+{{ credits_amount }} Credits</div>
+                <p>Your total available credits: <strong>{{ total_credits }}</strong></p>
+            </div>
+            
+            <div class="credit-details">
+                <p><strong>Credit Details:</strong></p>
+                <ul>
+                    <li><strong>Plan:</strong> {{ tier_name }}</li>
+                    <li><strong>Monthly allocation:</strong> {{ credits_per_month }} credits</li>
+                    <li><strong>Next refill date:</strong> {{ next_refill_date }}</li>
+                </ul>
+            </div>
+            
+            <p>Here are some ideas to put your fresh credits to use:</p>
+            
+            <ul class="ideas-list">
+                <li>Create a data visualization for your next presentation</li>
+                <li>Design an infographic for your social media campaign</li>
+                <li>Transform your research data into a compelling visual story</li>
+                <li>Generate custom charts to include in your reports</li>
+            </ul>
+            
+            <div class="button-container">
+                <a href="{{ dashboard_url }}" class="dashboard-button">Start Creating</a>
+            </div>
+            
+            <div class="help-section">
+                <p>Need help with your credits? <a href="mailto:support@ainfographic.com">Contact our support team</a> or visit our <a href="{{ help_center_url }}">Help Center</a>.</p>
+            </div>
+        </div>
+        
+        <div class="email-footer">
+            <p>&copy; 2024 Ainfographic. All rights reserved.</p>
+            <p>Our mailing address: <br>1234 Innovation Way, Tech City, TC 98765</p>
+        </div>
+    </div>
+</body>
+</html> 

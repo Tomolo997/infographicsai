@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Subscription Has Been Upgraded</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .email-header {
+            background-color: #4F46E5;
+            padding: 24px;
+            text-align: center;
+        }
+        .logo {
+            width: 180px;
+            height: auto;
+        }
+        .email-body {
+            padding: 32px 24px;
+        }
+        .email-footer {
+            background-color: #f9fafb;
+            padding: 16px 24px;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+        }
+        h1 {
+            color: #111827;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        p {
+            margin-bottom: 16px;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #10B981;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .subscription-details {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        .feature-list {
+            padding-left: 24px;
+        }
+        .feature-list li {
+            margin-bottom: 8px;
+        }
+        .button-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+        .dashboard-button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            text-decoration: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        .help-section {
+            margin-top: 32px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <img src="https://cdn.formly.so/images/logo-white.png" alt="Ainfographic Logo" class="logo">
+        </div>
+        
+        <div class="email-body">
+            <span class="badge">Upgraded</span>
+            <h1>Your Subscription Has Been Upgraded!</h1>
+            
+            <p>Hello {{ user.email }},</p>
+            
+            <p>Great news! Your subscription has been successfully upgraded from <strong>{{ old_tier_name }}</strong> to <strong>{{ new_tier_name }}</strong>.</p>
+            
+            <div class="subscription-details">
+                <p><strong>Your Updated Subscription Details:</strong></p>
+                <ul class="feature-list">
+                    <li><strong>Plan:</strong> {{ new_tier_name }}</li>
+                    <li><strong>Status:</strong> Active</li>
+                    <li><strong>AI Credits:</strong> {{ new_credits }} credits per month</li>
+                    <li><strong>Next billing date:</strong> {{ next_billing_date }}</li>
+                </ul>
+            </div>
+            
+            <p>With your upgraded plan, you now have access to additional features and higher usage limits:</p>
+            
+            <ul class="feature-list">
+                {% for feature in new_features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+            
+            <p>Your upgraded subscription is effective immediately. The prorated difference between your previous plan and your new plan has been applied to your account.</p>
+            
+            <div class="button-container">
+                <a href="{{ dashboard_url }}" class="dashboard-button">Visit Your Dashboard</a>
+            </div>
+            
+            <div class="help-section">
+                <p>Need help getting the most out of your upgraded subscription? Check out our <a href="{{ knowledge_base_url }}">knowledge base</a> or <a href="mailto:support@ainfographic.com">contact our support team</a>.</p>
+            </div>
+        </div>
+        
+        <div class="email-footer">
+            <p>&copy; 2024 Ainfographic. All rights reserved.</p>
+            <p>Our mailing address: <br>1234 Innovation Way, Tech City, TC 98765</p>
+        </div>
+    </div>
+</body>
+</html> 

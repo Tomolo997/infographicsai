@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Ainfographic</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-header {
+            background-color: #4F46E5;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 180px;
+            height: auto;
+        }
+
+        .email-body {
+            padding: 32px 24px;
+        }
+
+        .email-footer {
+            background-color: #f9fafb;
+            padding: 16px 24px;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        h1 {
+            color: #111827;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        p {
+            margin-bottom: 16px;
+        }
+
+        .subscription-details {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 24px 0;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .login-button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            text-decoration: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .expiry-notice {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .tips-section {
+            margin-top: 32px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 24px;
+        }
+
+        .tips-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .tip-item {
+            margin-bottom: 12px;
+        }
+
+        .help-section {
+            margin-top: 32px;
+            text-align: center;
+        }
+
+        .social-links {
+            margin-top: 16px;
+        }
+
+        .social-link {
+            display: inline-block;
+            margin: 0 8px;
+        }
+
+        .magic-link-text {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #6b7280;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <img src="https://cdn.formly.so/images/logo-white.png" alt="Ainfographic Logo" class="logo">
+        </div>
+
+        <div class="email-body">
+            <h1>Welcome to Ainfographic!</h1>
+
+            <p>Hello {{ user.email }},</p>
+
+            <p>Thank you for subscribing to Ainfographic! Your account has been created and is ready to use.</p>
+
+            <div class="subscription-details">
+                <p><strong>Subscription Plan:</strong> {{ subscription.tier.name }}</p>
+                <p><strong>Status:</strong> Active</p>
+                <p><strong>AI Credits:</strong> {{ subscription.tier.ai_credits }}</p>
+                <p><strong>Monthly Downloads:</strong> {{ subscription.tier.monthly_download_limit }}</p>
+                {% if subscription.is_lifetime %}
+                <p><strong>Duration:</strong> Lifetime Access</p>
+                {% else %}
+                <p><strong>Renewal Date:</strong> {{ subscription.end_date|date:"F j, Y" }}</p>
+                {% endif %}
+            </div>
+
+            <p>To get started creating amazing infographics, simply click the button below to log in to your new
+                account:</p>
+
+            <div class="button-container">
+                <a href="{{ magic_link_url }}" class="login-button">Log In to My Account</a>
+            </div>
+
+            <p class="expiry-notice">This magic login link will expire in 24 hours.</p>
+
+            <p>If the button above doesn't work, you can copy and paste this link into your browser:</p>
+            <p class="magic-link-text">{{ magic_link_url }}</p>
+
+            <div class="tips-section">
+                <p class="tips-title">Getting Started with Ainfographic</p>
+                <ul>
+                    <li class="tip-item">Use the dashboard to create a new infographic - paste a URL or enter your own
+                        content</li>
+                    <li class="tip-item">Customize your design with our easy-to-use editor</li>
+                    <li class="tip-item">Export and share your infographics on social media</li>
+                    <li class="tip-item">Explore our templates for inspiration</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <p>Need help? Feel free to <a href="mailto:support@ainfographic.com">contact our support team</a>.</p>
+            </div>
+        </div>
+
+        <div class="email-footer">
+            <p>&copy; {{ current_year }} Ainfographic. All rights reserved.</p>
+            <p>Our mailing address: <br>1234 Innovation Way, Tech City, TC 98765</p>
+            <div class="social-links">
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">Facebook</a>
+                <a href="#" class="social-link">Instagram</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

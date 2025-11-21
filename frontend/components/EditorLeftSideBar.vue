@@ -1,0 +1,97 @@
+<template>
+  <div class="left-sidebar w-[60px] min-w-[60px] bg-grayBackground">
+    <NuxtLink
+      class="rounded-md flex text-xl w-10 h-10 text-center ml-auto mr-auto mt-12"
+      to="/dashboard/"
+    >
+      <img
+        v-if="authStore.user?.profile_picture_url"
+        :src="authStore.user?.profile_picture_url"
+        :alt="authStore.user?.username || 'User'"
+        class="rounded-[1rem] w-full h-full object-contain"
+      />
+      <div v-else class="rounded-[1rem] w-full h-full flex items-center justify-center bg-gray-200">
+        <svg
+          class="w-6 h-6 text-gray-500"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+          />
+        </svg>
+      </div>
+    </NuxtLink>
+    <div class="mt-12 w-8/12 flex justify-center items-center">
+      <Button
+        alignStyle="justify-center flex items-center"
+        @click="navigateTo('/dashboard')"
+        variant="secondary"
+        addedStyle="!px-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M15.635 2.124c.327-.832 1.503-.832 1.83 0l.428 1.09l1.084.429c.83.328.83 1.504 0 1.832l-1.084.43l-.428 1.089c-.327.832-1.503.832-1.83 0l-.428-1.09l-1.085-.429c-.83-.328-.83-1.504 0-1.832l1.085-.43zm.915.406l.415 1.055c.1.254.3.455.553.556l1.057.418l-1.057.419a.98.98 0 0 0-.553.555l-.415 1.055l-.415-1.055a.98.98 0 0 0-.554-.555l-1.057-.419l1.057-.418a.98.98 0 0 0 .554-.556zm-13.236.784a3.633 3.633 0 0 1 5.139 0l12.233 12.233a3.633 3.633 0 0 1-5.139 5.139L3.314 8.453a3.633 3.633 0 0 1 0-5.139m4.078 1.06a2.133 2.133 0 1 0-3.017 3.018L5.96 8.978l3.017-3.017zm9.216 15.251L7.022 10.04l3.017-3.017l9.586 9.586a2.133 2.133 0 1 1-3.017 3.017m4.724-10.679c-.327-.833-1.503-.833-1.83 0l-.155.393l-.391.155c-.83.328-.83 1.504 0 1.832l.391.155l.155.394c.327.832 1.503.832 1.83 0l.154-.394l.392-.155c.83-.328.83-1.504 0-1.832l-.392-.155zm-.915.405l-.141.36c-.1.253-.3.455-.554.555l-.364.144l.364.144c.254.1.454.302.554.555l.14.36l.142-.36c.1-.253.3-.454.554-.555l.364-.144l-.364-.144a.98.98 0 0 1-.554-.555zM4.668 15.124c.327-.832 1.503-.832 1.83 0l.155.394l.39.154c.83.329.83 1.505 0 1.833l-.39.155l-.155.393c-.327.833-1.503.833-1.83 0l-.155-.393l-.391-.155c-.83-.328-.83-1.504 0-1.832l.391-.155zm.774.765l.14-.36l.142.36c.1.254.3.455.554.556l.364.144l-.364.144a.98.98 0 0 0-.554.555l-.141.36l-.141-.36a.98.98 0 0 0-.554-.555l-.364-.144l.364-.144a.98.98 0 0 0 .554-.556"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </Button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { useRoute } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+export default {
+  setup() {
+    const route = useRoute();
+    const authStore = useAuthStore();
+    return {
+      route,
+      authStore,
+    };
+  },
+  data() {
+    return {
+      selectedPath: "",
+      userInfo: null,
+    };
+  },
+  async mounted() {},
+  computed: {
+    currentPath() {},
+  },
+  methods: {
+    isSelected(path) {
+      return path === this.route.path;
+    },
+  },
+};
+</script>
+
+
+<style scoped>
+.left-sidebar {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
+}
+.icon {
+  background-color: #e0e0e0;
+  color: #666;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+}
+</style>

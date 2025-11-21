@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" zoomAndPan="magnify" viewBox="0 0 36 36.000001" height="48" preserveAspectRatio="xMidYMid meet" version="1.0">
+  <defs>
+    <clipPath id="3c5629d864">
+      <path d="M 0.488281 0 L 35.511719 0 L 35.511719 35.027344 L 0.488281 35.027344 Z M 0.488281 0 " clip-rule="nonzero"/>
+    </clipPath>
+    <clipPath id="cb5934d59f">
+      <path d="M 3.371094 9.523438 L 32.558594 9.523438 L 32.558594 25.578125 L 3.371094 25.578125 Z M 3.371094 9.523438 " clip-rule="nonzero"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#3c5629d864)">
+    <path fill="#000000" d="M 0.488281 17.511719 C 0.488281 4.378906 4.863281 0 18 0 C 31.136719 0 35.511719 4.378906 35.511719 17.511719 C 35.511719 30.648438 31.136719 35.027344 18 35.027344 C 4.863281 35.027344 0.488281 30.648438 0.488281 17.511719 Z M 0.488281 17.511719 " fill-opacity="1" fill-rule="nonzero"/>
+  </g>
+  <g clip-path="url(#cb5934d59f)">
+    <path fill="#ffffff" d="M 26.195312 13.070312 L 18.203125 17.460938 L 14.949219 11.925781 L 3.371094 25.484375 L 12.664062 18.882812 L 16.371094 25.179688 L 23.695312 18.132812 L 29.496094 12.550781 L 32.625 9.535156 Z M 26.195312 13.070312 " fill-opacity="1" fill-rule="nonzero"/>
+  </g>
+</svg>
