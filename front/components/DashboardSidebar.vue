@@ -257,7 +257,7 @@ export default {
         id: "settings",
         label: "Settings",
         icon: "settings",
-        route: "/settings",
+        route: "/dashboard/settings",
       },
     ];
 
@@ -266,13 +266,13 @@ export default {
         id: "templates",
         label: "Templates",
         icon: "templates",
-        route: "/infographs",
+        route: "/dashboard/templates",
       },
       {
         id: "saved-infographs",
         label: "Generated",
         icon: "saved",
-        route: "/infographs",
+        route: "/dashboard/templates",
       },
     ];
 
@@ -281,13 +281,13 @@ export default {
         id: "credits",
         label: "Credits",
         icon: "credits",
-        route: "/credits",
+        route: "/dashboard/credits",
       },
       {
         id: "feedback",
         label: "Feedback",
         icon: "feedback",
-        route: "/feedback",
+        route: "/dashboard/feedback",
       },
     ];
 

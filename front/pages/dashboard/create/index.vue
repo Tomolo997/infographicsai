@@ -26,7 +26,7 @@
         <div class="py-4 px-6">
           <textarea
             v-model="prompt"
-            placeholder="Describe your infograph..."
+            placeholder="Content of your infograph..."
             :rows="isGenerating || hasResults ? 2 : 4"
             class="w-full bg-transparent h-16 text-text-primary placeholder:text-text-secondary resize-none outline-none text-lg transition-all duration-300"
             :disabled="isGenerating"
@@ -497,8 +497,9 @@
             >
               <!-- Image -->
               <div
-                class="relative overflow-hidden"
+                class="relative overflow-hidden cursor-pointer"
                 :style="{ aspectRatio: selectedAspectRatio.value }"
+                @click="openImageModal(result)"
               >
                 <img
                   :src="result.image"
@@ -507,12 +508,25 @@
                 />
                 <!-- Overlay on hover -->
                 <div
-                  class="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300 flex items-center justify-center"
+                  class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
                 >
                   <div class="text-white text-center">
-                    <p class="text-sm">{{ selectedAspectRatio.label }}</p>
+                    <svg
+                      class="w-12 h-12 mx-auto mb-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
+                      />
+                    </svg>
+                    <p class="text-sm">Click to view full size</p>
                     <p class="text-xs mt-1 opacity-75">
-                      {{ selectedResolution }}
+                      {{ selectedAspectRatio.label }} • {{ selectedResolution }}
                     </p>
                   </div>
                 </div>
@@ -603,6 +617,102 @@
         </div>
       </div>
     </div>
+
+    <!-- Image Preview Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="showImageModal && selectedImage"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          @click.self="closeImageModal"
+        >
+          <!-- Blurred backdrop -->
+          <div
+            class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            @click="closeImageModal"
+          ></div>
+
+          <!-- Modal content -->
+          <div
+            class="relative max-w-6xl max-h-[90vh] bg-card-bg border border-card-border rounded-lg shadow-2xl overflow-hidden"
+          >
+            <!-- Close button -->
+            <button
+              type="button"
+              class="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors p-2 rounded-md bg-black/50 hover:bg-black/70"
+              @click="closeImageModal"
+              aria-label="Close modal"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <!-- Image -->
+            <div class="relative">
+              <img
+                :src="selectedImage.image"
+                :alt="selectedImage.prompt"
+                class="w-full h-auto max-h-[80vh] object-contain"
+              />
+            </div>
+
+            <!-- Action buttons -->
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
+              <button
+                @click="handleDownload(selectedImage)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/70 hover:bg-black/90 text-white transition-colors backdrop-blur-sm text-sm font-medium"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+                Download
+              </button>
+              <button
+                @click="handleEdit(selectedImage)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/70 hover:bg-black/90 text-white transition-colors backdrop-blur-sm text-sm font-medium"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Edit
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -624,6 +734,8 @@ const results = ref([]);
 const showBlogInput = ref(false);
 const blogUrl = ref("");
 const isValidUrl = ref(false);
+const showImageModal = ref(false);
+const selectedImage = ref(null);
 
 // Aspect Ratios with social media recommendations
 const aspectRatios = ref([
@@ -736,6 +848,29 @@ watch(blogUrl, () => {
   validateUrl();
 });
 
+// Watch for modal state to handle body overflow and keyboard events
+watch(showImageModal, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = "hidden";
+    // Add escape key listener
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeImageModal();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    // Store the handler so we can remove it later
+    window._imageModalEscapeHandler = handleEscape;
+  } else {
+    document.body.style.overflow = "";
+    // Remove escape key listener
+    if (window._imageModalEscapeHandler) {
+      document.removeEventListener("keydown", window._imageModalEscapeHandler);
+      delete window._imageModalEscapeHandler;
+    }
+  }
+});
+
 const getGridClass = () => {
   if (numberOfInfographs.value === 1) return "grid-cols-1 max-w-sm mx-auto";
   if (numberOfInfographs.value === 2) return "grid-cols-1 md:grid-cols-2";
@@ -778,14 +913,32 @@ const generateMore = () => {
   isValidUrl.value = false;
 };
 
+const openImageModal = (result) => {
+  selectedImage.value = result;
+  showImageModal.value = true;
+  if (typeof document !== "undefined") {
+    document.body.style.overflow = "hidden";
+  }
+};
+
+const closeImageModal = () => {
+  showImageModal.value = false;
+  selectedImage.value = null;
+  if (typeof document !== "undefined") {
+    document.body.style.overflow = "";
+  }
+};
+
 const handleDownload = (result) => {
   console.log("Downloading:", result);
   // Add download logic here
+  closeImageModal();
 };
 
 const handleEdit = (result) => {
   console.log("Editing:", result);
   // Add edit logic here
+  closeImageModal();
 };
 
 const handleSave = (result) => {
@@ -842,5 +995,27 @@ if (typeof window !== "undefined") {
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+/* Modal transition effects */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .relative,
+.modal-leave-active .relative {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-enter-from .relative,
+.modal-leave-to .relative {
+  transform: scale(0.95);
+  opacity: 0;
 }
 </style>
