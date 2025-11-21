@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const isProduction = process.env.NODE_ENV === 'production'
-const baseURL = isProduction ? 'https://evoclips.com/api' : 'http://localhost:8000/api'
+const baseURL = isProduction ? 'https://ainfographic.com/api' : 'http://localhost:8000/api'
 
 const apiClient = axios.create({
   baseURL: baseURL,

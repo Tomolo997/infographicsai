@@ -13,7 +13,7 @@
             <path d="M8 5v14l11-7z" />
           </svg>
         </div>
-        <span class="text-2xl font-bold text-text-primary">EvoClips</span>
+        <span class="text-2xl font-bold text-text-primary">ainfographic</span>
       </div>
     </div>
     <h1 class="text-2xl font-bold text-text-primary">Create your account</h1>
@@ -167,8 +167,8 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Sign Up - EvoClips",
-  description: "Create your EvoClips account and get started",
+  title: "Sign Up - ainfographic",
+  description: "Create your ainfographic account and get started",
 });
 
 const authStore = useAuthStore();
@@ -234,7 +234,7 @@ const handleSignup = async () => {
 const signupWithGoogle = () => {
   const apiBase =
     process.env.NODE_ENV === "production"
-      ? "https://evoclips.com/api"
+      ? "https://ainfographic.com/api"
       : "http://localhost:8000/api";
 
   window.location.href = `${apiBase}/account/google/login/`;

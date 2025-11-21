@@ -22,7 +22,7 @@ def send_verification_email(user):
     resend.api_key = settings.RESEND_API
     
     # Prepare email content
-    email_subject = "Verify Your EvoClips Account"
+    email_subject = "Verify Your ainfographic Account"
     context = {"user": user, "verification_link": verification_link}
     html_content = render_to_string("account_verification_email.html", context)
     text_content = strip_tags(html_content)

@@ -13,7 +13,7 @@
             <path d="M8 5v14l11-7z" />
           </svg>
         </div>
-        <span class="text-2xl font-bold text-text-primary">EvoClips</span>
+        <span class="text-2xl font-bold text-text-primary">ainfographic</span>
       </div>
     </div>
 
@@ -72,6 +72,6 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Verification Failed - EvoClips",
+  title: "Verification Failed - ainfographic",
 });
 </script>

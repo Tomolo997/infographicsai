@@ -121,7 +121,7 @@ AWS_DEFAULT_ACL = 'public-read'  # Changed from None to public-read
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-AWS_S3_CUSTOM_DOMAIN = 'images.evoclips.com'
+AWS_S3_CUSTOM_DOMAIN = 'images.ainfographic.com'
 AWS_QUERYSTRING_AUTH = False  # Don't add auth query params to URLs
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

@@ -119,7 +119,7 @@
             Join Thousands Of Content Creators
           </h2>
           <p class="text-base text-text-secondary max-w-md mx-auto">
-            Who use EvoClips to create and share their stories.
+            Who use ainfographic to create and share their stories.
           </p>
         </div>
       </div>

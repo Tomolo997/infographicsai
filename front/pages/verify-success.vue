@@ -13,7 +13,7 @@
             <path d="M8 5v14l11-7z" />
           </svg>
         </div>
-        <span class="text-2xl font-bold text-text-primary">EvoClips</span>
+        <span class="text-2xl font-bold text-text-primary">ainfographic</span>
       </div>
     </div>
 
@@ -46,7 +46,7 @@
           </div>
         </div>
         <h1 class="text-2xl font-bold text-text-primary mb-4">
-          Welcome to EvoClips! ✨
+          Welcome to ainfographic! ✨
         </h1>
         <p class="text-text-secondary mb-6">Redirecting to your dashboard...</p>
       </div>
@@ -91,7 +91,7 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Email Verified - EvoClips",
+  title: "Email Verified - ainfographic",
 });
 
 const route = useRoute();

@@ -14,7 +14,7 @@
           <span class="text-sidebar-text-primary font-bold text-sm">EV</span>
         </div>
         <span class="text-sidebar-text-primary font-semibold text-lg"
-          >EvoClips</span
+          >ainfographic</span
         >
       </div>
       <div v-else class="w-full flex items-center justify-center">
@@ -270,7 +270,7 @@ export default {
       },
       {
         id: "saved-infographs",
-        label: "Saved",
+        label: "Generated",
         icon: "saved",
         route: "/infographs",
       },

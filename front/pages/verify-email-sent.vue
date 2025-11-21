@@ -13,7 +13,7 @@
             <path d="M8 5v14l11-7z" />
           </svg>
         </div>
-        <span class="text-2xl font-bold text-text-primary">EvoClips</span>
+        <span class="text-2xl font-bold text-text-primary">ainfographic</span>
       </div>
     </div>
 
@@ -78,6 +78,6 @@ const route = useRoute();
 const email = computed(() => route.query.email || "your email");
 
 useSeoMeta({
-  title: "Verify Your Email - EvoClips",
+  title: "Verify Your Email - ainfographic",
 });
 </script>
