@@ -23,18 +23,23 @@
 
         <!-- Input Container -->
         <div class="bg-card-bg border border-card-border rounded-2xl shadow-sm">
-        <!-- Text Area -->
-        <div class="py-4 px-6">
-          <textarea
-            ref="textareaRef"
-            v-model="prompt"
-            placeholder="Content of your infograph..."
-            class="w-full bg-transparent text-text-primary placeholder:text-text-secondary resize-none outline-none text-lg transition-all duration-300"
-            :disabled="isGenerating"
-            style="line-height: 1.5; min-height: 60px; max-height: 300px; overflow-y: auto;"
-            @input="autoResize"
-          ></textarea>
-        </div>
+          <!-- Text Area -->
+          <div class="py-4 px-6">
+            <textarea
+              ref="textareaRef"
+              v-model="prompt"
+              placeholder="Content of your infograph..."
+              class="w-full bg-transparent text-text-primary placeholder:text-text-secondary resize-none outline-none text-lg transition-all duration-300"
+              :disabled="isGenerating"
+              style="
+                line-height: 1.5;
+                min-height: 60px;
+                max-height: 300px;
+                overflow-y: auto;
+              "
+              @input="autoResize"
+            ></textarea>
+          </div>
 
           <!-- Toolbar -->
           <div class="px-4 pb-2 flex items-center justify-between">
