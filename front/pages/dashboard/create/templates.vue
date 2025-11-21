@@ -816,12 +816,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
 });
+
+const route = useRoute();
 
 // Refs
 const promptTextarea = ref(null);
@@ -993,6 +995,18 @@ const selectTemplate = (template) => {
     }
   }, 100);
 };
+
+// Pre-select template from query parameter
+onMounted(() => {
+  const templateId = route.query.templateId;
+  if (templateId) {
+    const templateIdNum = parseInt(templateId, 10);
+    const template = templates.value.find((t) => t.id === templateIdNum);
+    if (template) {
+      selectTemplate(template);
+    }
+  }
+});
 
 const deselectTemplate = () => {
   selectedTemplate.value = null;

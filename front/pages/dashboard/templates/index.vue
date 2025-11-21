@@ -453,8 +453,11 @@ const handleAddTemplate = () => {
 };
 
 const handleUseTemplate = () => {
-  console.log("Use template:", selectedTemplate.value);
-  // Add logic to use the template
+  if (selectedTemplate.value) {
+    navigateTo(
+      `/dashboard/create/templates?templateId=${selectedTemplate.value.id}`
+    );
+  }
   closeTemplateModal();
 };
 

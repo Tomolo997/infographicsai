@@ -74,10 +74,12 @@ export default {
     secondActiveItem() {
       const path = this.$route.path;
       if (path === "/dashboard/create/templates")
-        return "Create from Templates";
+        if (path === "/dashboard/templates") return "Generated";
       if (path === "/dashboard/create") return "Create from Scratch";
       if (path === "/dashboard/create/own-templates")
-        return "Create from Own Templates";
+        if (path === "/dashboard/templates") return "Templates";
+      if (path === "/dashboard/credits") return "Credits";
+      return "Create from Own Templates";
       return "";
     },
   },
