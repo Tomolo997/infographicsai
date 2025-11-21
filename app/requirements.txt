@@ -10,10 +10,12 @@ asgiref==3.5.0
 async-timeout==5.0.1
 attrs==25.1.0
 autopep8==1.6.0
+autoflake==2.3.1
 beautifulsoup4==4.12.3
 billiard==4.2.1
 black==25.1.0
 boto3==1.24.67
+isort==6.1.0
 botocore==1.27.67
 bs4==0.0.2
 cairocffi==1.7.1
@@ -46,6 +48,7 @@ djangorestframework==3.13.1
 djangorestframework-simplejwt==5.2.0
 djoser==2.2.0
 exceptiongroup==1.2.2
+fal-client==0.5.6
 filelock==3.13.1
 fonttools==4.53.1
 frozenlist==1.5.0

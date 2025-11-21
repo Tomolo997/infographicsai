@@ -1,10 +1,13 @@
 # app/utils/r2_client.py
 
-import boto3
+import logging
+
 from django.conf import settings
+
+import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
-import logging
+
 logger = logging.getLogger(__name__)
 
 LOGGER_CLIENT_R2 = '[R2-CLIENT]'
@@ -40,7 +43,7 @@ class R2Client:
                 file_name,
                 ExtraArgs=extra_args
             )
-            return "{}/{}".format(self.public_url,file_name)
+            return "{}/{}/{}".format(self.public_url,self.bucket_name,file_name)
         except ClientError as e:
             # You might want to log this error
             logger.error("{}: An error occurred: {}".format(LOGGER_CLIENT_R2, e))

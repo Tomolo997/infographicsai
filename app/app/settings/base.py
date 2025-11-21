@@ -1,7 +1,8 @@
+import logging
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
-import logging
 
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -20,8 +21,6 @@ INSTALLED_APPS = [
     'email_client',
     'django_celery_beat',
     'storages',
-    'infos',
-    'icons'
 ]
 
 MIDDLEWARE = [
@@ -118,8 +117,12 @@ AWS_STORAGE_BUCKET_NAME = R2_STORAGE_BUCKET_NAME
 AWS_S3_ENDPOINT_URL = R2_ENDPOINT_URL
 AWS_S3_REGION_NAME = 'auto'
 AWS_S3_ADDRESSING_STYLE = "virtual"
-AWS_DEFAULT_ACL = None
-AWS_S3_CUSTOM_DOMAIN = 'images.ainfographic.com'
+AWS_DEFAULT_ACL = 'public-read'  # Changed from None to public-read
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_S3_CUSTOM_DOMAIN = 'images.evoclips.com'
+AWS_QUERYSTRING_AUTH = False  # Don't add auth query params to URLs
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
@@ -170,13 +173,5 @@ ADMIN_PREVIEW_TOKEN = os.environ.get('ADMIN_PREVIEW_TOKEN', 'your-secure-admin-t
 RESEND_API=os.environ.get('RESEND_API_KEY')
 
 from celery.schedules import crontab
-
-CELERY_BEAT_SCHEDULE = {
-    'cleanup-unsaved-infographs': {
-        'task': 'infos.tasks.cleanup_unsaved_infographs',
-        'schedule': crontab(hour=0, minute=0),  # Run at midnight (00:00)
-    },
-} 
-
 
 PEXELS_API_KEY = os.getenv('PEXELS_API_KEY')

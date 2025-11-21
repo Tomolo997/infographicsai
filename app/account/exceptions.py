@@ -1,3 +1,0 @@
-
-class DownloadForbidden(Exception):
-    pass

@@ -1,12 +1,9 @@
-from django.urls import path, include
-from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.urls import include, path
 
-
-
-from account.views import github_webhook
 # Routers provide an easy way of automatically determining the URL conf.
 
 # Wire up our API using automatic URL routing.
@@ -15,9 +12,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/account/', include('account.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/infos/', include(('infos.urls', 'infos'), namespace='infos_api')),
-    path('api/icons/', include(('icons.urls', 'infos'), namespace='icons_api')),
-    path('webhook', github_webhook, name="github_webhook"),
 ] 
 
 if settings.DEBUG:

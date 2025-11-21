@@ -1,0 +1,28 @@
+{
+  "include": [
+    "app"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/env",
+    "**/staticfiles",
+    "**/migrations"
+  ],
+  "venvPath": ".",
+  "venv": "env",
+  "executionEnvironments": [
+    {
+      "root": "app",
+      "pythonVersion": "3.9",
+      "pythonPlatform": "Darwin",
+      "extraPaths": [
+        "app"
+      ]
+    }
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false
+}
+
