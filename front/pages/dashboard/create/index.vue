@@ -428,7 +428,7 @@
                     >
                       {{ uploadedFile?.name }}
                     </span>
-                  </div>
+                  </div>w
                 </div>
                 <button
                   @click="removeUploadedFile"
