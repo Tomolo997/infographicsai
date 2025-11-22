@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'email_client',
     'django_celery_beat',
     'storages',
+    'infographs',
 ]
 
 MIDDLEWARE = [
