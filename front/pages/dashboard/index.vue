@@ -2,7 +2,7 @@
   <div class="min-h-screen flex items-start justify-center p-4">
     <div
       :class="[
-        'w-full max-w-3xl mt-12 transition-all duration-500 space-y-6',
+        'w-full max-w-4xl mt-12 transition-all duration-500 space-y-6',
         isGenerating || hasResults
           ? 'max-w-3xl w-3xl items-start'
           : 'max-w-3xl w-3xl items-center',
@@ -1081,6 +1081,10 @@ const closeBlogInput = () => {
 
 const selectTemplate = (template) => {
   selectedTemplate.value = template;
+  // Remove own template if one is uploaded
+  if (uploadedFilePreview.value) {
+    removeUploadedFile();
+  }
   // Focus back on the textarea
   setTimeout(() => {
     if (textareaRef.value) {
@@ -1275,6 +1279,10 @@ const handleFileUpload = (event) => {
   const file = event.target.files?.[0];
   if (file && file.type.startsWith("image/")) {
     uploadedFile.value = file;
+    // Deselect gallery template if one is selected
+    if (selectedTemplate.value) {
+      selectedTemplate.value = null;
+    }
     // Create preview URL
     const reader = new FileReader();
     reader.onload = (e) => {
