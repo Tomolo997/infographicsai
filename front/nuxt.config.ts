@@ -9,6 +9,10 @@ export default defineNuxtConfig({
   
   css: ['~/assets/css/main.css'],
   ssr: true,
+  routeRules: {
+    '/dashboard/create': { ssr: false },
+    '/dashboard/create/**': { ssr: false }
+  },
   runtimeConfig: {
     public: {
       apiBase: process.env.API_BASE_URL || 'http://localhost:8000/api/v1',

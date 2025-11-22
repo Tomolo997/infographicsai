@@ -10,7 +10,7 @@
       </div>
       <button
         @click="handleAddTemplate"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors text-sm font-medium"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white transition-colors text-sm font-medium"
       >
         <svg
           class="w-5 h-5"

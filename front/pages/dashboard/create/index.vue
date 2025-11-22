@@ -1,700 +1,468 @@
 <template>
-  <ClientOnly>
-    <div class="min-h-screen flex items-start justify-center p-4">
-      <div
+  <div class="min-h-screen flex items-start justify-center p-4">
+    <div
+      :class="[
+        'w-full max-w-3xl mt-12 transition-all duration-500 space-y-6',
+        isGenerating || hasResults
+          ? 'max-w-3xl w-3xl items-start'
+          : 'max-w-3xl w-3xl items-center',
+      ]"
+    >
+      <!-- Main Heading -->
+      <h1
         :class="[
-          'w-full max-w-3xl mt-12 transition-all duration-500 space-y-6',
+          'font-bold text-center mb-8 transition-all duration-500',
           isGenerating || hasResults
-            ? 'max-w-3xl w-3xl items-start'
-            : 'max-w-3xl w-3xl items-center',
+            ? 'text-3xl md:text-4xl'
+            : 'text-3xl md:text-4xl',
         ]"
       >
-        <!-- Main Heading -->
-        <h1
-          :class="[
-            'font-bold text-center mb-8 transition-all duration-500',
-            isGenerating || hasResults
-              ? 'text-3xl md:text-4xl'
-              : 'text-3xl md:text-4xl',
-          ]"
-        >
-          Create Your Infograph
-        </h1>
+        Create Your Infograph
+      </h1>
 
-        <!-- Input Container -->
-        <div class="bg-card-bg border border-card-border rounded-2xl shadow-sm">
-          <!-- Text Area -->
-          <div class="py-4 px-6">
-            <textarea
-              ref="textareaRef"
-              v-model="prompt"
-              placeholder="Content of your infograph..."
-              class="w-full bg-transparent text-text-primary placeholder:text-text-secondary resize-none outline-none text-lg transition-all duration-300"
-              :disabled="isGenerating"
-              style="
-                line-height: 1.5;
-                min-height: 60px;
-                max-height: 300px;
-                overflow-y: auto;
-              "
-              @input="autoResize"
-            ></textarea>
-          </div>
+      <!-- Input Container -->
+      <div class="bg-card-bg border border-card-border rounded-2xl shadow-sm">
+        <!-- Text Area -->
+        <div class="py-4 px-6">
+          <textarea
+            ref="textareaRef"
+            v-model="prompt"
+            placeholder="Content of your infograph..."
+            class="w-full bg-transparent text-text-primary placeholder:text-text-secondary resize-none outline-none text-lg transition-all duration-300"
+            :disabled="isGenerating"
+            style="
+              line-height: 1.5;
+              min-height: 60px;
+              max-height: 300px;
+              overflow-y: auto;
+            "
+            @input="autoResize"
+          ></textarea>
+        </div>
 
-          <!-- Toolbar -->
-          <div class="px-4 pb-2 flex items-center justify-between">
-            <div class="flex items-center gap-1">
-              <!-- Aspect Ratio Dropdown -->
-              <div class="relative group">
-                <button
-                  @click="toggleDropdown('aspectRatio')"
-                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
-                  :disabled="isGenerating"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="M12 9v11" />
-                    <path d="M2 9h13a2 2 0 0 1 2 2v9" />
-                  </svg>
-                  <span class="text-sm font-medium mt-0.5">{{
-                    selectedAspectRatio.label
-                  }}</span>
-                </button>
-                <!-- Tooltip -->
-                <div
-                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
-                >
-                  Aspect Ratio
-                </div>
-                <!-- Dropdown -->
-                <div
-                  v-if="dropdowns.aspectRatio"
-                  class="absolute top-full left-0 mt-2 w-80 bg-card-bg border border-card-border rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto"
-                >
-                  <div
-                    class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
-                  >
-                    Aspect Ratio
-                  </div>
-                  <div
-                    v-for="ratio in aspectRatios"
-                    :key="ratio.value"
-                    @click="selectAspectRatio(ratio)"
-                    :class="[
-                      'p-3 cursor-pointer border-b border-card-border last:border-b-0 transition-colors flex items-center gap-2',
-                      selectedAspectRatio.value === ratio.value
-                        ? 'bg-primary-500/10'
-                        : 'hover:bg-background-secondary',
-                    ]"
-                  >
-                    <div class="flex-1 min-w-0">
-                      <div class="font-medium text-text-primary text-sm">
-                        {{ ratio.label }}
-                      </div>
-                      <div class="text-xs text-text-secondary mt-1">
-                        {{ ratio.platforms }}
-                      </div>
-                    </div>
-                    <svg
-                      v-if="selectedAspectRatio.value === ratio.value"
-                      class="h-5 w-5 text-primary-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Resolution Dropdown -->
-              <div class="relative group">
-                <button
-                  @click="toggleDropdown('resolution')"
-                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
-                  :disabled="isGenerating"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                    <circle cx="9" cy="9" r="2" />
-                    <path d="m21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                  </svg>
-                  <span class="text-sm font-medium mt-0.5">{{
-                    selectedResolution
-                  }}</span>
-                </button>
-                <!-- Tooltip -->
-                <div
-                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
-                >
-                  Resolution
-                </div>
-                <!-- Dropdown -->
-                <div
-                  v-if="dropdowns.resolution"
-                  class="absolute top-full left-0 mt-2 w-40 bg-card-bg border border-card-border rounded-lg shadow-xl z-50"
-                >
-                  <div
-                    class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
-                  >
-                    Resolution
-                  </div>
-                  <div
-                    v-for="res in resolutions"
-                    :key="res"
-                    @click="selectResolution(res)"
-                    :class="[
-                      'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
-                      selectedResolution === res
-                        ? 'bg-primary-500/10'
-                        : 'hover:bg-background-secondary',
-                    ]"
-                  >
-                    <span class="flex-1">{{ res }}</span>
-                    <svg
-                      v-if="selectedResolution === res"
-                      class="h-5 w-5 text-primary-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Number of Infographs Dropdown -->
-              <div class="relative group">
-                <button
-                  @click="toggleDropdown('count')"
-                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
-                  :disabled="isGenerating"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect width="7" height="7" x="3" y="3" rx="1" />
-                    <rect width="7" height="7" x="14" y="3" rx="1" />
-                    <rect width="7" height="7" x="14" y="14" rx="1" />
-                    <rect width="7" height="7" x="3" y="14" rx="1" />
-                  </svg>
-                  <span class="text-sm font-medium mt-0.5">{{
-                    numberOfInfographs
-                  }}</span>
-                </button>
-                <!-- Tooltip -->
-                <div
-                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
-                >
-                  Number of Infographs
-                </div>
-                <!-- Dropdown -->
-                <div
-                  v-if="dropdowns.count"
-                  class="absolute top-full left-0 mt-2 w-48 bg-card-bg border border-card-border rounded-lg shadow-xl z-50"
-                >
-                  <div
-                    class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
-                  >
-                    Number of Infographs
-                  </div>
-                  <div
-                    v-for="num in [1, 2, 3, 4]"
-                    :key="num"
-                    @click="selectCount(num)"
-                    :class="[
-                      'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
-                      numberOfInfographs === num
-                        ? 'bg-primary-500/10'
-                        : 'hover:bg-background-secondary',
-                    ]"
-                  >
-                    <span class="flex-1">{{ num }}</span>
-                    <svg
-                      v-if="numberOfInfographs === num"
-                      class="h-5 w-5 text-primary-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Blog URL Input -->
-              <div class="relative group">
-                <button
-                  v-if="!showBlogInput"
-                  @click="toggleBlogInput"
-                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
-                  :disabled="isGenerating"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-                    />
-                    <path
-                      d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-                    />
-                  </svg>
-                  <span class="text-sm font-medium mt-0.5">Blog</span>
-                </button>
-                <!-- Tooltip -->
-                <div
-                  v-if="!showBlogInput"
-                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
-                >
-                  Add Blog URL
-                </div>
-                <!-- URL Input -->
-                <div
-                  v-if="showBlogInput"
-                  class="flex items-center gap-2 animate-in"
-                >
-                  <div class="relative">
-                    <input
-                      v-model="blogUrl"
-                      type="url"
-                      placeholder="https://example.com/blog-post"
-                      class="h-9 px-3 pr-8 bg-background-primary border rounded-md text-text-primary text-sm focus:outline-none focus:border-primary-500 transition-colors min-w-[300px]"
-                      :class="[
-                        blogUrl && !isValidUrl
-                          ? 'border-red-500'
-                          : 'border-card-border',
-                      ]"
-                      @blur="validateUrl"
-                      :disabled="isGenerating"
-                    />
-                    <div class="absolute right-2 top-1/2 -translate-y-1/2">
-                      <svg
-                        v-if="blogUrl && isValidUrl"
-                        class="h-4 w-4 text-green-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="2"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <svg
-                        v-if="blogUrl && !isValidUrl"
-                        class="h-4 w-4 text-red-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="2"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <button
-                    @click="closeBlogInput"
-                    class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-background-secondary transition-colors text-text-secondary hover:text-text-primary"
-                    :disabled="isGenerating"
-                  >
-                    <svg
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <!-- File Upload -->
-              <div class="relative group">
-                <!-- Hidden file input -->
-                <input
-                  id="file-upload-input"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  @change="handleFileUpload"
-                  :disabled="isGenerating"
-                />
-
-                <!-- Upload button (shown when no file uploaded) -->
-                <button
-                  v-if="!uploadedFilePreview"
-                  @click="toggleFileUpload"
-                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
-                  :disabled="isGenerating"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                  <span class="text-sm font-medium mt-0.5">Own Template</span>
-                </button>
-
-                <!-- Tooltip -->
-                <div
-                  v-if="!uploadedFilePreview"
-                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
-                >
-                  Own Template
-                </div>
-
-                <!-- File preview (shown when file is uploaded) -->
-                <div
-                  v-if="uploadedFilePreview"
-                  class="flex items-center gap-2 animate-in"
-                >
-                  <div class="relative">
-                    <div
-                      class="h-9 px-3 pr-8 bg-background-primary border border-card-border rounded-md flex items-center gap-2"
-                    >
-                      <img
-                        :src="uploadedFilePreview"
-                        alt="Uploaded preview"
-                        class="h-6 w-6 object-cover rounded"
-                      />
-                      <span
-                        class="text-sm text-text-primary truncate max-w-[150px]"
-                      >
-                        {{ uploadedFile?.name }}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    @click="removeUploadedFile"
-                    class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-background-secondary transition-colors text-text-secondary hover:text-text-primary"
-                    :disabled="isGenerating"
-                  >
-                    <svg
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Submit Button -->
+        <!-- Toolbar -->
+        <div class="px-4 pb-2 flex items-center justify-between">
+          <div class="flex items-center gap-1">
+            <!-- Aspect Ratio Dropdown -->
             <div class="relative group">
               <button
-                @click="handleGenerate"
-                :disabled="!prompt.trim() || isGenerating"
-                class="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                @click="toggleDropdown('aspectRatio')"
+                class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                :disabled="isGenerating"
               >
                 <svg
-                  v-if="!isGenerating"
-                  class="h-5 w-5"
+                  class="h-4 w-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 10l7-7m0 0l7 7m-7-7v18"
-                  />
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="M12 9v11" />
+                  <path d="M2 9h13a2 2 0 0 1 2 2v9" />
                 </svg>
-                <svg
-                  v-else
-                  class="w-5 h-5 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+                <span class="text-sm font-medium mt-0.5">{{
+                  selectedAspectRatio.label
+                }}</span>
               </button>
               <!-- Tooltip -->
               <div
-                v-if="!isGenerating"
                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
               >
-                Generate
+                Aspect Ratio
+              </div>
+              <!-- Dropdown -->
+              <div
+                v-if="dropdowns.aspectRatio"
+                class="absolute top-full left-0 mt-2 w-80 bg-card-bg border border-card-border rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto"
+              >
+                <div
+                  class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
+                >
+                  Aspect Ratio
+                </div>
+                <div
+                  v-for="ratio in aspectRatios"
+                  :key="ratio.value"
+                  @click="selectAspectRatio(ratio)"
+                  :class="[
+                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 transition-colors flex items-center gap-2',
+                    selectedAspectRatio.value === ratio.value
+                      ? 'bg-primary-500/10'
+                      : 'hover:bg-background-secondary',
+                  ]"
+                >
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium text-text-primary text-sm">
+                      {{ ratio.label }}
+                    </div>
+                    <div class="text-xs text-text-secondary mt-1">
+                      {{ ratio.platforms }}
+                    </div>
+                  </div>
+                  <svg
+                    v-if="selectedAspectRatio.value === ratio.value"
+                    class="h-5 w-5 text-primary-500 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Quick Action Button - Create from Templates -->
-        <div v-if="!isGenerating && !hasResults" class="flex justify-center">
-          <button
-            @click="navigateToTemplates"
-            class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-card-border bg-card-bg hover:bg-background-secondary transition-colors text-sm font-medium text-text-primary"
-          >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"
-              />
-            </svg>
-            Create from Templates
-          </button>
-        </div>
-
-        <!-- Loading Skeletons -->
-        <div
-          v-if="isGenerating"
-          class="grid gap-6 transition-all duration-500 mt-8"
-          :class="getGridClass()"
-        >
-          <div
-            v-for="i in numberOfInfographs"
-            :key="`skeleton-${i}`"
-            class="animate-pulse"
-          >
-            <div
-              class="bg-card-bg border border-card-border rounded-lg"
-              :style="{ aspectRatio: selectedAspectRatio.value }"
-            >
-              <div class="w-full h-full bg-background-secondary relative">
-                <div
-                  class="absolute inset-0 flex items-center justify-center text-text-secondary"
+            <!-- Resolution Dropdown -->
+            <div class="relative group">
+              <button
+                @click="toggleDropdown('resolution')"
+                class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                :disabled="isGenerating"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                 >
-                  <div class="text-center">
+                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                  <circle cx="9" cy="9" r="2" />
+                  <path d="m21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                </svg>
+                <span class="text-sm font-medium mt-0.5">{{
+                  selectedResolution
+                }}</span>
+              </button>
+              <!-- Tooltip -->
+              <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+              >
+                Resolution
+              </div>
+              <!-- Dropdown -->
+              <div
+                v-if="dropdowns.resolution"
+                class="absolute top-full left-0 mt-2 w-40 bg-card-bg border border-card-border rounded-lg shadow-xl z-50"
+              >
+                <div
+                  class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
+                >
+                  Resolution
+                </div>
+                <div
+                  v-for="res in resolutions"
+                  :key="res"
+                  @click="selectResolution(res)"
+                  :class="[
+                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
+                    selectedResolution === res
+                      ? 'bg-primary-500/10'
+                      : 'hover:bg-background-secondary',
+                  ]"
+                >
+                  <span class="flex-1">{{ res }}</span>
+                  <svg
+                    v-if="selectedResolution === res"
+                    class="h-5 w-5 text-primary-500 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Number of Infographs Dropdown -->
+            <div class="relative group">
+              <button
+                @click="toggleDropdown('count')"
+                class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                :disabled="isGenerating"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="7" height="7" x="3" y="3" rx="1" />
+                  <rect width="7" height="7" x="14" y="3" rx="1" />
+                  <rect width="7" height="7" x="14" y="14" rx="1" />
+                  <rect width="7" height="7" x="3" y="14" rx="1" />
+                </svg>
+                <span class="text-sm font-medium mt-0.5">{{
+                  numberOfInfographs
+                }}</span>
+              </button>
+              <!-- Tooltip -->
+              <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+              >
+                Number of Infographs
+              </div>
+              <!-- Dropdown -->
+              <div
+                v-if="dropdowns.count"
+                class="absolute top-full left-0 mt-2 w-48 bg-card-bg border border-card-border rounded-lg shadow-xl z-50"
+              >
+                <div
+                  class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
+                >
+                  Number of Infographs
+                </div>
+                <div
+                  v-for="num in [1, 2, 3, 4]"
+                  :key="num"
+                  @click="selectCount(num)"
+                  :class="[
+                    'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
+                    numberOfInfographs === num
+                      ? 'bg-primary-500/10'
+                      : 'hover:bg-background-secondary',
+                  ]"
+                >
+                  <span class="flex-1">{{ num }}</span>
+                  <svg
+                    v-if="numberOfInfographs === num"
+                    class="h-5 w-5 text-primary-500 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Blog URL Input -->
+            <div class="relative group">
+              <button
+                v-if="!showBlogInput"
+                @click="toggleBlogInput"
+                class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                :disabled="isGenerating"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                  />
+                  <path
+                    d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                  />
+                </svg>
+                <span class="text-sm font-medium mt-0.5">Blog</span>
+              </button>
+              <!-- Tooltip -->
+              <div
+                v-if="!showBlogInput"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+              >
+                Add Blog URL
+              </div>
+              <!-- URL Input -->
+              <div
+                v-if="showBlogInput"
+                class="flex items-center gap-2 animate-in"
+              >
+                <div class="relative">
+                  <input
+                    v-model="blogUrl"
+                    type="url"
+                    placeholder="https://example.com/blog-post"
+                    class="h-9 px-3 pr-8 bg-background-primary border rounded-md text-text-primary text-sm focus:outline-none focus:border-primary-500 transition-colors min-w-[300px]"
+                    :class="[
+                      blogUrl && !isValidUrl
+                        ? 'border-red-500'
+                        : 'border-card-border',
+                    ]"
+                    @blur="validateUrl"
+                    :disabled="isGenerating"
+                  />
+                  <div class="absolute right-2 top-1/2 -translate-y-1/2">
                     <svg
-                      class="w-16 h-16 mx-auto mb-4 animate-pulse"
+                      v-if="blogUrl && isValidUrl"
+                      class="h-4 w-4 text-green-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      stroke-width="2"
                     >
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <p class="text-sm">Generating infograph {{ i }}...</p>
-                    <p class="text-xs mt-2 opacity-75">
-                      {{ selectedAspectRatio.label }}
-                    </p>
+                    <svg
+                      v-if="blogUrl && !isValidUrl"
+                      class="h-4 w-4 text-red-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Results Grid -->
-        <div v-if="hasResults && !isGenerating" class="space-y-6 mt-8">
-          <div
-            class="grid gap-6 transition-all duration-500"
-            :class="getGridClass()"
-          >
-            <div
-              v-for="(result, index) in results"
-              :key="`result-${index}`"
-              class="group"
-            >
-              <div
-                class="bg-card-bg border border-card-border rounded-lg hover:border-primary-500 transition-all duration-300 hover:shadow-xl"
-              >
-                <!-- Image -->
-                <div
-                  class="relative overflow-hidden cursor-pointer"
-                  :style="{ aspectRatio: selectedAspectRatio.value }"
-                  @click="openImageModal(result)"
+                <button
+                  @click="closeBlogInput"
+                  class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-background-secondary transition-colors text-text-secondary hover:text-text-primary"
+                  :disabled="isGenerating"
                 >
-                  <img
-                    :src="result.image"
-                    :alt="`Generated Infograph ${index + 1}`"
-                    class="w-full h-full object-cover"
-                  />
-                  <!-- Overlay on hover -->
-                  <div
-                    class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
                   >
-                    <div class="text-white text-center">
-                      <svg
-                        class="w-12 h-12 mx-auto mb-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
-                        />
-                      </svg>
-                      <p class="text-sm">Click to view full size</p>
-                      <p class="text-xs mt-1 opacity-75">
-                        {{ selectedAspectRatio.label }} •
-                        {{ selectedResolution }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
 
-                <!-- Action Buttons -->
-                <div class="p-3 flex gap-2">
-                  <div class="relative group flex-1">
-                    <button
-                      @click="handleDownload(result)"
-                      class="w-full h-8 bg-primary border border-card-border rounded-md p-2 text-xs flex items-center justify-center gap-1.5"
+            <!-- File Upload -->
+            <div class="relative group">
+              <!-- Hidden file input -->
+              <input
+                id="file-upload-input"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleFileUpload"
+                :disabled="isGenerating"
+              />
+
+              <!-- Upload button (shown when no file uploaded) -->
+              <button
+                v-if="!uploadedFilePreview"
+                @click="toggleFileUpload"
+                class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                :disabled="isGenerating"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span class="text-sm font-medium mt-0.5">Own Template</span>
+              </button>
+
+              <!-- Tooltip -->
+              <div
+                v-if="!uploadedFilePreview"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+              >
+                Own Template
+              </div>
+
+              <!-- File preview (shown when file is uploaded) -->
+              <div
+                v-if="uploadedFilePreview"
+                class="flex items-center gap-2 animate-in"
+              >
+                <div class="relative">
+                  <div
+                    class="h-9 px-3 pr-8 bg-background-primary border border-card-border rounded-md flex items-center gap-2"
+                  >
+                    <img
+                      :src="uploadedFilePreview"
+                      alt="Uploaded preview"
+                      class="h-6 w-6 object-cover rounded"
+                    />
+                    <span
+                      class="text-sm text-text-primary truncate max-w-[150px]"
                     >
-                      <svg
-                        class="w-3.5 h-3.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                        />
-                      </svg>
-                      <span v-if="numberOfInfographs === 1">Download</span>
-                    </button>
-                    <div
-                      v-if="numberOfInfographs > 1"
-                      class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
-                    >
-                      Download
-                    </div>
-                  </div>
-                  <div class="relative group flex-1">
-                    <button
-                      @click="handleEdit(result)"
-                      class="w-full h-8 bg-background-primary border border-card-border rounded-md p-2 text-xs flex items-center justify-center gap-1.5"
-                    >
-                      <svg
-                        class="w-3.5 h-3.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                      <span v-if="numberOfInfographs === 1">Edit</span>
-                    </button>
-                    <div
-                      v-if="numberOfInfographs > 1"
-                      class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
-                    >
-                      Edit
-                    </div>
+                      {{ uploadedFile?.name }}
+                    </span>
                   </div>
                 </div>
+                <button
+                  @click="removeUploadedFile"
+                  class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-background-secondary transition-colors text-text-secondary hover:text-text-primary"
+                  :disabled="isGenerating"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Generate More Button -->
-          <div class="text-center">
+          <!-- Submit Button -->
+          <div class="relative group">
             <button
-              @click="generateMore"
-              class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-card-border bg-card-bg hover:bg-background-secondary transition-colors text-sm font-medium text-text-primary"
+              @click="handleGenerate"
+              :disabled="!prompt.trim() || isGenerating"
+              class="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
-                class="w-4 h-4"
+                v-if="!isGenerating"
+                class="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -703,114 +471,342 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M12 4v16m8-8H4"
+                  d="M5 10l7-7m0 0l7 7m-7-7v18"
                 />
               </svg>
-              Generate More
+              <svg
+                v-else
+                class="w-5 h-5 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
             </button>
+            <!-- Tooltip -->
+            <div
+              v-if="!isGenerating"
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+            >
+              Generate
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Image Preview Modal -->
-      <Teleport to="body">
-        <Transition name="modal">
-          <div
-            v-if="showImageModal && selectedImage"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4"
-            @click.self="closeImageModal"
+      <!-- Quick Action Button - Create from Templates -->
+      <div v-if="!isGenerating && !hasResults" class="flex justify-center">
+        <button
+          @click="navigateToTemplates"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-card-border bg-card-bg hover:bg-background-secondary transition-colors text-sm font-medium text-text-primary"
+        >
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <!-- Blurred backdrop -->
-            <div
-              class="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              @click="closeImageModal"
-            ></div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"
+            />
+          </svg>
+          Create from Templates
+        </button>
+      </div>
 
-            <!-- Modal content -->
+      <!-- Loading Skeletons -->
+      <div
+        v-if="isGenerating"
+        class="grid gap-6 transition-all duration-500 mt-8"
+        :class="getGridClass()"
+      >
+        <div
+          v-for="i in numberOfInfographs"
+          :key="`skeleton-${i}`"
+          class="animate-pulse"
+        >
+          <div
+            class="bg-card-bg border border-card-border rounded-lg"
+            :style="{ aspectRatio: selectedAspectRatio.value }"
+          >
+            <div class="w-full h-full bg-background-secondary relative">
+              <div
+                class="absolute inset-0 flex items-center justify-center text-text-secondary"
+              >
+                <div class="text-center">
+                  <svg
+                    class="w-16 h-16 mx-auto mb-4 animate-pulse"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <p class="text-sm">Generating infograph {{ i }}...</p>
+                  <p class="text-xs mt-2 opacity-75">
+                    {{ selectedAspectRatio.label }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div v-if="hasResults && !isGenerating" class="space-y-6 mt-8">
+        <div
+          class="grid gap-6 transition-all duration-500"
+          :class="getGridClass()"
+        >
+          <div
+            v-for="(result, index) in results"
+            :key="`result-${index}`"
+            class="group"
+          >
             <div
-              class="relative max-w-6xl max-h-[90vh] bg-card-bg border border-card-border rounded-lg shadow-2xl overflow-hidden"
+              class="bg-card-bg border border-card-border rounded-lg hover:border-primary-500 transition-all duration-300 hover:shadow-xl"
             >
-              <!-- Close button -->
+              <!-- Image -->
+              <div
+                class="relative overflow-hidden cursor-pointer"
+                :style="{ aspectRatio: selectedAspectRatio.value }"
+                @click="openImageModal(result)"
+              >
+                <img
+                  :src="result.image"
+                  :alt="`Generated Infograph ${index + 1}`"
+                  class="w-full h-full object-cover"
+                />
+                <!-- Overlay on hover -->
+                <div
+                  class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                >
+                  <div class="text-white text-center">
+                    <svg
+                      class="w-12 h-12 mx-auto mb-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
+                      />
+                    </svg>
+                    <p class="text-sm">Click to view full size</p>
+                    <p class="text-xs mt-1 opacity-75">
+                      {{ selectedAspectRatio.label }} •
+                      {{ selectedResolution }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="p-3 flex gap-2">
+                <div class="relative group flex-1">
+                  <button
+                    @click="handleDownload(result)"
+                    class="w-full h-8 bg-primary border border-card-border rounded-md p-2 text-xs flex items-center justify-center gap-1.5"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    <span v-if="numberOfInfographs === 1">Download</span>
+                  </button>
+                  <div
+                    v-if="numberOfInfographs > 1"
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+                  >
+                    Download
+                  </div>
+                </div>
+                <div class="relative group flex-1">
+                  <button
+                    @click="handleEdit(result)"
+                    class="w-full h-8 bg-background-primary border border-card-border rounded-md p-2 text-xs flex items-center justify-center gap-1.5"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    <span v-if="numberOfInfographs === 1">Edit</span>
+                  </button>
+                  <div
+                    v-if="numberOfInfographs > 1"
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+                  >
+                    Edit
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Generate More Button -->
+        <div class="text-center">
+          <button
+            @click="generateMore"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-card-border bg-card-bg hover:bg-background-secondary transition-colors text-sm font-medium text-text-primary"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Generate More
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="showImageModal && selectedImage"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          @click.self="closeImageModal"
+        >
+          <!-- Blurred backdrop -->
+          <div
+            class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            @click="closeImageModal"
+          ></div>
+
+          <!-- Modal content -->
+          <div
+            class="relative max-w-6xl max-h-[90vh] bg-card-bg border border-card-border rounded-lg shadow-2xl overflow-hidden"
+          >
+            <!-- Close button -->
+            <button
+              type="button"
+              class="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors p-2 rounded-md bg-black/50 hover:bg-black/70"
+              @click="closeImageModal"
+              aria-label="Close modal"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <!-- Image -->
+            <div class="relative">
+              <img
+                :src="selectedImage.image"
+                :alt="selectedImage.prompt"
+                class="w-full h-auto max-h-[80vh] object-contain"
+              />
+            </div>
+
+            <!-- Action buttons -->
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
               <button
-                type="button"
-                class="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors p-2 rounded-md bg-black/50 hover:bg-black/70"
-                @click="closeImageModal"
-                aria-label="Close modal"
+                @click="handleDownload(selectedImage)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/70 hover:bg-black/90 text-white transition-colors backdrop-blur-sm text-sm font-medium"
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
+                  class="w-4 h-4"
                   fill="none"
-                  viewBox="0 0 24 24"
                   stroke="currentColor"
-                  stroke-width="2"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                   />
                 </svg>
+                Download
               </button>
-
-              <!-- Image -->
-              <div class="relative">
-                <img
-                  :src="selectedImage.image"
-                  :alt="selectedImage.prompt"
-                  class="w-full h-auto max-h-[80vh] object-contain"
-                />
-              </div>
-
-              <!-- Action buttons -->
-              <div
-                class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3"
+              <button
+                @click="handleEdit(selectedImage)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/70 hover:bg-black/90 text-white transition-colors backdrop-blur-sm text-sm font-medium"
               >
-                <button
-                  @click="handleDownload(selectedImage)"
-                  class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/70 hover:bg-black/90 text-white transition-colors backdrop-blur-sm text-sm font-medium"
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Download
-                </button>
-                <button
-                  @click="handleEdit(selectedImage)"
-                  class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/70 hover:bg-black/90 text-white transition-colors backdrop-blur-sm text-sm font-medium"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  Edit
-                </button>
-              </div>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Edit
+              </button>
             </div>
           </div>
-        </Transition>
-      </Teleport>
-    </div>
-  </ClientOnly>
+        </div>
+      </Transition>
+    </Teleport>
+  </div>
 </template>
 
 <script setup>
@@ -819,6 +815,7 @@ import { ref, watch, onMounted, nextTick } from "vue";
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
+  ssr: false,
 });
 
 const route = useRoute();
