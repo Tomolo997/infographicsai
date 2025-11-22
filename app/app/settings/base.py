@@ -126,6 +126,7 @@ AWS_S3_CUSTOM_DOMAIN = 'images.ainfographic.com'
 AWS_QUERYSTRING_AUTH = False  # Don't add auth query params to URLs
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+FAL_AI_API_KEY = os.getenv('FAL_AI_API_KEY')
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 5 MB
@@ -168,6 +169,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 API_URL= 'http://localhost:8000'
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')  # For webhook URLs
 
 ADMIN_PREVIEW_TOKEN = os.environ.get('ADMIN_PREVIEW_TOKEN', 'your-secure-admin-token-here')
 

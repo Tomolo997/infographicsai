@@ -12,6 +12,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/account/', include('account.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/infographs/', include('infographs.urls')),
 ] 
 
 if settings.DEBUG:

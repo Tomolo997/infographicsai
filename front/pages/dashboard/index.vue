@@ -670,6 +670,11 @@
         </div>
       </div>
 
+      <!-- Error Message -->
+      <div v-if="showError" class="text-red-500 text-center mt-8">
+        {{ errorMessage }}
+      </div>
+
       <!-- Results Grid -->
       <div v-if="hasResults && !isGenerating" class="space-y-6 mt-8">
         <div
@@ -907,7 +912,7 @@
 
 <script setup>
 import { ref, watch, onMounted, nextTick } from "vue";
-
+import apiClient from "~/client/apiClient";
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
@@ -934,6 +939,8 @@ const selectedTemplate = ref(null);
 const showFileUpload = ref(false);
 const uploadedFile = ref(null);
 const uploadedFilePreview = ref(null);
+const showError = ref(false);
+const errorMessage = ref("");
 
 // Mock templates with different aspect ratios
 const templates = ref([
@@ -1190,28 +1197,104 @@ const getGridClass = () => {
 };
 
 const handleGenerate = async () => {
+  resetError();
+  console.log("handleGenerate");
   isGenerating.value = true;
   hasResults.value = false;
   results.value = [];
 
-  // Simulate API call with timeout
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-
-  // Generate mock results
-  const mockResults = [];
-  for (let i = 0; i < numberOfInfographs.value; i++) {
-    mockResults.push({
-      id: `infograph-${Date.now()}-${i}`,
-      image: `https://picsum.photos/seed/${Date.now()}-${i}/800/600`,
-      prompt: prompt.value,
-      aspectRatio: selectedAspectRatio.value.label,
-      resolution: selectedResolution.value,
-    });
+  if (
+    !prompt.value ||
+    !selectedAspectRatio.value ||
+    !selectedResolution.value ||
+    !numberOfInfographs.value
+  ) {
+    return;
   }
 
-  results.value = mockResults;
-  isGenerating.value = false;
-  hasResults.value = true;
+  if (uploadedFilePreview.value) {
+    try {
+      const response = await apiClient.post(
+        "/infographs/create-own-template/",
+        {
+          prompt: prompt.value,
+          blog_url: blogUrl.value,
+          aspect_ratio: selectedAspectRatio.value.value,
+          resolution: selectedResolution.value,
+          number_of_infographs: numberOfInfographs.value,
+          front_image: uploadedFilePreview.value,
+        }
+      );
+      results.value = response.data;
+      isGenerating.value = false;
+      hasResults.value = true;
+      return;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  if (selectedTemplate.value) {
+    try {
+      const response = await apiClient.post("/infographs/create-template/", {
+        prompt: prompt.value,
+        blog_url: blogUrl.value,
+        aspect_ratio: selectedAspectRatio.value.value,
+        resolution: selectedResolution.value,
+        number_of_infographs: numberOfInfographs.value,
+        selected_template: selectedTemplate.value.id,
+      });
+      results.value = response.data;
+      isGenerating.value = false;
+      hasResults.value = true;
+      return;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  try {
+    const response = await apiClient.post("/infographs/create/", {
+      prompt: prompt.value,
+      blog_url: blogUrl.value || null,
+      aspect_ratio: selectedAspectRatio.value.value,
+      resolution: selectedResolution.value,
+      number_of_infographs: numberOfInfographs.value,
+    });
+    results.value = response.data;
+    isGenerating.value = false;
+    hasResults.value = true;
+    return;
+  } catch (error) {
+    showError.value = true;
+    if (error.response.data.errors.blog_url) {
+      errorMessage.value = errorMapping.blog_url;
+    } else if (error.response.data.errors.aspect_ratio) {
+      errorMessage.value = errorMapping.aspect_ratio;
+    } else if (error.response.data.errors.resolution) {
+      errorMessage.value = errorMapping.resolution;
+    } else if (error.response.data.errors.number_of_infographs) {
+      errorMessage.value = errorMapping.number_of_infographs;
+    } else {
+      errorMessage.value = "Please check your inputs and try again";
+    }
+    isGenerating.value = false;
+    hasResults.value = true;
+    return;
+  }
+};
+
+const errorMapping = {
+  blog_url: "Please enter a valid blog URL",
+  aspect_ratio: "Please select a valid aspect ratio",
+  resolution: "Please select a valid resolution",
+  number_of_infographs: "Please enter a valid number of infographs",
+  prompt: "Please enter a valid prompt",
+};
+
+const resetError = () => {
+  showError.value = false;
+  errorMessage.value = "";
 };
 
 const tryAnotherTemplate = () => {

@@ -19,6 +19,12 @@ class AspectRatio(models.TextChoices):
     FOUR_THREE = '4/3', '4:3'
     TWO_THREE = '2/3', '2:3'
 
+class InfographStatus(models.TextChoices):
+    PENDING = 'pending', 'Pending'
+    PROCESSING = 'processing', 'Processing'
+    COMPLETED = 'completed', 'Completed'
+    FAILED = 'failed', 'Failed'
+
 class Infograph(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     template = models.ForeignKey('Template', on_delete=models.CASCADE, null=True, blank=True)
@@ -28,6 +34,13 @@ class Infograph(models.Model):
     resolution = models.CharField(max_length=255, choices=Resolution.choices, default=Resolution.TWO_K)
     aspect_ratio = models.CharField(max_length=255, choices=AspectRatio.choices, default=AspectRatio.NINE_ONE_SIX)
     credits_used = models.IntegerField(default=0)
+    
+    # Async generation tracking
+    fal_request_id = models.CharField(max_length=255, null=True, blank=True)  # fal.ai job ID
+    status = models.CharField(max_length=50, choices=InfographStatus.choices, default=InfographStatus.PENDING)
+    prompt = models.TextField(null=True, blank=True)  # The prompt used for generation
+    error_message = models.TextField(null=True, blank=True)  # Error details if failed
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
