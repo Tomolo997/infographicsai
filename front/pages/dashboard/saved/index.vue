@@ -67,7 +67,9 @@
                 : 'hover:bg-background-secondary',
             ]"
           >
-            <span class="flex-1 text-text-primary text-sm">All Aspect Ratios</span>
+            <span class="flex-1 text-text-primary text-sm"
+              >All Aspect Ratios</span
+            >
             <svg
               v-if="!selectedAspectRatioFilter"
               class="h-5 w-5 text-primary-500 flex-shrink-0"
@@ -120,12 +122,8 @@
         </div>
       </div>
     </div>
-
     <!-- Loading State -->
-    <div
-      v-if="isLoading"
-      class="flex items-center justify-center py-20"
-    >
+    <div v-if="isLoading" class="flex items-center justify-center py-20">
       <svg
         class="w-10 h-10 animate-spin text-primary-500"
         fill="none"
@@ -195,26 +193,78 @@
           <div
             class="relative bg-background-secondary h-48 flex items-center justify-center p-1"
           >
+            <!-- Status Badge -->
+            <div class="absolute top-2 left-2 z-10">
+              <span
+                :class="[
+                  'px-2 py-1 rounded-full text-xs font-semibold',
+                  infograph.status === 'completed'
+                    ? 'bg-green-500/90 text-white'
+                    : infograph.status === 'processing'
+                    ? 'bg-blue-500/90 text-white'
+                    : 'bg-red-500/90 text-white',
+                ]"
+              >
+                {{ infograph.status }}
+              </span>
+            </div>
+            <!-- Credits Badge -->
+            <div class="absolute top-2 right-2 z-10">
+              <span
+                class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-500/90 text-white"
+              >
+                {{ infograph.credits_used }} credit{{
+                  infograph.credits_used !== 1 ? "s" : ""
+                }}
+              </span>
+            </div>
             <div
               class="w-full h-full flex items-center justify-center overflow-hidden rounded"
             >
               <img
-                :src="infograph.image"
-                :alt="infograph.name"
+                v-if="infograph.image_url"
+                :src="infograph.image_url"
+                :alt="getInfographTitle(infograph)"
                 class="max-w-full max-h-full object-contain"
-                :style="{ aspectRatio: infograph.aspectRatio }"
+                :style="{
+                  aspectRatio: normalizeAspectRatio(infograph.aspect_ratio),
+                }"
               />
+              <div
+                v-else
+                class="flex flex-col items-center justify-center text-text-secondary"
+              >
+                <svg
+                  class="w-16 h-16 mb-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                  />
+                </svg>
+                <span class="text-xs">No image</span>
+              </div>
             </div>
           </div>
           <!-- Infograph Info -->
           <div class="p-3 bg-card-bg">
             <p
-              class="text-sm font-medium text-center text-text-primary group-hover:text-primary-500 transition-colors"
+              class="text-sm font-medium text-center text-text-primary group-hover:text-primary-500 transition-colors truncate"
+              :title="getInfographTitle(infograph)"
             >
-              {{ infograph.name }}
+              {{ getInfographTitle(infograph) }}
             </p>
             <p class="text-xs text-text-secondary text-center mt-1">
-              {{ getAspectRatioLabel(infograph.aspectRatio) }} • {{ formatDate(infograph.created_at) }}
+              {{ getAspectRatioLabel(infograph.aspect_ratio) }} •
+              {{ infograph.resolution }}
+            </p>
+            <p class="text-xs text-text-secondary text-center">
+              {{ formatDate(infograph.created_at) }}
             </p>
           </div>
         </div>
@@ -224,10 +274,10 @@
     <!-- Infograph Modal -->
     <Modal
       :is-open="showInfographModal"
-      :title="selectedInfograph?.name || ''"
+      :title="selectedInfograph ? getInfographTitle(selectedInfograph) : ''"
       :subtitle="
         selectedInfograph
-          ? getAspectRatioLabel(selectedInfograph.aspectRatio)
+          ? getAspectRatioLabel(selectedInfograph.aspect_ratio)
           : ''
       "
       max-width="max-w-4xl"
@@ -237,17 +287,50 @@
         <div v-if="selectedInfograph" class="space-y-4">
           <!-- Infograph Preview -->
           <div
+            v-if="selectedInfograph.image_url"
             class="relative bg-background-secondary rounded-lg overflow-hidden"
           >
-            <div class="w-full flex items-center justify-center p-8">
+            <div
+              class="w-full flex items-center justify-center p-8 max-h-[1200px]"
+            >
               <img
-                :src="selectedInfograph.image"
-                :alt="selectedInfograph.name"
+                :src="selectedInfograph.image_url"
+                :alt="getInfographTitle(selectedInfograph)"
                 class="max-w-full max-h-[60vh] object-contain rounded"
-                :style="{ aspectRatio: selectedInfograph.aspectRatio }"
+                :style="{
+                  aspectRatio: normalizeAspectRatio(
+                    selectedInfograph.aspect_ratio
+                  ),
+                }"
               />
             </div>
           </div>
+          <div
+            v-else
+            class="relative bg-background-secondary rounded-lg overflow-hidden p-20 flex flex-col items-center justify-center"
+          >
+            <svg
+              class="w-24 h-24 text-text-secondary mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+              />
+            </svg>
+            <p class="text-text-secondary">
+              {{
+                selectedInfograph.status === "processing"
+                  ? "Image is being generated..."
+                  : "No image available"
+              }}
+            </p>
+          </div>
+
           <!-- Infograph Details -->
           <div class="space-y-2">
             <div>
@@ -255,16 +338,29 @@
                 >Aspect Ratio:</span
               >
               <span class="text-sm text-text-secondary ml-2">
-                {{ getAspectRatioLabel(selectedInfograph.aspectRatio) }}
+                {{ getAspectRatioLabel(selectedInfograph.aspect_ratio) }}
               </span>
             </div>
             <div>
               <span class="text-sm font-semibold text-text-primary"
-                >Created:</span
+                >Resolution:</span
               >
               <span class="text-sm text-text-secondary ml-2">
-                {{ formatDate(selectedInfograph.created_at) }}
+                {{ selectedInfograph.resolution }}
               </span>
+            </div>
+            <div>
+              <span class="text-sm font-semibold text-text-primary"
+                >Source URL:</span
+              >
+              <a
+                :href="selectedInfograph.blog_url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-primary-500 hover:text-primary-600 ml-2 underline"
+              >
+                {{ truncateUrl(selectedInfograph.blog_url) }}
+              </a>
             </div>
           </div>
         </div>
@@ -272,8 +368,10 @@
       <template #cta>
         <div class="flex gap-3 justify-end">
           <button
+            v-if="selectedInfograph?.image_url"
             @click="handleDownload"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors text-sm font-medium"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="!selectedInfograph?.image_url"
           >
             <svg
               class="w-4 h-4"
@@ -316,6 +414,7 @@
 </template>
 
 <script setup>
+import apiClient from "~/client/apiClient";
 import { ref, computed, onMounted } from "vue";
 import Modal from "~/components/Modal.vue";
 
@@ -387,7 +486,10 @@ const filteredInfographs = computed(() => {
     (r) => r.label === selectedAspectRatioFilter.value
   );
   if (!selectedRatio) return infographs.value;
-  return infographs.value.filter((i) => i.aspectRatio === selectedRatio.value);
+  return infographs.value.filter((i) => {
+    const normalized = normalizeAspectRatio(i.aspect_ratio);
+    return normalized === selectedRatio.value;
+  });
 });
 
 // Methods
@@ -400,9 +502,34 @@ const selectAspectRatioFilter = (label) => {
   showAspectRatioDropdown.value = false;
 };
 
+// Normalize aspect ratio format (9:16 or 9/16 -> 9/16)
+const normalizeAspectRatio = (aspectRatio) => {
+  if (!aspectRatio) return "16/9";
+  return aspectRatio.replace(":", "/");
+};
+
 const getAspectRatioLabel = (aspectRatio) => {
-  const ratio = aspectRatios.value.find((r) => r.value === aspectRatio);
-  return ratio ? ratio.label : aspectRatio;
+  const normalized = normalizeAspectRatio(aspectRatio);
+  const ratio = aspectRatios.value.find((r) => r.value === normalized);
+  return ratio ? ratio.label : aspectRatio.replace("/", ":");
+};
+
+const getInfographTitle = (infograph) => {
+  if (!infograph) return "";
+  // Try to extract domain from blog_url
+  try {
+    const url = new URL(infograph.blog_url);
+    const hostname = url.hostname.replace("www.", "");
+    return `Infograph #${infograph.id} - ${hostname}`;
+  } catch {
+    return `Infograph #${infograph.id}`;
+  }
+};
+
+const truncateUrl = (url) => {
+  if (!url) return "";
+  if (url.length <= 60) return url;
+  return url.substring(0, 57) + "...";
 };
 
 const formatDate = (date) => {
@@ -411,6 +538,8 @@ const formatDate = (date) => {
     month: "short",
     day: "numeric",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
@@ -424,16 +553,43 @@ const closeInfographModal = () => {
   selectedInfograph.value = null;
 };
 
-const handleDownload = () => {
-  console.log("Download infograph:", selectedInfograph.value);
-  // Add download logic here
-  closeInfographModal();
+const handleDownload = async () => {
+  if (!selectedInfograph.value?.image_url) return;
+
+  try {
+    // Fetch the image
+    const response = await fetch(selectedInfograph.value.image_url);
+    const blob = await response.blob();
+
+    // Create a temporary URL for the blob
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    // Create a temporary anchor element and trigger download
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `infograph-${selectedInfograph.value.id}.png`;
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+
+    closeInfographModal();
+  } catch (error) {
+    console.error("Error downloading infograph:", error);
+    alert("Failed to download infograph. Please try again.");
+  }
 };
 
 const handleDelete = async () => {
-  if (confirm("Are you sure you want to delete this infograph?")) {
-    console.log("Delete infograph:", selectedInfograph.value);
-    // Add delete logic here
+  if (!confirm("Are you sure you want to delete this infograph?")) {
+    return;
+  }
+
+  try {
+    await apiClient.delete(`/infographs/${selectedInfograph.value.id}/`);
+
     // Remove from local array
     const index = infographs.value.findIndex(
       (i) => i.id === selectedInfograph.value.id
@@ -441,7 +597,11 @@ const handleDelete = async () => {
     if (index > -1) {
       infographs.value.splice(index, 1);
     }
+
     closeInfographModal();
+  } catch (error) {
+    console.error("Error deleting infograph:", error);
+    alert("Failed to delete infograph. Please try again.");
   }
 };
 
@@ -449,35 +609,13 @@ const handleDelete = async () => {
 const fetchInfographs = async () => {
   try {
     isLoading.value = true;
-    const { $api } = useNuxtApp();
-    const response = await $api("/infographs/saved/");
-    infographs.value = response;
+    const response = await apiClient.get("/infographs/list/");
+    console.log("Fetched infographs:", response);
+    // Sort by created_at descending (newest first)
+    infographs.value = response.data;
   } catch (error) {
     console.error("Error fetching saved infographs:", error);
-    // Use mock data for development
-    infographs.value = [
-      {
-        id: 1,
-        name: "Marketing Stats",
-        image: "https://picsum.photos/seed/saved1/400/600",
-        aspectRatio: "9/16",
-        created_at: "2024-01-15T10:30:00Z",
-      },
-      {
-        id: 2,
-        name: "Business Dashboard",
-        image: "https://picsum.photos/seed/saved2/600/400",
-        aspectRatio: "16/9",
-        created_at: "2024-01-14T15:20:00Z",
-      },
-      {
-        id: 3,
-        name: "Social Media Post",
-        image: "https://picsum.photos/seed/saved3/400/400",
-        aspectRatio: "1/1",
-        created_at: "2024-01-13T09:15:00Z",
-      },
-    ];
+    infographs.value = [];
   } finally {
     isLoading.value = false;
   }

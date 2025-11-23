@@ -633,40 +633,26 @@
         :class="getGridClass()"
       >
         <div
-          v-for="i in numberOfInfographs"
-          :key="`skeleton-${i}`"
-          class="animate-pulse"
+          role="status"
+          class="flex items-center justify-center h-56 max-w-sm bg-neutral-quaternary rounded-base animate-pulse"
         >
-          <div
-            class="bg-card-bg border border-card-border rounded-lg"
-            :style="{ aspectRatio: selectedAspectRatio.value }"
+          <svg
+            class="w-11 h-11 text-fg-disabled"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
           >
-            <div class="w-full h-full bg-background-secondary relative">
-              <div
-                class="absolute inset-0 flex items-center justify-center text-text-secondary"
-              >
-                <div class="text-center">
-                  <svg
-                    class="w-16 h-16 mx-auto mb-4 animate-pulse"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <p class="text-sm">Generating infograph {{ i }}...</p>
-                  <p class="text-xs mt-2 opacity-75">
-                    {{ selectedAspectRatio.label }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+            <path
+              stroke="currentColor"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM9 12h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Zm5.697 2.395v-.733l1.269-1.219v2.984l-1.268-1.032Z"
+            />
+          </svg>
+          <span class="sr-only">Loading...</span>
         </div>
       </div>
 
@@ -689,46 +675,108 @@
             <div
               class="bg-card-bg border border-card-border rounded-lg hover:border-primary-500 transition-all duration-300 hover:shadow-xl"
             >
-              <!-- Image -->
+              <!-- Image or Processing State -->
               <div
-                class="relative overflow-hidden cursor-pointer"
+                class="relative overflow-hidden"
+                :class="{
+                  'cursor-pointer':
+                    result.status === 'completed' && result.image,
+                }"
                 :style="{ aspectRatio: selectedAspectRatio.value }"
                 scale="0.5"
-                @click="openImageModal(result)"
+                @click="
+                  result.status === 'completed' && result.image
+                    ? openImageModal(result)
+                    : null
+                "
               >
-                <img
-                  :src="result.image"
-                  :alt="`Generated Infograph ${index + 1}`"
-                  class="w-full h-full object-cover"
-                />
-                <!-- Overlay on hover -->
+                <!-- Processing State -->
                 <div
-                  class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                  v-if="
+                    result.status === 'processing' ||
+                    result.status === 'pending'
+                  "
+                  class="w-full h-full bg-background-secondary flex flex-col items-center justify-center"
                 >
-                  <div class="text-white text-center">
-                    <svg
-                      class="w-12 h-12 mx-auto mb-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
-                      />
-                    </svg>
-                    <p class="text-sm">Click to view full size</p>
-                    <p class="text-xs mt-1 opacity-75">
-                      {{ selectedAspectRatio.label }} • {{ selectedResolution }}
-                    </p>
-                  </div>
+                  <div
+                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"
+                  ></div>
+                  <p class="text-text-primary text-sm font-medium">
+                    Generating your infographic...
+                  </p>
+                  <p class="text-text-secondary text-xs mt-1">
+                    This may take 30-60 seconds
+                  </p>
                 </div>
+
+                <!-- Failed State -->
+                <div
+                  v-else-if="result.status === 'failed'"
+                  class="w-full h-full bg-red-50 dark:bg-red-900/20 flex flex-col items-center justify-center"
+                >
+                  <svg
+                    class="w-12 h-12 text-red-500 mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <p class="text-red-600 dark:text-red-400 text-sm font-medium">
+                    Generation Failed
+                  </p>
+                  <p class="text-red-500 dark:text-red-500 text-xs mt-1">
+                    Please try again
+                  </p>
+                </div>
+
+                <!-- Completed Image -->
+                <template
+                  v-else-if="result.status === 'completed' && result.image"
+                >
+                  <img
+                    :src="result.image"
+                    :alt="`Generated Infograph ${index + 1}`"
+                    class="w-full h-full object-cover"
+                  />
+                  <!-- Overlay on hover -->
+                  <div
+                    class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                  >
+                    <div class="text-white text-center">
+                      <svg
+                        class="w-12 h-12 mx-auto mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
+                        />
+                      </svg>
+                      <p class="text-sm">Click to view full size</p>
+                      <p class="text-xs mt-1 opacity-75">
+                        {{ selectedAspectRatio.label }} •
+                        {{ selectedResolution }}
+                      </p>
+                    </div>
+                  </div>
+                </template>
               </div>
 
-              <!-- Action Buttons -->
-              <div class="p-3 flex gap-2">
+              <!-- Action Buttons (only show when completed) -->
+              <div
+                v-if="result.status === 'completed' && result.image"
+                class="p-3 flex gap-2"
+              >
                 <div class="relative group flex-1">
                   <button
                     @click="handleDownload(result)"
@@ -911,7 +959,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from "vue";
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import apiClient from "~/client/apiClient";
 definePageMeta({
   layout: "dashboard",
@@ -941,6 +989,8 @@ const uploadedFile = ref(null);
 const uploadedFilePreview = ref(null);
 const showError = ref(false);
 const errorMessage = ref("");
+const pollingIntervals = ref(new Map()); // Track polling intervals for each infograph
+const infographStatuses = ref(new Map()); // Track status of each infograph
 
 // Mock templates with different aspect ratios
 const templates = ref([
@@ -1116,6 +1166,11 @@ onMounted(() => {
   });
 });
 
+// Clean up polling intervals when component unmounts
+onBeforeUnmount(() => {
+  stopAllPolling();
+});
+
 const deselectTemplate = () => {
   selectedTemplate.value = null;
 };
@@ -1196,6 +1251,74 @@ const getGridClass = () => {
   return "grid-cols-1 md:grid-cols-2 lg:grid-cols-4";
 };
 
+/**
+ * Poll the status API for a specific infograph
+ * Stops polling when status is 'completed' or 'failed'
+ */
+const startPollingStatus = (infographId) => {
+  // Clear any existing polling for this infograph
+  if (pollingIntervals.value.has(infographId)) {
+    clearInterval(pollingIntervals.value.get(infographId));
+  }
+
+  // Initial status check
+  checkInfographStatus(infographId);
+
+  // Poll every 3 seconds
+  const interval = setInterval(() => {
+    checkInfographStatus(infographId);
+  }, 3000);
+
+  pollingIntervals.value.set(infographId, interval);
+};
+
+const checkInfographStatus = async (infographId) => {
+  try {
+    const response = await apiClient.get(`/infographs/status/${infographId}/`);
+    const statusData = response.data;
+    console.log("statusData", statusData);
+    // Update the infograph in results array
+    const infographIndex = results.value.findIndex((r) => r.id === infographId);
+    if (infographIndex !== -1) {
+      results.value[infographIndex].status = statusData.status;
+      results.value[infographIndex].image_url = statusData.image_url;
+
+      // Set image property for display (compatibility with existing code)
+      if (statusData.image_url) {
+        results.value[infographIndex].image = statusData.image_url;
+      }
+
+      // Store status for template display
+      infographStatuses.value.set(infographId, statusData);
+    }
+
+    // Stop polling if completed or failed
+    if (statusData.status === "completed" || statusData.status === "failed") {
+      if (pollingIntervals.value.has(infographId)) {
+        clearInterval(pollingIntervals.value.get(infographId));
+        pollingIntervals.value.delete(infographId);
+      }
+    }
+  } catch (error) {
+    console.error(`Error checking status for infograph ${infographId}:`, error);
+    // On error, stop polling for this infograph
+    if (pollingIntervals.value.has(infographId)) {
+      clearInterval(pollingIntervals.value.get(infographId));
+      pollingIntervals.value.delete(infographId);
+    }
+  }
+};
+
+/**
+ * Clean up all polling intervals (e.g., when component unmounts)
+ */
+const stopAllPolling = () => {
+  pollingIntervals.value.forEach((interval) => {
+    clearInterval(interval);
+  });
+  pollingIntervals.value.clear();
+};
+
 const handleGenerate = async () => {
   resetError();
   console.log("handleGenerate");
@@ -1226,7 +1349,6 @@ const handleGenerate = async () => {
         }
       );
       results.value = response.data;
-      isGenerating.value = false;
       hasResults.value = true;
       return;
     } catch (error) {
@@ -1245,7 +1367,6 @@ const handleGenerate = async () => {
         selected_template: selectedTemplate.value.id,
       });
       results.value = response.data;
-      isGenerating.value = false;
       hasResults.value = true;
       return;
     } catch (error) {
@@ -1261,9 +1382,30 @@ const handleGenerate = async () => {
       resolution: selectedResolution.value,
       number_of_infographs: numberOfInfographs.value,
     });
-    results.value = response.data;
+
+    // Handle the new async response structure
+    if (response.data.infographs && response.data.infographs.length > 0) {
+      // Initialize results with processing state
+      results.value = response.data.infographs.map((infograph) => ({
+        id: infograph.id,
+        request_id: infograph.request_id,
+        status: infograph.status || "processing",
+        image_url: null,
+        image: null, // Will be set when completed
+      }));
+
+      // Start polling for each infograph
+      response.data.infographs.forEach((infograph) => {
+        startPollingStatus(infograph.id);
+      });
+    } else {
+      // Fallback for old response format
+      results.value = response.data;
+    }
+
     isGenerating.value = false;
     hasResults.value = true;
+
     return;
   } catch (error) {
     showError.value = true;
