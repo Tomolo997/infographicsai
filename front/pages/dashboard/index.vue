@@ -624,9 +624,30 @@
             </div>
           </div>
         </div>
+        <div class="flex justify-center">
+          <NuxtLink
+            to="/dashboard/templates"
+            class="text-center inline-flex items-center gap-2 px-6 py-3 rounded-full border border-card-border bg-card-bg hover:bg-background-secondary transition-colors text-sm font-medium text-text-primary"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"
+              />
+            </svg>
+            More templates
+          </NuxtLink>
+        </div>
       </div>
 
-      <!-- Loading Skeletons -->
+      <!-- Loading Skeletons - Brief submission phase -->
       <div
         v-if="isGenerating"
         class="grid gap-6 transition-all duration-500 mt-8"
@@ -634,25 +655,15 @@
       >
         <div
           role="status"
-          class="flex items-center justify-center h-56 max-w-sm bg-neutral-quaternary rounded-base animate-pulse"
+          class="flex flex-col items-center justify-center h-56 max-w-sm bg-background-secondary rounded-lg border border-card-border"
         >
-          <svg
-            class="w-11 h-11 text-fg-disabled"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM9 12h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Zm5.697 2.395v-.733l1.269-1.219v2.984l-1.268-1.032Z"
-            />
-          </svg>
-          <span class="sr-only">Loading...</span>
+          <div
+            class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500 mb-3"
+          ></div>
+          <p class="text-text-primary text-sm font-medium">
+            Submitting your request...
+          </p>
+          <p class="text-text-secondary text-xs mt-1">Just a moment</p>
         </div>
       </div>
 
@@ -682,7 +693,7 @@
                   'cursor-pointer':
                     result.status === 'completed' && result.image,
                 }"
-                :style="{ aspectRatio: selectedAspectRatio.value }"
+                :style="{ aspectRatio: selectedAspectRatio?.value || '9/16' }"
                 scale="0.5"
                 @click="
                   result.status === 'completed' && result.image
@@ -696,8 +707,22 @@
                     result.status === 'processing' ||
                     result.status === 'pending'
                   "
-                  class="w-full h-full bg-background-secondary flex flex-col items-center justify-center"
+                  class="w-full h-64 bg-background-secondary flex flex-col h- items-center justify-center relative"
                 >
+                  <!-- Live polling indicator -->
+                  <div
+                    v-if="pollingIntervals.has(result.id)"
+                    class="absolute top-3 right-3 flex items-center gap-2 bg-white/90 px-2 py-1 rounded-full border border-primary-500/30"
+                    title="Checking status..."
+                  >
+                    <span class="text-xs text-primary-600 font-medium"
+                      >Live</span
+                    >
+                    <span
+                      class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"
+                    ></span>
+                  </div>
+
                   <div
                     class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"
                   ></div>
@@ -739,6 +764,15 @@
                 <template
                   v-else-if="result.status === 'completed' && result.image"
                 >
+                  <!-- Status Badge for completed -->
+                  <div class="absolute top-3 left-3 z-10">
+                    <span
+                      class="px-2 py-1 rounded-md text-xs font-semibold bg-white text-green-500 border border-green-500 shadow-sm"
+                    >
+                      ✓ Ready
+                    </span>
+                  </div>
+
                   <img
                     :src="result.image"
                     :alt="`Generated Infograph ${index + 1}`"
@@ -855,7 +889,7 @@
                 d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"
               />
             </svg>
-            Try Another Template
+            Generate Again
           </button>
         </div>
       </div>
@@ -1322,9 +1356,10 @@ const stopAllPolling = () => {
 const handleGenerate = async () => {
   resetError();
   console.log("handleGenerate");
-  isGenerating.value = true;
-  hasResults.value = false;
+
+  // Reset state
   results.value = [];
+  hasResults.value = false;
 
   if (
     !prompt.value ||
@@ -1334,6 +1369,9 @@ const handleGenerate = async () => {
   ) {
     return;
   }
+
+  // Show submitting state briefly
+  isGenerating.value = true;
 
   if (uploadedFilePreview.value) {
     try {
@@ -1349,10 +1387,15 @@ const handleGenerate = async () => {
         }
       );
       results.value = response.data;
+      isGenerating.value = false;
       hasResults.value = true;
       return;
     } catch (error) {
       console.error(error);
+      isGenerating.value = false;
+      showError.value = true;
+      errorMessage.value = "Failed to create infograph with template";
+      return;
     }
   }
 
@@ -1367,10 +1410,15 @@ const handleGenerate = async () => {
         selected_template: selectedTemplate.value.id,
       });
       results.value = response.data;
+      isGenerating.value = false;
       hasResults.value = true;
       return;
     } catch (error) {
       console.error(error);
+      isGenerating.value = false;
+      showError.value = true;
+      errorMessage.value = "Failed to create infograph with template";
+      return;
     }
   }
 
@@ -1383,10 +1431,25 @@ const handleGenerate = async () => {
       number_of_infographs: numberOfInfographs.value,
     });
 
-    // Handle the new async response structure
-    if (response.data.infographs && response.data.infographs.length > 0) {
-      // Initialize results with processing state
-      results.value = response.data.infographs.map((infograph) => ({
+    console.log("API Response:", response.data);
+
+    // Extract infographs from nested structure
+    // Response format: { message: "...", infograph: { infographs: [...] } }
+    const infographsData =
+      response.data.infograph?.infographs || response.data.infographs;
+
+    console.log("Extracted infographs:", infographsData);
+
+    // Check different possible response structures
+    if (
+      infographsData &&
+      Array.isArray(infographsData) &&
+      infographsData.length > 0
+    ) {
+      console.log("✅ Found infographs array:", infographsData);
+
+      // Initialize results with processing state immediately
+      results.value = infographsData.map((infograph) => ({
         id: infograph.id,
         request_id: infograph.request_id,
         status: infograph.status || "processing",
@@ -1394,36 +1457,93 @@ const handleGenerate = async () => {
         image: null, // Will be set when completed
       }));
 
+      console.log("✅ Results initialized:", results.value);
+
+      // Show results immediately (no more loading skeleton)
+      isGenerating.value = false;
+      hasResults.value = true;
+
       // Start polling for each infograph
-      response.data.infographs.forEach((infograph) => {
+      infographsData.forEach((infograph) => {
+        console.log("🔄 Starting polling for infograph:", infograph.id);
         startPollingStatus(infograph.id);
       });
-    } else {
-      // Fallback for old response format
-      results.value = response.data;
-    }
+    } else if (Array.isArray(response.data) && response.data.length > 0) {
+      // Response.data is directly an array
+      console.log("⚠️ Response is array format:", response.data);
+      results.value = response.data.map((infograph) => ({
+        id: infograph.id,
+        request_id: infograph.request_id || infograph.fal_request_id,
+        status: infograph.status || "processing",
+        image_url: infograph.image_url,
+        image: infograph.image_url,
+      }));
 
-    isGenerating.value = false;
-    hasResults.value = true;
+      isGenerating.value = false;
+      hasResults.value = true;
+
+      // Start polling
+      response.data.forEach((infograph) => {
+        if (infograph.id) {
+          startPollingStatus(infograph.id);
+        }
+      });
+    } else {
+      // Try to handle as single infograph
+      if (response.data.id) {
+        console.log("⚠️ Treating as single infograph");
+        results.value = [
+          {
+            id: response.data.id,
+            request_id:
+              response.data.request_id || response.data.fal_request_id,
+            status: response.data.status || "processing",
+            image_url: response.data.image_url,
+            image: response.data.image_url,
+          },
+        ];
+
+        isGenerating.value = false;
+        hasResults.value = true;
+        startPollingStatus(response.data.id);
+      } else {
+        // Complete failure - show error
+        console.error("❌ Cannot parse response!");
+        showError.value = true;
+        errorMessage.value =
+          "Unexpected response format. Check console for details.";
+        isGenerating.value = false;
+        hasResults.value = false;
+      }
+    }
 
     return;
   } catch (error) {
+    console.error("Error creating infograph:", error);
     showError.value = true;
-    if (error.response.data.errors.blog_url) {
-      errorMessage.value = errorMapping.blog_url;
-    } else if (error.response.data.errors.aspect_ratio) {
-      errorMessage.value = errorMapping.aspect_ratio;
-    } else if (error.response.data.errors.resolution) {
-      errorMessage.value = errorMapping.resolution;
-    } else if (error.response.data.errors.number_of_infographs) {
-      errorMessage.value = errorMapping.number_of_infographs;
-    } else if (error.response.data.errors.message) {
-      errorMessage.value = error.response.data.errors.message;
+
+    // Better error handling
+    if (error.response?.data?.errors) {
+      const errors = error.response.data.errors;
+      if (errors.blog_url) {
+        errorMessage.value = errorMapping.blog_url;
+      } else if (errors.aspect_ratio) {
+        errorMessage.value = errorMapping.aspect_ratio;
+      } else if (errors.resolution) {
+        errorMessage.value = errorMapping.resolution;
+      } else if (errors.number_of_infographs) {
+        errorMessage.value = errorMapping.number_of_infographs;
+      } else if (errors.message) {
+        errorMessage.value = errors.message;
+      } else {
+        errorMessage.value = "Please check your inputs and try again";
+      }
     } else {
-      errorMessage.value = "Please check your inputs and try again";
+      errorMessage.value = "Network error. Please try again.";
     }
+
     isGenerating.value = false;
-    hasResults.value = true;
+    hasResults.value = false;
     return;
   }
 };
@@ -1534,9 +1654,6 @@ const removeUploadedFile = () => {
 
 <style scoped>
 /* Custom scrollbar for dropdowns */
-.max-h-96::-webkit-scrollbar {
-  width: 8px;
-}
 
 .max-h-96::-webkit-scrollbar-track {
   background: transparent;

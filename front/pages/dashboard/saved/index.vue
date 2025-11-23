@@ -194,7 +194,7 @@
             class="relative bg-background-secondary h-48 flex items-center justify-center p-1"
           >
             <!-- Status Badge -->
-            <div class="absolute top-2 left-2 z-10">
+            <div class="absolute top-2 left-2 z-10 flex items-center gap-1">
               <span
                 :class="[
                   'px-2 py-1 rounded-md text-xs font-semibold',
@@ -206,6 +206,16 @@
                 ]"
               >
                 {{ infograph.status }}
+              </span>
+              <!-- Live polling indicator -->
+              <span
+                v-if="pollingIntervals.has(infograph.id)"
+                class="flex items-center justify-center w-5 h-5 bg-white rounded-full border border-blue-500"
+                title="Checking for updates..."
+              >
+                <span
+                  class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"
+                ></span>
               </span>
             </div>
             <!-- Credits Badge -->
@@ -406,7 +416,7 @@
 
 <script setup>
 import apiClient from "~/client/apiClient";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import Modal from "~/components/Modal.vue";
 
 definePageMeta({
@@ -420,6 +430,7 @@ const selectedAspectRatioFilter = ref(null);
 const showInfographModal = ref(false);
 const selectedInfograph = ref(null);
 const isLoading = ref(true);
+const pollingIntervals = ref(new Map()); // Track polling intervals for each infograph
 
 // Mock saved infographs (replace with API call)
 const infographs = ref([]);
@@ -579,7 +590,7 @@ const handleDelete = async () => {
   }
 
   try {
-    await apiClient.delete(`/infographs/${selectedInfograph.value.id}/`);
+    await apiClient.delete(`/infographs/delete/${selectedInfograph.value.id}/`);
 
     // Remove from local array
     const index = infographs.value.findIndex(
@@ -587,6 +598,12 @@ const handleDelete = async () => {
     );
     if (index > -1) {
       infographs.value.splice(index, 1);
+    }
+
+    // Stop polling for this infograph if it was being polled
+    if (pollingIntervals.value.has(selectedInfograph.value.id)) {
+      clearInterval(pollingIntervals.value.get(selectedInfograph.value.id));
+      pollingIntervals.value.delete(selectedInfograph.value.id);
     }
 
     closeInfographModal();
@@ -604,6 +621,9 @@ const fetchInfographs = async () => {
     console.log("Fetched infographs:", response);
     // Sort by created_at descending (newest first)
     infographs.value = response.data;
+
+    // Start polling for any processing infographs
+    startPollingForProcessingInfographs();
   } catch (error) {
     console.error("Error fetching saved infographs:", error);
     infographs.value = [];
@@ -612,9 +632,87 @@ const fetchInfographs = async () => {
   }
 };
 
+/**
+ * Poll the status API for a specific infograph
+ * Stops polling when status is 'completed' or 'failed'
+ */
+const startPollingStatus = (infographId) => {
+  // Clear any existing polling for this infograph
+  if (pollingIntervals.value.has(infographId)) {
+    clearInterval(pollingIntervals.value.get(infographId));
+  }
+
+  // Initial status check
+  checkInfographStatus(infographId);
+
+  // Poll every 5 seconds
+  const interval = setInterval(() => {
+    checkInfographStatus(infographId);
+  }, 5000);
+
+  pollingIntervals.value.set(infographId, interval);
+};
+
+const checkInfographStatus = async (infographId) => {
+  try {
+    const response = await apiClient.get(`/infographs/status/${infographId}/`);
+    const statusData = response.data;
+
+    // Update the infograph in the array
+    const infographIndex = infographs.value.findIndex(
+      (i) => i.id === infographId
+    );
+    if (infographIndex !== -1) {
+      infographs.value[infographIndex].status = statusData.status;
+      infographs.value[infographIndex].image_url = statusData.image_url;
+    }
+
+    // Stop polling if completed or failed
+    if (statusData.status === "completed" || statusData.status === "failed") {
+      if (pollingIntervals.value.has(infographId)) {
+        clearInterval(pollingIntervals.value.get(infographId));
+        pollingIntervals.value.delete(infographId);
+      }
+    }
+  } catch (error) {
+    console.error(`Error checking status for infograph ${infographId}:`, error);
+    // On error, stop polling for this infograph
+    if (pollingIntervals.value.has(infographId)) {
+      clearInterval(pollingIntervals.value.get(infographId));
+      pollingIntervals.value.delete(infographId);
+    }
+  }
+};
+
+/**
+ * Clean up all polling intervals
+ */
+const stopAllPolling = () => {
+  pollingIntervals.value.forEach((interval) => {
+    clearInterval(interval);
+  });
+  pollingIntervals.value.clear();
+};
+
+/**
+ * Start polling for all processing infographs
+ */
+const startPollingForProcessingInfographs = () => {
+  infographs.value.forEach((infograph) => {
+    if (infograph.status === "processing" || infograph.status === "pending") {
+      startPollingStatus(infograph.id);
+    }
+  });
+};
+
 // Fetch infographs on mount
 onMounted(() => {
   fetchInfographs();
+});
+
+// Clean up polling intervals when component unmounts
+onBeforeUnmount(() => {
+  stopAllPolling();
 });
 
 // Close dropdown when clicking outside

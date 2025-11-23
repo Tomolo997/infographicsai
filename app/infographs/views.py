@@ -96,6 +96,39 @@ class InfographStatusAPIView(APIView):
             )
 
 
+class InfographDeleteAPIView(generics.DestroyAPIView):
+    """
+    Delete an infograph.
+    """
+    queryset = Infograph.objects.all()
+    permission_classes = [IsAuthenticated]
+    
+    def delete(self, request, pk):
+        try:
+            # Ensure user owns this infograph
+            infograph = Infograph.objects.get(
+                id=pk,
+                account=request.user.account
+            )
+            infograph.delete()
+            
+            return Response(
+                {"message": "Infograph deleted successfully"},
+                status=status.HTTP_204_NO_CONTENT
+            )
+            
+        except Infograph.DoesNotExist:
+            return Response(
+                {"message": "Infograph not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"message": "Error deleting infograph", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class InfographWebhookAPIView(APIView):
     """

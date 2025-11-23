@@ -6,6 +6,7 @@ urlpatterns = [
     # Infograph CRUD
     path("list/", views.InfographListAPIView.as_view(), name="infograph.list"),
     path("create/", views.InfographCreateAPIView.as_view(), name="infograph.create"),
+    path("delete/<int:pk>/", views.InfographDeleteAPIView.as_view(), name="infograph.delete"),
     
     # Status and webhook endpoints
     path("status/<int:infograph_id>/", views.InfographStatusAPIView.as_view(), name="infograph.status"),
@@ -16,6 +17,5 @@ urlpatterns = [
     # path("create/own-template/", views.InfographCreateOwnTemplateAPIView.as_view(), name="infograph.create.own.template"),
     # path("get/<int:pk>/", views.InfographRetrieveAPIView.as_view(), name="infograph.get"),
     # path("update/<int:pk>/", views.InfographUpdateAPIView.as_view(), name="infograph.update"),
-    # path("delete/<int:pk>/", views.InfographDetroyAPIView.as_view(), name="infograph.delete"),
     # path("list/templates/", views.TemplateListAPIView.as_view(), name="template.list"),
 ]
