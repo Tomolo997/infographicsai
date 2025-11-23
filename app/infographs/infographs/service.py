@@ -67,8 +67,9 @@ def create_infograph(
         
         try:
             # Submit async generation job to fal.ai
+
             webhook_url = f"{webhook_base_url}/api/infographs/webhook/{infograph.id}/"
-            
+            print("webhook_url", webhook_url)
             result = fal_client.submit_generation_sync(
                 prompt=enhanced_prompt,
                 webhook_url=webhook_url,
@@ -92,7 +93,7 @@ def create_infograph(
             infograph.status = InfographStatus.FAILED
             infograph.error_message = str(e)
             infograph.save()
-            
+            print("error", e)
             infographs.append({
                 "id": infograph.id,
                 "status": InfographStatus.FAILED,
@@ -162,21 +163,44 @@ def handle_webhook_result(infograph_id: int, result_data: Dict[str, Any]) -> Inf
     """
     try:
         infograph = Infograph.objects.get(id=infograph_id)
-        
+        print("results", result_data)
+        # Extract status, error, and payload
+        fal_status = result_data.get("status")
+        fal_error = result_data.get("error")
+        payload = result_data.get("payload", {})
+
+        # Default to None
+        image_url = None
+
+        # Extract image URL from payload if available
+        if "images" in payload and payload["images"]:
+            image_url = payload["images"][0].get("url")
+
+        # Mark status based on received data
+        if fal_status == "OK" and image_url:
+            infograph.image_url = image_url
+            infograph.status = InfographStatus.COMPLETED
+            infograph.error_message = None
+            infograph.save()
+            return infograph
+
+        # Mark as failed if error or image is not available
+        infograph.status = InfographStatus.FAILED
+        if fal_error:
+            infograph.error_message = str(fal_error)
+        else:
+            infograph.error_message = "No image generated from fal.ai response"
+        infograph.save()
+        return infograph
         # Check if generation was successful
-        if "images" in result_data and len(result_data["images"]) > 0:
-            # Get the generated image URL
-            image_data = result_data["images"][0]
-            image_url = image_data.get("url")
-            
-            if image_url:
-                # TODO: Upload to R2 storage and replace URL
-                infograph.image_url = image_url
-                infograph.status = InfographStatus.COMPLETED
-                infograph.save()
+        if "url" in result_data and len(result_data["url"]) > 0:
+            # TODO: Upload to R2 storage and replace URL
+            infograph.image_url = result_data["url"]
+            infograph.status = InfographStatus.COMPLETED
+            infograph.save()
                 
-                # TODO: Send notification to user (email/websocket)
-                return infograph
+            # TODO: Send notification to user (email/websocket)
+            return infograph
         
         # If we got here, something went wrong
         infograph.status = InfographStatus.FAILED

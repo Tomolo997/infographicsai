@@ -18,7 +18,6 @@ def create_infograph(account: Account, prompt: str, blog_url: Optional[str], asp
             "number_of_infographs": number_of_infographs,
         })
 
-        print("API SERVICE: Validated data", validated_data)
         
         infograph = infographs_service.create_infograph(
             account=account,

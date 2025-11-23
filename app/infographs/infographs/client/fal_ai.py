@@ -24,12 +24,7 @@ class FalAI:
     def __init__(self):
         self.model = "fal-ai/nano-banana-pro"
     
-    async def submit_generation(
-        self, 
-        prompt: str, 
-        webhook_url: Optional[str] = None,
-        **kwargs
-    ) -> Dict[str, str]:
+    async def submit_generation(self, prompt: str, webhook_url: Optional[str] = None, **kwargs) -> Dict[str, str]:
         """
         Submit an infographic generation job (non-blocking).
         
