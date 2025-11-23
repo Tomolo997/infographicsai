@@ -70,7 +70,7 @@
             <div class="border-t border-card-border"></div>
 
             <!-- Body -->
-            <div class="p-6 text-text-primary">
+            <div class="p-2 text-text-primary">
               <slot name="body">
                 <!-- Default body content -->
               </slot>

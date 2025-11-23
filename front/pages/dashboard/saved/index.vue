@@ -197,27 +197,18 @@
             <div class="absolute top-2 left-2 z-10">
               <span
                 :class="[
-                  'px-2 py-1 rounded-full text-xs font-semibold',
+                  'px-2 py-1 rounded-md text-xs font-semibold',
                   infograph.status === 'completed'
-                    ? 'bg-green-500/90 text-white'
+                    ? 'bg-white text-green-500 border border-green-500'
                     : infograph.status === 'processing'
-                    ? 'bg-blue-500/90 text-white'
-                    : 'bg-red-500/90 text-white',
+                    ? 'bg-white text-blue-500 border border-blue-500'
+                    : 'bg-white text-red-500 border border-red-500',
                 ]"
               >
                 {{ infograph.status }}
               </span>
             </div>
             <!-- Credits Badge -->
-            <div class="absolute top-2 right-2 z-10">
-              <span
-                class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-500/90 text-white"
-              >
-                {{ infograph.credits_used }} credit{{
-                  infograph.credits_used !== 1 ? "s" : ""
-                }}
-              </span>
-            </div>
             <div
               class="w-full h-full flex items-center justify-center overflow-hidden rounded"
             >
@@ -288,7 +279,7 @@
           <!-- Infograph Preview -->
           <div
             v-if="selectedInfograph.image_url"
-            class="relative bg-background-secondary rounded-lg overflow-hidden"
+            class="relative rounded-lg overflow-hidden"
           >
             <div
               class="w-full flex items-center justify-center p-8 max-h-[1200px]"

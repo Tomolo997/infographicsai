@@ -1,13 +1,16 @@
+from io import BytesIO
 from typing import Any, Dict, Optional
 
 from django.conf import settings
 
+import requests
 from infographs.infographs.client.fal_ai import FalAI
 from infographs.infographs.client.url_client import URLAnalyzer
 from infographs.infographs.exceptions import NotEnoughCreditsException
 from infographs.models import Infograph, InfographStatus
 
 from account.models import Account
+from file_upload.client import R2Client
 
 
 def create_infograph(
@@ -163,7 +166,6 @@ def handle_webhook_result(infograph_id: int, result_data: Dict[str, Any]) -> Inf
     """
     try:
         infograph = Infograph.objects.get(id=infograph_id)
-        print("results", result_data)
         # Extract status, error, and payload
         fal_status = result_data.get("status")
         fal_error = result_data.get("error")
@@ -178,7 +180,14 @@ def handle_webhook_result(infograph_id: int, result_data: Dict[str, Any]) -> Inf
 
         # Mark status based on received data
         if fal_status == "OK" and image_url:
-            infograph.image_url = image_url
+            # TODO: Upload to R2 storage and replace URL
+            try:
+                r2_url = _upload_to_r2(image_url, payload["images"][0].get("content_type"), infograph.account.id, infograph.id)
+                infograph.image_url = r2_url
+            except Exception as e:
+                infograph.image_url = image_url
+
+
             infograph.status = InfographStatus.COMPLETED
             infograph.error_message = None
             infograph.save()
@@ -258,3 +267,44 @@ def get_infograph_status(infograph_id: int) -> Dict[str, Any]:
     
     
     
+def _upload_to_r2(image_url: str, content_type: str, account_id: int, infograph_id: int) -> str:
+    """
+    Upload image from URL to R2 storage.
+    
+    Args:
+        image_url: URL of the image to download and upload
+        content_type: MIME type of the image (e.g., 'image/png')
+        account_id: Account ID for file naming
+        infograph_id: Infograph ID for file naming
+    
+    Returns:
+        str: Public URL of the uploaded file in R2
+    """
+    try:
+        # Download the image from the URL
+        response = requests.get(image_url, timeout=30)
+        response.raise_for_status()
+        
+        # Create a file-like object from the downloaded content
+        file_obj = BytesIO(response.content)
+        file_obj.content_type = content_type or 'image/png'  # type: ignore[attr-defined]
+        file_obj.seek(0)  # Reset pointer to start
+        
+        # Upload to R2
+        r2_client = R2Client()
+        file_extension = content_type.split('/')[1] if content_type else 'png'
+        file_name = f"infographs/{account_id}_{infograph_id}.{file_extension}"
+        
+        r2_url = r2_client.upload_file(file_obj, file_name)
+        
+        if not r2_url:
+            raise Exception("R2 upload failed - no URL returned")
+            
+        return r2_url
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error downloading image from {image_url}: {e}")
+        raise Exception(f"Failed to download image: {str(e)}")
+    except Exception as e:
+        print(f"Error uploading to R2: {e}")
+        raise e

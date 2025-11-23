@@ -43,7 +43,8 @@ class R2Client:
                 file_name,
                 ExtraArgs=extra_args
             )
-            return "{}/{}/{}".format(self.public_url,self.bucket_name,file_name)
+            # Custom domain already points to the bucket, so don't include bucket name in URL
+            return "{}/{}".format(self.public_url, file_name)
         except ClientError as e:
             # You might want to log this error
             logger.error("{}: An error occurred: {}".format(LOGGER_CLIENT_R2, e))

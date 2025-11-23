@@ -23,7 +23,7 @@ class InfographListAPIView(generics.ListAPIView):
 
     def get(self, request):
         # Filter by authenticated user
-        infographs = self.get_queryset().filter(account=request.user.account)
+        infographs = self.get_queryset().filter(account=request.user.account).order_by('-created_at')
         serializer = InfographSerializer(infographs, many=True)
         return Response(serializer.data)
 
