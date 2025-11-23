@@ -72,7 +72,7 @@ def create_infograph(
             result = fal_client.submit_generation_sync(
                 prompt=enhanced_prompt,
                 webhook_url=webhook_url,
-                image_size=_get_image_size(aspect_ratio, resolution),
+                aspect_ratio=aspect_ratio,
             )
             
             # Update with request ID and mark as PROCESSING
@@ -115,8 +115,7 @@ def _build_prompt(user_prompt: str, blog_content: Optional[str], aspect_ratio: s
     base_prompt = f"""Create a modern, professional infographic with the following specifications:
 
 User Request: {user_prompt}
-
-Aspect Ratio: {aspect_ratio}"""
+"""
     
     if blog_content:
         # Truncate content to avoid token limits
@@ -128,16 +127,6 @@ Blog Content Summary:
 
 Extract key information from the blog and present it visually in the infographic."""
     
-    base_prompt += """
-
-Style Guidelines:
-- Clean, modern design with hierarchy
-- Use vibrant but professional colors
-- Clear typography
-- Visual icons and illustrations
-- Data visualization where applicable
-- High contrast for readability"""
-    
     return base_prompt
 
 
@@ -146,8 +135,9 @@ def _get_image_size(aspect_ratio: str, resolution: str) -> str:
     Map aspect ratio and resolution to image dimensions.
     fal.ai typically accepts: square, portrait, landscape, or specific dimensions
     """
+    
     size_map = {
-        ("9/16", "1K"): "portrait_4_3",
+        ("9/16", "1K"): "9:",
         ("9/16", "2K"): "portrait_4_3",
         ("9/16", "4K"): "portrait_4_3",
         ("1/1", "1K"): "square",
@@ -156,6 +146,7 @@ def _get_image_size(aspect_ratio: str, resolution: str) -> str:
         ("16/9", "1K"): "landscape_4_3",
         ("16/9", "2K"): "landscape_16_9",
         ("16/9", "4K"): "landscape_16_9",
+
     }
     
     return size_map.get((aspect_ratio, resolution), "square_hd")

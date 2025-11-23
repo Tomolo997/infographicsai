@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from infographs.api import service as infographs_api_service
 from infographs.infographs import service as infographs_service
+from infographs.infographs.exceptions import NotEnoughCreditsException
 from infographs.models import Infograph, Template
 from infographs.serializers import InfographSerializer
 from marshmallow import ValidationError
@@ -52,6 +53,11 @@ class InfographCreateAPIView(generics.CreateAPIView):
         except ValidationError as e:
             return Response(
                 {"message": "Invalid data", "errors": e.messages}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except NotEnoughCreditsException as e:
+            return Response(
+                {"message": "Not enough credits"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:

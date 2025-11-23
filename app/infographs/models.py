@@ -10,14 +10,14 @@ class Resolution(models.TextChoices):
     FOUR_K = '4K', '4K'
 
 class AspectRatio(models.TextChoices):
-    NINE_ONE_SIX = '9/16', '9:16'
-    ONE_ONE = '1/1', '1:1'
-    FOUR_FIVE = '4/5', '4:5'
-    SIXTEEN_NINE = '16/9', '16:9'
-    TWENTY_ONE_NINE = '21/9', '21:9'
-    THREE_TWO = '3/2', '3:2'
-    FOUR_THREE = '4/3', '4:3'
-    TWO_THREE = '2/3', '2:3'
+    NINE_ONE_SIX = '9:16', '9:16'
+    ONE_ONE = '1:1', '1:1'
+    FOUR_FIVE = '4:5', '4:5'
+    SIXTEEN_NINE = '16:9', '16:9'
+    TWENTY_ONE_NINE = '21:9', '21:9'
+    THREE_TWO = '3:2', '3:2'
+    FOUR_THREE = '4:3', '4:3'
+    TWO_THREE = '2:3', '2:3'
 
 class InfographStatus(models.TextChoices):
     PENDING = 'pending', 'Pending'

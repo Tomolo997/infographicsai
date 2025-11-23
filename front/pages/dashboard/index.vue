@@ -997,42 +997,42 @@ const templates = ref([
 // Aspect Ratios with social media recommendations
 const aspectRatios = ref([
   {
-    value: "9/16",
+    value: "9:16",
     label: "9:16",
     platforms: "Instagram Story, TikTok, Facebook Story",
   },
   {
-    value: "1/1",
+    value: "1:1",
     label: "1:1",
     platforms: "Instagram Post, Facebook Post, LinkedIn Post",
   },
   {
-    value: "4/5",
+    value: "4:5",
     label: "4:5",
     platforms: "Instagram Portrait, Facebook Feed",
   },
   {
-    value: "16/9",
+    value: "16:9",
     label: "16:9",
     platforms: "YouTube Thumbnail, LinkedIn Cover, Twitter Header",
   },
   {
-    value: "21/9",
+    value: "21:9",
     label: "21:9",
     platforms: "Facebook Cover, Twitter Header (X Header)",
   },
   {
-    value: "3/2",
+    value: "3:2",
     label: "3:2",
     platforms: "Twitter Post (X Post), General Photography",
   },
   {
-    value: "4/3",
+    value: "4:3",
     label: "4:3",
     platforms: "Facebook Post, Classic Photography",
   },
   {
-    value: "2/3",
+    value: "2:3",
     label: "2:3",
     platforms: "Pinterest Pin, Instagram Portrait",
   },
@@ -1275,6 +1275,8 @@ const handleGenerate = async () => {
       errorMessage.value = errorMapping.resolution;
     } else if (error.response.data.errors.number_of_infographs) {
       errorMessage.value = errorMapping.number_of_infographs;
+    } else if (error.response.data.errors.message) {
+      errorMessage.value = error.response.data.errors.message;
     } else {
       errorMessage.value = "Please check your inputs and try again";
     }

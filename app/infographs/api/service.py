@@ -2,6 +2,7 @@ from typing import Optional
 
 from infographs.api.schema import InfographCreateSchema
 from infographs.infographs import service as infographs_service
+from infographs.infographs.exceptions import NotEnoughCreditsException
 from marshmallow import ValidationError
 
 from account.models import Account
@@ -29,5 +30,7 @@ def create_infograph(account: Account, prompt: str, blog_url: Optional[str], asp
         )
 
         return {"message": "Infograph created successfully", "infograph": infograph}
+    except NotEnoughCreditsException as e:
+        raise ValidationError({"message": "Not enough credits"})
     except ValidationError as e:
         raise ValidationError(e.messages)
