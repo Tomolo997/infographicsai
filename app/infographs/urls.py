@@ -13,6 +13,9 @@ urlpatterns = [
     path("status/<int:infograph_id>/", views.InfographStatusAPIView.as_view(), name="infograph.status"),
     path("webhook/<int:infograph_id>/", views.InfographWebhookAPIView.as_view(), name="infograph.webhook"),
     
+    # Download endpoint (proxy with CORS)
+    path("download/<int:infograph_id>/", views.InfographDownloadAPIView.as_view(), name="infograph.download"),
+    
     # Future endpoints
     # path("create/template/", views.InfographCreateTemplateAPIView.as_view(), name="infograph.create.template"),
     # path("create/own-template/", views.InfographCreateOwnTemplateAPIView.as_view(), name="infograph.create.own.template"),

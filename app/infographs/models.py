@@ -25,6 +25,15 @@ class InfographStatus(models.TextChoices):
     COMPLETED = 'completed', 'Completed'
     FAILED = 'failed', 'Failed'
 
+
+class InfographType(models.TextChoices):
+    INFOGRAPH = 'infograph', 'Infograph'
+    FLOWCHART = 'flowchart', 'Flowchart'
+    MINDMAP = 'mindmap', 'Mindmap'
+    TIMELINE = 'timeline', 'Timeline'
+    ORGANIZATION_CHART = 'organization_chart', 'Organization Chart'
+
+
 class Infograph(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     template = models.ForeignKey('Template', on_delete=models.CASCADE, null=True, blank=True)
@@ -34,6 +43,7 @@ class Infograph(models.Model):
     resolution = models.CharField(max_length=255, choices=Resolution.choices, default=Resolution.TWO_K)
     aspect_ratio = models.CharField(max_length=255, choices=AspectRatio.choices, default=AspectRatio.NINE_ONE_SIX)
     credits_used = models.IntegerField(default=0)
+    type = models.CharField(max_length=255, choices=InfographType.choices, default=InfographType.INFOGRAPH)
     
     # Async generation tracking
     fal_request_id = models.CharField(max_length=255, null=True, blank=True)  # fal.ai job ID

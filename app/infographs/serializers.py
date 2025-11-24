@@ -1,4 +1,4 @@
-from infographs.models import AspectRatio, Infograph, Resolution, Template
+from infographs.models import AspectRatio, Infograph, InfographType, Resolution, Template
 from rest_framework import serializers
 
 
@@ -6,7 +6,7 @@ class InfographSerializer(serializers.ModelSerializer):
     class Meta:
         model = Infograph
         fields = ['id', 'template', 'blog_url', 'image_url', 'resolution', 
-                 'aspect_ratio', 'credits_used', 'created_at', 'updated_at', 'status']
+                 'aspect_ratio', 'credits_used', 'created_at', 'updated_at', 'status', 'type']
         read_only_fields = ['id', 'credits_used', 'created_at', 'updated_at', 'status']
     
     def validate_blog_url(self, value):
@@ -27,6 +27,13 @@ class InfographSerializer(serializers.ModelSerializer):
         valid_aspect_ratios = [choice[0] for choice in AspectRatio.choices]
         if value not in valid_aspect_ratios:
             raise serializers.ValidationError(f"Aspect ratio must be one of: {valid_aspect_ratios}")
+        return value
+    
+    def validate_type(self, value):
+        """Validate infograph type is a valid choice"""
+        valid_types = [choice[0] for choice in InfographType.choices]
+        if value not in valid_types:
+            raise serializers.ValidationError(f"Type must be one of: {valid_types}")
         return value
     
 

@@ -1,9 +1,10 @@
 import json
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+import requests
 from infographs.api import service as infographs_api_service
 from infographs.infographs import service as infographs_service
 from infographs.infographs.exceptions import NotEnoughCreditsException
@@ -45,6 +46,7 @@ class InfographCreateAPIView(generics.CreateAPIView):
             "aspect_ratio": request.data.get("aspect_ratio"),
             "resolution": request.data.get("resolution"),
             "number_of_infographs": request.data.get("number_of_infographs") or 1,
+            "type": request.data.get("type") or "infograph",
         }
         
         try:
@@ -99,6 +101,7 @@ class InfographCreateFromPDFAPIView(APIView):
             "aspect_ratio": request.data.get("aspect_ratio", "9:16"),
             "resolution": request.data.get("resolution", "2K"),
             "number_of_infographs": int(request.data.get("number_of_infographs", 1)),
+            "type": request.data.get("type", "infograph"),
         }
         
         try:
@@ -222,5 +225,74 @@ class InfographWebhookAPIView(APIView):
             print(f"[WEBHOOK ERROR] {str(e)}")
             return Response(
                 {"message": "Error processing webhook", "error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class InfographDownloadAPIView(APIView):
+    """
+    Proxy endpoint to download infograph images with proper CORS headers.
+    This bypasses CORS restrictions by fetching the image server-side.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, infograph_id):
+        try:
+            # Ensure user owns this infograph
+            infograph = Infograph.objects.get(
+                id=infograph_id,
+                account=request.user.account
+            )
+            
+            # Check if image URL exists
+            if not infograph.image_url:
+                return Response(
+                    {"message": "Image not available yet"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Fetch the image from the external URL
+            try:
+                image_response = requests.get(
+                    infograph.image_url,
+                    timeout=30,
+                    stream=True
+                )
+                image_response.raise_for_status()
+                
+                # Get content type from response or default to image/png
+                content_type = image_response.headers.get('Content-Type', 'image/png')
+                
+                # Create Django HttpResponse with proper CORS headers
+                response = HttpResponse(
+                    image_response.content,
+                    content_type=content_type
+                )
+                
+                # Add CORS headers to allow frontend to download
+                response['Access-Control-Allow-Origin'] = '*'
+                response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+                response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+                
+                # Add content disposition for download
+                filename = f"infograph-{infograph_id}.png"
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                
+                return response
+                
+            except requests.exceptions.RequestException as e:
+                return Response(
+                    {"message": "Failed to fetch image", "error": str(e)}, 
+                    status=status.HTTP_502_BAD_GATEWAY
+                )
+            
+        except Infograph.DoesNotExist:
+            return Response(
+                {"message": "Infograph not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"message": "Error downloading infograph", "error": str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

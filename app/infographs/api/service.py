@@ -8,7 +8,7 @@ from marshmallow import ValidationError
 from account.models import Account
 
 
-def create_infograph(account: Account, prompt: str, blog_url: Optional[str], aspect_ratio: str, resolution: str, number_of_infographs: int):
+def create_infograph(account: Account, prompt: str, blog_url: Optional[str], aspect_ratio: str, resolution: str, number_of_infographs: int, type: str = 'infograph'):
     try:
         validated_data = InfographCreateSchema().load({
             "prompt": prompt,
@@ -16,6 +16,7 @@ def create_infograph(account: Account, prompt: str, blog_url: Optional[str], asp
             "aspect_ratio": aspect_ratio,
             "resolution": resolution,
             "number_of_infographs": number_of_infographs,
+            "type": type,
         })
 
         
@@ -26,6 +27,7 @@ def create_infograph(account: Account, prompt: str, blog_url: Optional[str], asp
             aspect_ratio=validated_data["aspect_ratio"],
             resolution=validated_data["resolution"],
             number_of_infographs=validated_data["number_of_infographs"],
+            type=validated_data["type"],
         )
 
         return {"message": "Infograph created successfully", "infograph": infograph}

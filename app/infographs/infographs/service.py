@@ -19,7 +19,8 @@ def create_infograph_from_pdf(
   pdf_file,
   aspect_ratio: str,
   resolution: str,
-  number_of_infographs: int
+  number_of_infographs: int,
+  type: str = 'infograph'
 ) -> Dict[str, Any]:
     """
     Create infograph(s) from PDF content and submit async generation jobs to fal.ai.
@@ -43,7 +44,7 @@ def create_infograph_from_pdf(
     pdf_content = pdf_data.get("content", "")
     
     # Build the enhanced prompt
-    enhanced_prompt = _build_pdf_prompt(pdf_content)
+    enhanced_prompt = _build_pdf_prompt(pdf_content, type)
     
     # Initialize fal.ai client
     fal_client = FalAI()
@@ -64,6 +65,7 @@ def create_infograph_from_pdf(
             credits_used=credits_used,
             prompt=enhanced_prompt,
             status=InfographStatus.PENDING,
+            type=type,
         )
         
         try:
@@ -118,7 +120,8 @@ def create_infograph(
   blog_url: str,
   aspect_ratio: str,
   resolution: str,
-  number_of_infographs: int
+  number_of_infographs: int,
+  type: str = 'infograph'
 ) -> Dict[str, Any]:
     """
     Create infograph(s) and submit async generation jobs to fal.ai.
@@ -144,7 +147,7 @@ def create_infograph(
         blog_content = blog_data.get("content", "")
     
     # Build the enhanced prompt
-    enhanced_prompt = _build_prompt(prompt, blog_content, aspect_ratio)
+    enhanced_prompt = _build_prompt(prompt, blog_content, type)
     
     # Initialize fal.ai client
     fal_client = FalAI()
@@ -165,6 +168,7 @@ def create_infograph(
             credits_used=credits_used,
             prompt=enhanced_prompt,
             status=InfographStatus.PENDING,
+            type=type,
         )
         
         try:
@@ -213,9 +217,9 @@ def create_infograph(
     }
 
 
-def _build_prompt(user_prompt: str, blog_content: Optional[str], aspect_ratio: str) -> str:
+def _build_prompt(user_prompt: str, blog_content: Optional[str], type: str) -> str:
     """Build enhanced prompt for infographic generation."""
-    base_prompt = f"""Create a modern, professional infographic with the following specifications:
+    base_prompt = f"""Create a {type} with the following specifications:
 
 User Request: {user_prompt}
 """
@@ -232,10 +236,10 @@ Extract key information from the blog and present it visually in the infographic
     
     return base_prompt
 
-def _build_pdf_prompt(pdf_content: str) -> str:
+def _build_pdf_prompt(pdf_content: str, type: str) -> str:
     """Build prompt for PDF content."""
     return f"""
-    Build an infographic from the following PDF content:
+    Build a {type} from the following PDF content:
     PDF Content:
     {pdf_content}
     """
