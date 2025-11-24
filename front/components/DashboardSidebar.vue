@@ -236,15 +236,22 @@ export default {
       if (path === "/dashboard/credits") return "credits";
       if (path === "/dashboard/feedback") return "feedback";
       if (path === "/dashboard/settings") return "settings";
+      if (path === "/dashboard/create/pdf") return "pdf";
       return "dashboard";
     });
 
     const mainItems = [
       {
         id: "dashboard",
-        label: "Dashboard",
+        label: "Create",
         icon: "dashboard",
         route: "/dashboard",
+      },
+      {
+        id: "pdf",
+        label: "Create from PDF",
+        icon: "pdf",
+        route: "/dashboard/create/pdf",
       },
       {
         id: "settings",
