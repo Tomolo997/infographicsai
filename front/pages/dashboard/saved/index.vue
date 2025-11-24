@@ -557,13 +557,18 @@ const closeInfographModal = () => {
 
 const handleDownload = async () => {
   if (!selectedInfograph.value?.image_url) return;
-  console.log(selectedInfograph.value.image_url);
-  try {
-    // Fetch the image
-    const response = await fetch(selectedInfograph.value.image_url);
-    const blob = await response.blob();
 
-    // Create a temporary URL for the blob
+  try {
+    // Use backend proxy endpoint to bypass CORS
+    const response = await apiClient.get(
+      `/infographs/download/${selectedInfograph.value.id}/`,
+      {
+        responseType: "blob", // Important: tell axios to handle binary data
+      }
+    );
+
+    // Create a blob URL from the response data
+    const blob = new Blob([response.data], { type: "image/png" });
     const blobUrl = window.URL.createObjectURL(blob);
 
     // Create a temporary anchor element and trigger download

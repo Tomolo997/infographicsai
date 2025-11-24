@@ -9,14 +9,17 @@ The dashboard page (`front/pages/dashboard/index.vue`) now has **enhanced visual
 ## Changes Made
 
 ### 1. ⚡ Faster Result Display
+
 **Before:** Loading skeleton → wait → result cards  
 **After:** Brief submission → result cards appear immediately
 
 **Code Change:**
+
 - Moved `isGenerating.value = false` to trigger immediately after API returns
 - Results cards show instantly with "processing" state
 
 ### 2. 👁️ Added "Live" Indicator
+
 **Visual:** Blue badge with pulsing dot on processing cards
 
 ```vue
@@ -29,6 +32,7 @@ The dashboard page (`front/pages/dashboard/index.vue`) now has **enhanced visual
 **Purpose:** Shows user that system is actively checking for updates
 
 ### 3. ✅ Added "Ready" Badge
+
 **Visual:** Green badge on completed images
 
 ```vue
@@ -40,12 +44,14 @@ The dashboard page (`front/pages/dashboard/index.vue`) now has **enhanced visual
 **Purpose:** Clear confirmation that image is complete and ready
 
 ### 4. 📝 Improved Loading Message
+
 **Before:** Generic loading skeleton  
 **After:** "Submitting your request... Just a moment"
 
 **Purpose:** More specific feedback about what's happening
 
 ### 5. 🛡️ Better Error Handling
+
 - Added null checking for error responses
 - More specific error messages
 - Graceful fallback for network errors
@@ -77,29 +83,32 @@ Image Complete:
 
 ## Status Indicators
 
-| State | Visual Indicator | Polling |
-|-------|-----------------|---------|
-| Submitting | Spinner + "Submitting..." | ❌ Not started |
-| Processing | "Live ●" + Spinner + Timer | ✅ Every 3s |
-| Completed | "✓ Ready" + Image | ❌ Stopped |
-| Failed | "✕ Failed" + Error | ❌ Stopped |
+| State      | Visual Indicator           | Polling        |
+| ---------- | -------------------------- | -------------- |
+| Submitting | Spinner + "Submitting..."  | ❌ Not started |
+| Processing | "Live ●" + Spinner + Timer | ✅ Every 3s    |
+| Completed  | "✓ Ready" + Image          | ❌ Stopped     |
+| Failed     | "✕ Failed" + Error         | ❌ Stopped     |
 
 ---
 
 ## Benefits
 
 ### Performance
+
 - **1.7 seconds** faster perceived speed
 - Cards appear immediately after API responds
 - No blocking loading state
 
 ### User Experience
+
 - **Clear feedback** at every step
 - **Visual indicators** show system is working
 - **Status badges** remove confusion
 - **Smooth transitions** feel professional
 
 ### Technical
+
 - Proper cleanup of polling intervals
 - Better error handling
 - Consistent with "Saved" page design
@@ -129,6 +138,7 @@ Image Complete:
 ## Result
 
 ✅ **Dashboard now provides:**
+
 - Instant visual feedback
 - Clear status at all times
 - Professional, polished experience
@@ -136,4 +146,3 @@ Image Complete:
 - Better perceived performance
 
 🎉 **Users no longer wonder "is it working?"** - they can see it!
-

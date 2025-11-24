@@ -3,6 +3,7 @@
 ## Why Use ngrok?
 
 Instead of using Stripe CLI forwarding, you can expose your local Django server directly to Stripe using ngrok. This is useful for:
+
 - Testing webhooks in a more production-like environment
 - Testing webhook signature verification
 - Allowing Stripe Dashboard to send test webhooks directly
@@ -29,6 +30,7 @@ ngrok http 8000
 ```
 
 You'll see output like:
+
 ```
 Session Status                online
 Account                       Your Account (Plan: Free)
@@ -45,6 +47,7 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
 ### 3. Your Webhook URL
 
 Your webhook URL will be:
+
 ```
 https://abc123.ngrok-free.app/api/account/stripe-webhook/
 ```
@@ -130,6 +133,7 @@ stripe listen --forward-to https://abc123.ngrok-free.app/api/account/stripe-webh
 ### 3. Check ngrok Requests
 
 Visit: `http://127.0.0.1:4040` (ngrok web interface)
+
 - See all incoming requests
 - Inspect request/response details
 - Debug webhook issues
@@ -139,6 +143,7 @@ Visit: `http://127.0.0.1:4040` (ngrok web interface)
 ## Complete Setup Example
 
 ### Terminal 1: Django Server
+
 ```bash
 cd /Users/ovsenjak/Desktop/infoai
 source env/bin/activate
@@ -147,16 +152,19 @@ python manage.py runserver
 ```
 
 ### Terminal 2: ngrok
+
 ```bash
 ngrok http 8000
 ```
 
 **Output:**
+
 ```
 Forwarding    https://abc123.ngrok-free.app -> http://localhost:8000
 ```
 
 ### Terminal 3: Check ngrok (Optional)
+
 ```bash
 # Visit in browser
 open http://127.0.0.1:4040
@@ -204,13 +212,13 @@ open http://127.0.0.1:4040
 
 ## ngrok vs Stripe CLI
 
-| Feature | ngrok | Stripe CLI |
-|---------|-------|------------|
-| **Setup** | `ngrok http 8000` | `stripe listen --forward-to ...` |
-| **URL** | Changes each restart (free) | Uses localhost |
-| **Stripe Dashboard** | Can send test webhooks | No |
-| **Signature Verification** | Full (uses Dashboard secret) | Uses CLI secret |
-| **Best For** | Production-like testing | Quick local testing |
+| Feature                    | ngrok                        | Stripe CLI                       |
+| -------------------------- | ---------------------------- | -------------------------------- |
+| **Setup**                  | `ngrok http 8000`            | `stripe listen --forward-to ...` |
+| **URL**                    | Changes each restart (free)  | Uses localhost                   |
+| **Stripe Dashboard**       | Can send test webhooks       | No                               |
+| **Signature Verification** | Full (uses Dashboard secret) | Uses CLI secret                  |
+| **Best For**               | Production-like testing      | Quick local testing              |
 
 **Recommendation:** Use ngrok when you want to test with Stripe Dashboard. Use Stripe CLI for quick local testing.
 
@@ -231,17 +239,20 @@ Set this up in Stripe Dashboard with your production webhook secret.
 ## Quick Reference
 
 **Your Development Webhook URL (with ngrok):**
+
 ```
 https://[your-ngrok-domain].ngrok-free.app/api/account/stripe-webhook/
 ```
 
 **To get your ngrok domain:**
+
 ```bash
 ngrok http 8000
 # Look for: Forwarding https://abc123.ngrok-free.app -> http://localhost:8000
 ```
 
 **Full URL format:**
+
 ```
 https://abc123.ngrok-free.app/api/account/stripe-webhook/
 ```
@@ -249,4 +260,3 @@ https://abc123.ngrok-free.app/api/account/stripe-webhook/
 ---
 
 **Ready to test!** Start ngrok, add the URL to Stripe Dashboard, and start receiving webhooks! 🚀
-

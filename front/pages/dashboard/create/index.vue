@@ -428,7 +428,8 @@
                     >
                       {{ uploadedFile?.name }}
                     </span>
-                  </div>w
+                  </div>
+                  w
                 </div>
                 <button
                   @click="removeUploadedFile"
@@ -811,6 +812,8 @@
 
 <script setup>
 import { ref, watch, onMounted, nextTick } from "vue";
+import apiClient from "~/client/apiClient";
+import { useToastStore } from "~/stores/toast";
 
 definePageMeta({
   layout: "dashboard",
@@ -819,6 +822,7 @@ definePageMeta({
 });
 
 const route = useRoute();
+const toastStore = useToastStore();
 
 // State
 const prompt = ref("");
@@ -1087,10 +1091,34 @@ const closeImageModal = () => {
   }
 };
 
-const handleDownload = (result) => {
-  console.log("Downloading:", result);
-  // Add download logic here
-  closeImageModal();
+const handleDownload = async (result) => {
+  try {
+    // Use backend proxy endpoint to bypass CORS
+    const response = await apiClient.get(`/infographs/download/${result.id}/`, {
+      responseType: "blob", // Important: tell axios to handle binary data
+    });
+
+    // Create a blob URL from the response data
+    const blob = new Blob([response.data], { type: "image/png" });
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    // Create a temporary anchor element and trigger download
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `infograph-${result.id}.png`;
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+
+    closeImageModal();
+  } catch (error) {
+    console.error("Error downloading infograph:", error);
+    toastStore.error("Failed to download infograph. Please try again.");
+    closeImageModal();
+  }
 };
 
 const handleEdit = (result) => {

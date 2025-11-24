@@ -3,12 +3,14 @@
 ## 1-Minute Setup (Development)
 
 ### Install Stripe CLI
+
 ```bash
 brew install stripe/stripe-cli/stripe  # macOS
 stripe login
 ```
 
 ### Start Webhook Forwarding
+
 ```bash
 # Terminal 1: Django server
 cd /Users/ovsenjak/Desktop/infoai
@@ -23,6 +25,7 @@ stripe listen --forward-to localhost:8000/account/stripe-webhook/
 **Copy the webhook secret** from Terminal 2 output (starts with `whsec_`)
 
 ### Add to .env
+
 ```bash
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx  # From above
 ```
@@ -30,6 +33,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx  # From above
 ## Test Purchase Flow
 
 ### 1. Open Credits Page
+
 ```
 http://localhost:3000/dashboard/credits
 ```
@@ -37,6 +41,7 @@ http://localhost:3000/dashboard/credits
 ### 2. Click "Purchase" on Any Pack
 
 ### 3. Use Test Card
+
 ```
 Card: 4242 4242 4242 4242
 Expiry: Any future date (e.g., 12/34)
@@ -49,11 +54,13 @@ ZIP: Any 5 digits (e.g., 12345)
 ### 5. Verify Credits Added
 
 **Check terminal logs** - you should see:
+
 ```
 Successfully added XXX credits to user@example.com
 ```
 
 **Check in Django shell:**
+
 ```bash
 python manage.py shell
 ```
@@ -77,21 +84,23 @@ for p in purchases:
 
 ## Common Test Cards
 
-| Card Number         | Scenario                    |
-|--------------------|-----------------------------|
-| 4242 4242 4242 4242 | Success                     |
-| 4000 0000 0000 9995 | Declined (insufficient funds)|
-| 4000 0025 0000 3155 | Requires authentication     |
+| Card Number         | Scenario                      |
+| ------------------- | ----------------------------- |
+| 4242 4242 4242 4242 | Success                       |
+| 4000 0000 0000 9995 | Declined (insufficient funds) |
+| 4000 0025 0000 3155 | Requires authentication       |
 
 Full list: https://stripe.com/docs/testing
 
 ## Troubleshooting
 
 ### "No webhook secret found"
+
 - Make sure `.env` has `STRIPE_WEBHOOK_SECRET=whsec_xxxxx`
 - Restart Django server after adding it
 
 ### Credits Not Added
+
 1. Check Terminal 2 (stripe listen) - is event received?
 2. Check Terminal 1 (Django) - any errors?
 3. Verify email matches: Checkout email = Account email
@@ -119,6 +128,7 @@ Note: This won't have real line items, so it will fail at finding the price_id.
 ## Production Testing
 
 ### Test Mode (Safe)
+
 1. Go to Stripe Dashboard → Developers → Webhooks
 2. Create endpoint: `https://yourdomain.com/account/stripe-webhook/`
 3. Select: `checkout.session.completed`
@@ -126,6 +136,7 @@ Note: This won't have real line items, so it will fail at finding the price_id.
 5. Use test cards (4242...) in production app
 
 ### Live Mode (Real Money)
+
 1. Switch Stripe Dashboard to Live mode
 2. Create webhook endpoint for live
 3. Use real card with small amount
@@ -137,15 +148,16 @@ Note: This won't have real line items, so it will fail at finding the price_id.
 **Minimal changes made:**
 
 1. `app/account/views.py`:
+
    - Added `metadata` to checkout session
    - Added `StripeWebhookView` class (handles webhook)
    - Added `handle_successful_payment()` method
 
 2. `app/account/urls.py`:
+
    - Added route: `stripe-webhook/`
 
 3. `app/app/settings/`:
    - Added `STRIPE_WEBHOOK_SECRET` to dev/prod settings
 
 That's it! No database changes, no frontend changes.
-

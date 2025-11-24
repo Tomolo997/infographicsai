@@ -9,20 +9,24 @@ A webhook integration that automatically adds credits to user accounts when they
 ### 1. `app/account/views.py`
 
 #### Added to `PurchaseCreditsView`:
+
 ```python
 metadata={
     'user_email': request.user.email,
 }
 ```
+
 Added metadata to track which user made the purchase.
 
 #### New Class: `StripeWebhookView`
+
 - Receives webhook events from Stripe
 - Verifies webhook signature (production security)
 - Listens for `checkout.session.completed` event
 - Processes successful payments
 
 #### New Method: `handle_successful_payment(session)`
+
 - Gets user by email from checkout session
 - Gets credit pack by `stripe_price_id`
 - Calls `account.fill_credits(credits)` - adds credits + marks as non-trial
@@ -33,6 +37,7 @@ Added metadata to track which user made the purchase.
 ### 2. `app/account/urls.py`
 
 Added webhook endpoint:
+
 ```python
 path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook"),
 ```
@@ -42,6 +47,7 @@ path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook"
 ### 3. `app/app/settings/development.py`
 
 Added:
+
 ```python
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')  # Optional in dev
 ```
@@ -51,6 +57,7 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')  # Optional in d
 ### 4. `app/app/settings/production.py`
 
 Added:
+
 ```python
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')  # Required in production
 ```
@@ -106,15 +113,18 @@ User                  Frontend              Backend               Stripe
 ### Models Used
 
 **Account** (already existed):
+
 - `fill_credits(credits: int)` - Adds credits and marks user as non-trial
   - Sets `credit_balance += credits`
   - Sets `is_trial_user = False`
 
 **CreditPack** (already existed):
+
 - Stores credit pack information
 - `stripe_price_id` links to Stripe price
 
 **CreditPurchase** (already existed):
+
 - Records each purchase for audit trail
 - Links to `Account` and `CreditPack`
 - Stores `quantity` and `price`
@@ -135,6 +145,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 ## Testing
 
 ### Development (using Stripe CLI)
+
 ```bash
 # Install and login
 brew install stripe/stripe-cli/stripe
@@ -148,6 +159,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 ```
 
 ### Test Purchase
+
 1. Go to `http://localhost:3000/dashboard/credits`
 2. Click "Purchase"
 3. Use test card: `4242 4242 4242 4242`
@@ -157,6 +169,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 ## Production Setup
 
 1. Create webhook in Stripe Dashboard:
+
    - URL: `https://yourdomain.com/account/stripe-webhook/`
    - Event: `checkout.session.completed`
 
@@ -194,6 +207,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 ## Error Handling
 
 All errors are logged but don't fail the webhook (returns 200):
+
 - User not found → Log error
 - Credit pack not found → Log error
 - No line items → Log error
@@ -212,8 +226,8 @@ This prevents Stripe from retrying valid events that have data issues.
 ## Dependencies
 
 All dependencies already installed:
+
 - `stripe==10.7.0` (already in requirements.txt)
 - Django, DRF (already configured)
 
 No new packages needed!
-

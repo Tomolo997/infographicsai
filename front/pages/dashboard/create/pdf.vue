@@ -73,9 +73,46 @@
           </p>
         </div>
 
+        <!-- Infograph Type Selector -->
+        <div>
+          <div>
+            <h2 class="text-lg font-semibold text-text-primary">
+              Choose an Infograph Type
+            </h2>
+            <p class="text-sm text-text-secondary mt-1 mb-4">
+              Select an infograph type to start with
+            </p>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div
+              v-for="infographType in infographTypes"
+              :key="infographType.value"
+              @click="selectInfographType(infographType)"
+              :class="[
+                'cursor-pointer bg-card-bg border-2 rounded-lg p-4 flex items-center justify-center flex-col gap-2 transition-all duration-300',
+                selectedInfographType.value === infographType.value
+                  ? 'border-primary-500 shadow-lg shadow-primary-500/20'
+                  : 'border-card-border hover:border-primary-500/50 hover:shadow-md',
+              ]"
+            >
+              <div v-html="infographType.icon"></div>
+              <div
+                :class="[
+                  'text-sm font-medium text-center',
+                  selectedInfographType.value === infographType.value
+                    ? 'text-primary-500'
+                    : 'text-text-primary',
+                ]"
+              >
+                {{ infographType.label }}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Template Gallery -->
         <div class="space-y-4">
-          <div class="text-center">
+          <div class="text-left">
             <h2 class="text-lg font-semibold text-text-primary">
               Choose a Template
             </h2>
@@ -511,6 +548,36 @@ const showError = ref(false);
 const errorMessage = ref("");
 const pollingIntervals = ref(new Map());
 
+// Infograph types with icons
+const infographTypes = ref([
+  {
+    value: "infograph",
+    label: "Infograph",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></g></svg>`,
+  },
+  {
+    value: "flowchart",
+    label: "Flowchart",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="8" x="3" y="3" rx="2" /><path d="M7 11v4a2 2 0 0 0 2 2h4" /><rect width="8" height="8" x="13" y="13" rx="2" /></g></svg>`,
+  },
+  {
+    value: "mindmap",
+    label: "Mindmap",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 5a3 3 0 1 0-5.997.125a4 4 0 0 0-2.526 5.77a4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" /><path d="M9 13a4.5 4.5 0 0 0 3-4M6.003 5.125A3 3 0 0 0 6.401 6.5m-2.924 4.396a4 4 0 0 1 .585-.396M6 18a4 4 0 0 1-1.967-.516M12 13h4m-4 5h6a2 2 0 0 1 2 2v1M12 8h8m-4 0V5a2 2 0 0 1 2-2" /><circle cx="16" cy="13" r=".5" /><circle cx="18" cy="3" r=".5" /><circle cx="20" cy="21" r=".5" /><circle cx="20" cy="8" r=".5" /></g></svg>`,
+  },
+  {
+    value: "timeline",
+    label: "Timeline",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6 17h6v-2H6zm3-4h6v-2H9zm3-4h6V7h-6zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21z" /></svg>`,
+  },
+  {
+    value: "organization_chart",
+    label: "Organization Chart",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20.01 10.99h-7v-2h-2v2H3.47v4h2v-2h5.54v2h2v-2h5.5v2h2v-4z" /><circle cx="12.01" cy="4.51" r="2.5" fill="currentColor" /><circle cx="4.47" cy="19.49" r="2.5" fill="currentColor" /><circle cx="12.01" cy="19.49" r="2.5" fill="currentColor" /><circle cx="19.51" cy="19.49" r="2.5" fill="currentColor" /></svg>`,
+  },
+]);
+const selectedInfographType = ref(infographTypes.value[0]);
+
 // Mock templates
 const templates = ref([
   {
@@ -635,6 +702,10 @@ const selectTemplate = (template) => {
   }
 };
 
+const selectInfographType = (type) => {
+  selectedInfographType.value = type;
+};
+
 const handleGenerate = async () => {
   if (!selectedFile.value) {
     toastStore.error("Please upload a PDF file first");
@@ -653,6 +724,7 @@ const handleGenerate = async () => {
     formData.append("aspect_ratio", selectedAspectRatio.value.value);
     formData.append("resolution", selectedResolution.value);
     formData.append("number_of_infographs", numberOfInfographs.value);
+    formData.append("type", selectedInfographType.value.value);
 
     const response = await apiClient.post("/infographs/create/pdf/", formData, {
       headers: {
@@ -793,18 +865,29 @@ const closeImageModal = () => {
 
 const handleDownload = async (result) => {
   try {
-    const response = await fetch(result.image_url);
-    const blob = await response.blob();
+    // Use backend proxy endpoint to bypass CORS
+    const response = await apiClient.get(`/infographs/download/${result.id}/`, {
+      responseType: "blob", // Important: tell axios to handle binary data
+    });
+
+    // Create a blob URL from the response data
+    const blob = new Blob([response.data], { type: "image/png" });
     const blobUrl = window.URL.createObjectURL(blob);
+
+    // Create a temporary anchor element and trigger download
     const link = document.createElement("a");
     link.href = blobUrl;
     link.download = `infograph-${result.id}.png`;
     document.body.appendChild(link);
     link.click();
+
+    // Clean up
     document.body.removeChild(link);
     window.URL.revokeObjectURL(blobUrl);
+
     closeImageModal();
   } catch (error) {
+    console.error("Error downloading infograph:", error);
     toastStore.error("Failed to download infograph. Please try again.");
     closeImageModal();
   }

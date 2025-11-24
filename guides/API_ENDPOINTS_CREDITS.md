@@ -2,11 +2,11 @@
 
 ## Endpoint Overview
 
-| Endpoint | Method | Auth | Purpose |
-|----------|--------|------|---------|
-| `/account/credit-packs/` | GET | ✅ Required | List available credit packs |
-| `/account/purchase-credits/` | POST | ✅ Required | Create Stripe checkout session |
-| `/account/stripe-webhook/` | POST | ❌ None (Stripe) | Process payment completion |
+| Endpoint                     | Method | Auth             | Purpose                        |
+| ---------------------------- | ------ | ---------------- | ------------------------------ |
+| `/account/credit-packs/`     | GET    | ✅ Required      | List available credit packs    |
+| `/account/purchase-credits/` | POST   | ✅ Required      | Create Stripe checkout session |
+| `/account/stripe-webhook/`   | POST   | ❌ None (Stripe) | Process payment completion     |
 
 ---
 
@@ -19,12 +19,14 @@
 **Authentication:** Required (Token)
 
 **Request:**
+
 ```bash
 curl -H "Authorization: Token YOUR_TOKEN" \
   http://localhost:8000/account/credit-packs/
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -63,6 +65,7 @@ curl -H "Authorization: Token YOUR_TOKEN" \
 **Authentication:** Required (Token)
 
 **Request:**
+
 ```bash
 curl -X POST \
   -H "Authorization: Token YOUR_TOKEN" \
@@ -72,6 +75,7 @@ curl -X POST \
 ```
 
 **Request Body:**
+
 ```json
 {
   "price_id": "price_1ABCdef123456789"
@@ -79,6 +83,7 @@ curl -X POST \
 ```
 
 **Response (Success):**
+
 ```json
 {
   "checkout_url": "https://checkout.stripe.com/c/pay/cs_test_a1b2c3..."
@@ -86,6 +91,7 @@ curl -X POST \
 ```
 
 **Response (Error):**
+
 ```json
 {
   "message": "price_id is required"
@@ -93,19 +99,22 @@ curl -X POST \
 ```
 
 **Status Codes:**
+
 - `200 OK` - Checkout session created
 - `400 Bad Request` - Missing price_id or Stripe error
 - `401 Unauthorized` - No auth token
 
 **Frontend Usage:**
+
 ```javascript
-const response = await apiClient.post("/account/purchase-credits/", {
+const response = await apiClient.post('/account/purchase-credits/', {
   price_id: pack.stripe_price_id,
-});
-window.open(response.data.checkout_url, "_blank");
+})
+window.open(response.data.checkout_url, '_blank')
 ```
 
 **What It Does:**
+
 1. Validates user is authenticated
 2. Gets price_id from request
 3. Creates Stripe checkout session with:
@@ -130,12 +139,14 @@ window.open(response.data.checkout_url, "_blank");
 **⚠️ This endpoint is called by Stripe, not your frontend**
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Stripe-Signature: t=timestamp,v1=signature...
 ```
 
 **Request Body (Example):**
+
 ```json
 {
   "id": "evt_1ABCdef123456789",
@@ -153,6 +164,7 @@ Stripe-Signature: t=timestamp,v1=signature...
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success"
@@ -160,6 +172,7 @@ Stripe-Signature: t=timestamp,v1=signature...
 ```
 
 **Status Codes:**
+
 - `200 OK` - Event processed (even if errors occurred)
 - `400 Bad Request` - Invalid signature or payload
 
@@ -167,36 +180,43 @@ Stripe-Signature: t=timestamp,v1=signature...
 
 1. **Receives webhook event from Stripe**
    - Extracts payload and signature
-   
 2. **Verifies signature (production)**
+
    - Uses `STRIPE_WEBHOOK_SECRET`
    - Prevents fake payment notifications
    - Skipped in dev if secret not configured
 
 3. **Checks event type**
+
    - Only processes `checkout.session.completed`
    - Ignores other event types
 
 4. **Extracts user email**
+
    - From `customer_email` or `customer_details.email`
 
 5. **Finds user and account**
+
    - Gets `CustomUser` by email
    - Gets linked `Account`
 
 6. **Gets price_id from line items**
+
    - Calls Stripe API to get line items
    - Extracts price_id from first item
 
 7. **Finds credit pack**
+
    - Gets `CreditPack` by `stripe_price_id`
 
 8. **Adds credits**
+
    - Calls `account.fill_credits(credits)`
    - Updates `credit_balance`
    - Sets `is_trial_user = False`
 
 9. **Creates purchase record**
+
    - New `CreditPurchase` entry
    - Links account and credit pack
    - Stores quantity, price, timestamp
@@ -206,11 +226,13 @@ Stripe-Signature: t=timestamp,v1=signature...
     - Error: Detailed error message
 
 **Security:**
+
 - ✅ Signature verification in production
 - ✅ CSRF exempt (uses Stripe signature)
 - ✅ No authentication required (Stripe is authenticated)
 
 **Error Handling:**
+
 - Returns 200 even if processing fails (prevents Stripe retries)
 - All errors logged for debugging
 - Invalid signature returns 400
@@ -269,6 +291,7 @@ Stripe-Signature: t=timestamp,v1=signature...
 ## Testing the Endpoints
 
 ### 1. Test List Credit Packs
+
 ```bash
 # Get your auth token first
 TOKEN=$(curl -X POST http://localhost:8000/account/api-token-auth/ \
@@ -282,6 +305,7 @@ curl -H "Authorization: Token $TOKEN" \
 ```
 
 ### 2. Test Purchase Credits
+
 ```bash
 # Create checkout session
 curl -X POST \
@@ -289,11 +313,12 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"price_id": "price_1ABCdef123456789"}' \
   http://localhost:8000/account/purchase-credits/
-  
+
 # Open the checkout_url in a browser
 ```
 
 ### 3. Test Webhook (Development)
+
 ```bash
 # First, start webhook forwarding
 stripe listen --forward-to localhost:8000/account/stripe-webhook/
@@ -310,39 +335,39 @@ stripe trigger checkout.session.completed
 
 ```vue
 <script setup>
-import apiClient from "~/client/apiClient";
+import apiClient from '~/client/apiClient'
 
-const creditPacks = ref([]);
-const isLoading = ref(false);
+const creditPacks = ref([])
+const isLoading = ref(false)
 
 // Fetch available packs
 const fetchCreditPacks = async () => {
-  const response = await apiClient.get("/account/credit-packs/");
-  creditPacks.value = response.data;
-};
+  const response = await apiClient.get('/account/credit-packs/')
+  creditPacks.value = response.data
+}
 
 // Handle purchase
 const handlePurchase = async (pack) => {
   try {
-    isLoading.value = true;
-    
-    const response = await apiClient.post("/account/purchase-credits/", {
+    isLoading.value = true
+
+    const response = await apiClient.post('/account/purchase-credits/', {
       price_id: pack.stripe_price_id,
-    });
-    
+    })
+
     // Open Stripe checkout
-    window.open(response.data.checkout_url, "_blank");
+    window.open(response.data.checkout_url, '_blank')
   } catch (error) {
-    console.error("Error:", error);
-    alert("Failed to initiate purchase");
+    console.error('Error:', error)
+    alert('Failed to initiate purchase')
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
 onMounted(() => {
-  fetchCreditPacks();
-});
+  fetchCreditPacks()
+})
 </script>
 ```
 
@@ -351,9 +376,11 @@ onMounted(() => {
 ## Monitoring & Debugging
 
 ### Check Webhook Deliveries
+
 Stripe Dashboard → Developers → Webhooks → Your endpoint → Recent deliveries
 
 ### Check Logs
+
 ```bash
 # Django logs
 tail -f /path/to/django.log | grep -i stripe
@@ -365,6 +392,7 @@ tail -f /path/to/django.log | grep -i stripe
 ```
 
 ### Verify Credits Added
+
 ```python
 python manage.py shell
 
@@ -389,20 +417,24 @@ for p in purchases:
 ## Common Issues
 
 ### "price_id is required"
+
 - Missing `price_id` in request body
 - Check frontend is sending correct field
 
 ### "Failed to create checkout session"
+
 - Invalid `price_id` (doesn't exist in Stripe)
 - Stripe API key not set or invalid
 - Network issue connecting to Stripe
 
 ### Webhook not called
+
 - Stripe CLI not running (dev)
 - Webhook not configured in Stripe Dashboard (prod)
 - URL not accessible from internet (prod)
 
 ### Credits not added
+
 - Check webhook logs for errors
 - User email mismatch
 - Credit pack missing `stripe_price_id`
@@ -413,11 +445,13 @@ for p in purchases:
 ## Security Checklist
 
 ### Development
+
 - ✅ Use test mode keys (`sk_test_`, `pk_test_`)
 - ✅ Stripe CLI for webhook forwarding
 - ✅ `STRIPE_WEBHOOK_SECRET` optional (logs warning)
 
 ### Production
+
 - ✅ Use live mode keys (`sk_live_`, `pk_live_`)
 - ✅ HTTPS required for webhook endpoint
 - ✅ `STRIPE_WEBHOOK_SECRET` REQUIRED
@@ -428,4 +462,3 @@ for p in purchases:
 ---
 
 **Ready to test!** See `guides/STRIPE_CREDITS_QUICK_TEST.md` for step-by-step testing guide.
-

@@ -3,6 +3,7 @@
 ## What Changed on Dashboard Page
 
 ### Before (Old Behavior)
+
 ```
 User clicks "Generate"
         ↓
@@ -16,6 +17,7 @@ Polling updates cards when complete
 ```
 
 **Issues:**
+
 - Loading skeleton was unnecessary since we immediately get IDs
 - Two-phase loading (skeleton → processing cards) felt slow
 - No visual indicator of active polling
@@ -23,6 +25,7 @@ Polling updates cards when complete
 ---
 
 ### After (New Behavior)
+
 ```
 User clicks "Generate"
         ↓
@@ -51,6 +54,7 @@ Polling updates each card independently
 ## Visual States on Dashboard
 
 ### 1. Initial State - Before Generate
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Create Your Infograph                      │
@@ -67,6 +71,7 @@ Polling updates each card independently
 ```
 
 ### 2. Submission Phase (< 1 second)
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Create Your Infograph                      │
@@ -87,6 +92,7 @@ Polling updates each card independently
 **Duration:** < 1 second (just the API call time)
 
 ### 3. Processing State (30-60 seconds) - NEW!
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Create Your Infograph                      │
@@ -109,12 +115,14 @@ Polling updates each card independently
 ```
 
 **Key Features:**
+
 - ✨ **"Live" badge** with pulsing blue dot
 - 🔄 Spinner shows generation in progress
 - 📊 Estimated time shown
 - 🔁 Polling every 3 seconds in background
 
 ### 4. Completed State - NEW!
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Create Your Infograph                      │
@@ -136,6 +144,7 @@ Polling updates each card independently
 ```
 
 **Key Features:**
+
 - ✅ **Green "✓ Ready" badge** confirms completion
 - 🖼️ Image displayed
 - 🎯 Action buttons available
@@ -148,6 +157,7 @@ Polling updates each card independently
 ### When User Generates 4 Infographs
 
 #### Step 1: Submission (< 1 second)
+
 ```
 ┌──────────────────────────────────────────────────────┐
 │  [9:16] [2K] [4] [⏳ Submitting]                    │
@@ -161,6 +171,7 @@ Polling updates each card independently
 ```
 
 #### Step 2: All Processing with Live Indicators
+
 ```
 ┌──────────────────────────────────────────────────────┐
 │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐           │
@@ -173,6 +184,7 @@ Polling updates each card independently
 ```
 
 #### Step 3: Independent Completion
+
 ```
 ┌──────────────────────────────────────────────────────┐
 │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐           │
@@ -185,6 +197,7 @@ Polling updates each card independently
 ```
 
 **Each infograph:**
+
 - ✅ Has independent polling
 - ✅ Shows "Live" indicator while processing
 - ✅ Updates to "✓ Ready" when complete
@@ -194,11 +207,11 @@ Polling updates each card independently
 
 ## Status Badge Colors
 
-| Status | Badge | Color | Meaning |
-|--------|-------|-------|---------|
-| Processing | `Live ●` | Blue with pulsing dot | Actively checking for updates |
-| Completed | `✓ Ready` | Green | Image is ready to view/download |
-| Failed | `✕ Failed` | Red | Generation failed, try again |
+| Status     | Badge      | Color                 | Meaning                         |
+| ---------- | ---------- | --------------------- | ------------------------------- |
+| Processing | `Live ●`   | Blue with pulsing dot | Actively checking for updates   |
+| Completed  | `✓ Ready`  | Green                 | Image is ready to view/download |
+| Failed     | `✕ Failed` | Red                   | Generation failed, try again    |
 
 ---
 
@@ -207,6 +220,7 @@ Polling updates each card independently
 ### ⏱️ Timeline Comparison
 
 **OLD:**
+
 ```
 0s     User clicks generate
 ↓
@@ -222,6 +236,7 @@ Polling updates each card independently
 ```
 
 **NEW:**
+
 ```
 0s     User clicks generate
 ↓
@@ -244,6 +259,7 @@ Polling updates each card independently
 ## Code Changes Summary
 
 ### 1. Immediate Result Display
+
 ```javascript
 // OLD: Show skeleton, then results
 isGenerating.value = true;
@@ -260,16 +276,17 @@ hasResults.value = true; // Show cards right away
 ```
 
 ### 2. Added Live Indicator
+
 ```vue
 <!-- NEW: Pulsing "Live" badge during polling -->
-<div v-if="pollingIntervals.has(result.id)"
-     class="absolute top-3 right-3 ...">
+<div v-if="pollingIntervals.has(result.id)" class="absolute top-3 right-3 ...">
   <span>Live</span>
   <span class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></span>
 </div>
 ```
 
 ### 3. Added Status Badge for Completed
+
 ```vue
 <!-- NEW: Green "✓ Ready" badge when complete -->
 <div v-if="result.status === 'completed'" class="absolute top-3 left-3">
@@ -280,13 +297,14 @@ hasResults.value = true; // Show cards right away
 ```
 
 ### 4. Improved Error Handling
+
 ```javascript
 // NEW: Better error messages and null checking
 if (error.response?.data?.errors) {
-  const errors = error.response.data.errors;
+  const errors = error.response.data.errors
   // Handle each error type...
 } else {
-  errorMessage.value = "Network error. Please try again.";
+  errorMessage.value = 'Network error. Please try again.'
 }
 ```
 
@@ -295,22 +313,26 @@ if (error.response?.data?.errors) {
 ## User Experience Benefits
 
 ### 🚀 Performance
+
 - **Perceived speed:** 60% faster (1.7s saved on initial display)
 - **Actual speed:** Same (polling still 3s intervals)
 - **Feel:** Much snappier and more responsive
 
 ### 👁️ Visibility
+
 - **Before:** No indication of what's happening
 - **After:** Clear "Live" indicator + status badges
 - **Result:** User knows exactly what's happening
 
 ### 🎯 Clarity
+
 - **Processing:** Blue "Live" badge with pulsing dot
 - **Complete:** Green "✓ Ready" badge
 - **Failed:** Red error state
 - **Result:** No confusion about status
 
 ### 💡 Confidence
+
 - **Before:** "Is it still working? Should I refresh?"
 - **After:** "I can see it's actively checking, I'll wait"
 - **Result:** User trusts the system
@@ -320,26 +342,31 @@ if (error.response?.data?.errors) {
 ## Edge Cases Handled
 
 ### 1. Quick Generation (< 10 seconds)
+
 - User sees "Live" indicator briefly
 - Transitions smoothly to "✓ Ready"
 - No jarring state changes
 
 ### 2. Slow Generation (> 60 seconds)
+
 - "Live" indicator keeps pulsing
 - User knows system is still checking
 - No timeout anxiety
 
 ### 3. Multiple at Different Times
+
 - Each card updates independently
 - "Live" indicators disappear individually
 - Clear which are done, which are pending
 
 ### 4. Failed Generation
+
 - Polling stops immediately
 - Shows error state clearly
 - User can try again
 
 ### 5. User Leaves Page
+
 - Polling intervals cleaned up properly
 - No memory leaks
 - Can return and see results in "Saved" page
@@ -357,4 +384,3 @@ The improved dashboard flow provides:
 5. 🔒 **Reliable** - Proper cleanup, error handling
 
 **Result:** Users get a modern, responsive experience that feels fast, reliable, and professional! 🎉
-

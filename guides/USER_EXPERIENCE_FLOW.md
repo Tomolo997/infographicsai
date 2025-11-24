@@ -7,6 +7,7 @@
 ## 🎯 Scenario 1: Creating a New Infograph
 
 ### Step 1: User on Dashboard
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Create Your Infograph                      │
@@ -23,7 +24,9 @@
 ```
 
 ### Step 2: User Clicks Generate
+
 **What Happens:**
+
 - Button shows spinner
 - Template gallery disappears
 - Loading skeleton appears immediately
@@ -52,6 +55,7 @@
 ✅ User sees immediate feedback
 
 ### Step 3: Processing (30-60 seconds)
+
 **What User Sees:**
 
 ```
@@ -79,7 +83,9 @@
 🔄 Status = "processing" → UI stays in loading state
 
 ### Step 4: Generation Complete!
+
 **What Happens:**
+
 - Loading spinner disappears
 - ✨ Image fades in smoothly
 - Action buttons appear
@@ -150,6 +156,7 @@
 ```
 
 **Key Points:**
+
 - Each infograph has **independent polling**
 - They complete at different times
 - UI updates **individually** as each finishes
@@ -180,6 +187,7 @@
 ```
 
 **Legend:**
+
 - ✅ Green badge = Completed
 - 🔵 Blue badge + pulsing dot = Processing (polling active)
 - No image yet = Still generating
@@ -193,6 +201,7 @@
 ### Live Update - Image Completes While User Watches
 
 **Before:**
+
 ```
 ┌─────────┐
 │🔵 Live  │  ← Processing, polling active
@@ -204,6 +213,7 @@
 ```
 
 **After (30 seconds later, no refresh needed):**
+
 ```
 ┌─────────┐
 │✅ Done  │  ← Status updated automatically!
@@ -250,6 +260,7 @@
 ```
 
 **Actions Available:**
+
 - **Download**: Saves to user's computer
 - **Delete**: Removes from saved (with confirmation)
 - Click outside or [✕] to close
@@ -273,6 +284,7 @@
 ```
 
 **User can:**
+
 - Go back and try again with different settings
 - Contact support if persistent
 
@@ -286,27 +298,32 @@
 ## Key UX Principles
 
 ### 1. **Immediate Feedback**
+
 ✅ User never sees blank screen  
 ✅ Loading states appear instantly  
 ✅ No waiting for server response
 
 ### 2. **Automatic Updates**
+
 ✅ No refresh button needed  
 ✅ No "Check status" button  
 ✅ Updates just happen
 
 ### 3. **Visual Indicators**
+
 ✅ Spinners show processing  
 ✅ Pulsing dots show live polling  
 ✅ Color-coded badges (green/blue/red)  
 ✅ Smooth transitions
 
 ### 4. **Independent Tracking**
+
 ✅ Multiple infographs tracked separately  
 ✅ Each updates when ready  
 ✅ No blocking or waiting
 
 ### 5. **Resource Efficiency**
+
 ✅ Polling stops when complete  
 ✅ No memory leaks  
 ✅ Clean component unmount
@@ -327,6 +344,7 @@
 8. Clicks refresh again... finally done!
 
 **Problems:**
+
 - ❌ Long blocking wait
 - ❌ Manual refresh needed
 - ❌ Frustrating experience
@@ -343,6 +361,7 @@
 7. Blue dots disappear when done
 
 **Benefits:**
+
 - ✅ Instant feedback
 - ✅ No manual refresh
 - ✅ Delightful experience
@@ -361,10 +380,10 @@ The system provides a **modern, responsive experience** where:
 5. ✨ **Seamless flow** - No interruptions or manual steps
 
 **Users never need to:**
+
 - Click refresh
 - Wait on a blank screen
 - Wonder if it's still processing
 - Check manually for updates
 
 Everything just **works automatically**! 🎉
-

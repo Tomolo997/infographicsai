@@ -7,6 +7,7 @@ This guide explains how to set up Stripe webhooks for credit purchases in both d
 ## Architecture
 
 ### Flow
+
 1. User clicks "Purchase" on a credit pack
 2. Frontend calls `/account/purchase-credits/` with `price_id`
 3. Backend creates Stripe Checkout Session
@@ -20,6 +21,7 @@ This guide explains how to set up Stripe webhooks for credit purchases in both d
    - Creates `CreditPurchase` record
 
 ### Models Updated
+
 - `Account.fill_credits(credits)` - Adds credits and marks user as non-trial
 - `CreditPurchase` - Records the purchase for audit trail
 
@@ -56,6 +58,7 @@ stripe listen --forward-to localhost:8000/account/stripe-webhook/
 ```
 
 You'll see output like:
+
 ```
 > Ready! Your webhook signing secret is whsec_xxxxx (^C to quit)
 ```
@@ -129,6 +132,7 @@ Go to: https://dashboard.stripe.com/webhooks
 ### 2. Get Webhook Signing Secret
 
 After creating the endpoint:
+
 1. Click on the endpoint in the Stripe Dashboard
 2. Click "Reveal" under "Signing secret"
 3. Copy the `whsec_xxxxx` value
@@ -161,6 +165,7 @@ After deployment:
 ### 5. Monitor Webhook Health
 
 In Stripe Dashboard > Webhooks:
+
 - Check "Recent deliveries" tab
 - Look for failed deliveries (red X)
 - Click on failures to see error details
@@ -171,11 +176,13 @@ In Stripe Dashboard > Webhooks:
 ## Webhook Security
 
 ### Development
+
 - Signature verification is optional (will log warning)
 - Uses test mode keys and test cards
 - No real money involved
 
 ### Production
+
 - **Signature verification is REQUIRED**
 - Set `STRIPE_WEBHOOK_SECRET` environment variable
 - The webhook verifies that events come from Stripe
@@ -202,12 +209,15 @@ else:
 ### Webhook Not Receiving Events
 
 1. **Check URL is accessible:**
+
    ```bash
    curl -X POST https://yourdomain.com/account/stripe-webhook/
    ```
+
    Should return 400 (not 404)
 
 2. **Check Stripe Dashboard > Webhooks > Recent deliveries**
+
    - Are events being sent?
    - What's the response code?
    - View request/response details
@@ -217,20 +227,23 @@ else:
 ### Credits Not Being Added
 
 1. **Check webhook logs:**
+
    ```python
    # In handle_successful_payment, all errors are logged
    logger.error(...)
    ```
 
 2. **Common issues:**
+
    - User email doesn't match any account
    - Price ID doesn't match any CreditPack
    - CreditPack missing `stripe_price_id`
 
 3. **Verify credit pack setup:**
+
    ```bash
    python manage.py shell
-   
+
    from account.models import CreditPack
    packs = CreditPack.objects.all()
    for pack in packs:
@@ -239,7 +252,8 @@ else:
 
 ### Signature Verification Failing
 
-1. **Wrong webhook secret:** 
+1. **Wrong webhook secret:**
+
    - Each endpoint has unique secret
    - Copy from correct endpoint in Stripe Dashboard
 
@@ -253,6 +267,7 @@ else:
 ## Testing Checklist
 
 ### Development Testing
+
 - [ ] Stripe CLI installed and logged in
 - [ ] Webhook forwarding running
 - [ ] Test purchase with card `4242 4242 4242 4242`
@@ -262,6 +277,7 @@ else:
 - [ ] Webhook logs show success
 
 ### Production Testing
+
 - [ ] Webhook endpoint created in Stripe Dashboard
 - [ ] `STRIPE_WEBHOOK_SECRET` environment variable set
 - [ ] Test mode purchase successful
@@ -275,11 +291,13 @@ else:
 ## API Endpoints
 
 ### POST `/account/purchase-credits/`
+
 - **Auth:** Required
 - **Body:** `{ "price_id": "price_xxxxx" }`
 - **Response:** `{ "checkout_url": "https://checkout.stripe.com/..." }`
 
 ### POST `/account/stripe-webhook/`
+
 - **Auth:** None (verified by signature)
 - **Body:** Stripe event payload
 - **Events:** `checkout.session.completed`
@@ -305,4 +323,3 @@ This creates/updates products and prices in Stripe and syncs the `stripe_price_i
 - Stripe Docs: https://stripe.com/docs/webhooks
 - Stripe CLI: https://stripe.com/docs/stripe-cli
 - Test Cards: https://stripe.com/docs/testing
-

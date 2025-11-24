@@ -9,16 +9,19 @@ Successfully implemented a minimal Stripe webhook integration that automatically
 ### Code Changes (Minimal)
 
 **1. Backend API Endpoint** - `app/account/views.py` (+83 lines)
+
 - `StripeWebhookView` - Receives webhook events from Stripe
 - `handle_successful_payment()` - Processes payment and adds credits
 - Updated `PurchaseCreditsView` to include metadata
 
 **2. URL Route** - `app/account/urls.py` (+1 line)
+
 ```python
 path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook")
 ```
 
 **3. Settings** - `app/app/settings/*.py` (+2 lines)
+
 - Added `STRIPE_WEBHOOK_SECRET` to development.py
 - Added `STRIPE_WEBHOOK_SECRET` to production.py
 
@@ -46,6 +49,7 @@ path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook"
 ### 📚 Complete Guides
 
 1. **`guides/STRIPE_CREDITS_WEBHOOK_SETUP.md`** (Comprehensive)
+
    - Architecture and flow diagrams
    - Development setup with Stripe CLI
    - Production setup with Stripe Dashboard
@@ -54,6 +58,7 @@ path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook"
    - Testing checklist
 
 2. **`guides/STRIPE_CREDITS_QUICK_TEST.md`** (Quick Start)
+
    - 1-minute setup for development
    - Quick test with test cards
    - Common troubleshooting
@@ -69,12 +74,14 @@ path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook"
 ## Quick Testing (Development)
 
 ### 1. Install Stripe CLI
+
 ```bash
 brew install stripe/stripe-cli/stripe
 stripe login
 ```
 
 ### 2. Start Servers
+
 ```bash
 # Terminal 1: Django
 python manage.py runserver
@@ -84,12 +91,15 @@ stripe listen --forward-to localhost:8000/account/stripe-webhook/
 ```
 
 ### 3. Copy Webhook Secret
+
 From Terminal 2, copy the `whsec_xxxxx` and add to `.env`:
+
 ```bash
 STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 ```
 
 ### 4. Test Purchase
+
 1. Go to `http://localhost:3000/dashboard/credits`
 2. Click "Purchase" on any pack
 3. Use test card: `4242 4242 4242 4242`
@@ -97,6 +107,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 5. Check logs: "Successfully added XXX credits to user@email.com"
 
 ### 5. Verify
+
 ```python
 # Django shell
 python manage.py shell
@@ -110,17 +121,20 @@ print(f"Trial: {user.is_trial_user}")     # Should be False
 ## Production Setup
 
 ### 1. Create Webhook in Stripe Dashboard
+
 - Go to: https://dashboard.stripe.com/webhooks
 - Add endpoint: `https://yourdomain.com/account/stripe-webhook/`
 - Select event: `checkout.session.completed`
 - Copy signing secret
 
 ### 2. Set Environment Variable
+
 ```bash
 STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe Dashboard
 ```
 
 ### 3. Deploy & Test
+
 - Deploy your code
 - Test with test mode first
 - Test with small live purchase
@@ -129,6 +143,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe Dashboard
 ## What Happens on Purchase
 
 ### User Side
+
 1. Click "Purchase" button
 2. Opens Stripe checkout page
 3. Enters card details
@@ -136,6 +151,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe Dashboard
 5. Redirects back to your app
 
 ### Backend Side (Webhook)
+
 1. Receives `checkout.session.completed` event from Stripe
 2. Verifies webhook signature (security)
 3. Extracts user email from session
@@ -153,16 +169,19 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe Dashboard
 ## Security Features
 
 ✅ **Webhook Signature Verification** (Production)
+
 - Verifies events come from Stripe
 - Prevents fake payment notifications
 - Uses `STRIPE_WEBHOOK_SECRET`
 
 ✅ **CSRF Exempt** (Webhook Only)
+
 - Webhook endpoint skips CSRF check
 - Uses Stripe signature instead
 - Other endpoints remain protected
 
 ✅ **Development Mode**
+
 - Optional signature verification
 - Logs warning if secret missing
 - Safe for local testing
@@ -170,6 +189,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe Dashboard
 ## Error Handling
 
 All errors are logged and handled gracefully:
+
 - ❌ User not found → Log error, return 200
 - ❌ Credit pack not found → Log error, return 200
 - ❌ Invalid webhook signature → Return 400
@@ -180,6 +200,7 @@ Returns 200 for data issues to prevent Stripe retries.
 ## Models Used
 
 ### Account (existing)
+
 ```python
 def fill_credits(self, credits: int):
     self.credit_balance += credits
@@ -188,10 +209,12 @@ def fill_credits(self, credits: int):
 ```
 
 ### CreditPack (existing)
+
 - Links to Stripe via `stripe_price_id`
 - Contains credit amount and price
 
 ### CreditPurchase (existing)
+
 - Audit trail of all purchases
 - Links account and credit pack
 - Records quantity, price, timestamp
@@ -228,6 +251,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe CLI or Dashboard
 ## Next Steps
 
 ### Development Testing
+
 1. ✓ Code implemented
 2. ⏳ Install Stripe CLI
 3. ⏳ Start webhook forwarding
@@ -235,6 +259,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe CLI or Dashboard
 5. ⏳ Verify credits added
 
 ### Production Deployment
+
 1. ⏳ Create webhook in Stripe Dashboard
 2. ⏳ Add STRIPE_WEBHOOK_SECRET to production env
 3. ⏳ Deploy code
@@ -258,11 +283,10 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe CLI or Dashboard
 ✅ Secure (signature verification)  
 ✅ Well documented  
 ✅ Easy to test locally  
-✅ Production ready  
+✅ Production ready
 
 ---
 
 **Implementation Status:** ✅ COMPLETE
 
 Ready for testing! See `guides/STRIPE_CREDITS_QUICK_TEST.md` to get started.
-
