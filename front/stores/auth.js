@@ -122,6 +122,41 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async loginWithToken(token) {
+      this.loading = true
+      try {
+        // Store token
+        this.token = token
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', token)
+        }
+
+        const tokenCookie = useCookie('auth-token', {
+          maxAge: 60 * 60 * 24 * 7,
+        })
+        tokenCookie.value = token
+
+        // Fetch user data to verify token and get user info
+        await this.fetchUser()
+
+        return { success: true }
+      } catch (error) {
+        console.error('Token login error:', error)
+        // Clear invalid token
+        this.token = null
+        this.isAuthenticated = false
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token')
+        }
+        const tokenCookie = useCookie('auth-token')
+        tokenCookie.value = null
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
     initializeAuth() {
       const tokenCookie = useCookie('auth-token')
       if (tokenCookie.value) {

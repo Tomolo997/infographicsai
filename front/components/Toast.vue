@@ -94,34 +94,34 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useToastStore } from '~/stores/toast'
+import { computed } from "vue";
+import { useToastStore } from "~/stores/toast";
 
-const toastStore = useToastStore()
+const toastStore = useToastStore();
 
-const toasts = computed(() => toastStore.toasts)
+const toasts = computed(() => toastStore.toasts);
 
 const removeToast = (id) => {
-  toastStore.remove(id)
-}
+  toastStore.remove(id);
+};
 
 const getToastStyles = (type) => {
   const styles = {
-    success: 'border-green-200 bg-card-bg',
-    error: 'border-red-200 bg-card-bg',
-    warning: 'border-yellow-200 bg-card-bg',
-  }
-  return styles[type] || styles.success
-}
+    success: "border-green-200 bg-card-bg",
+    error: "border-red-200 bg-card-bg",
+    warning: "border-yellow-200 bg-card-bg",
+  };
+  return styles[type] || styles.success;
+};
 
 const getIconColor = (type) => {
   const colors = {
-    success: 'text-green-600',
-    error: 'text-red-600',
-    warning: 'text-yellow-600',
-  }
-  return colors[type] || colors.success
-}
+    success: "text-green-600",
+    error: "text-red-600",
+    warning: "text-yellow-600",
+  };
+  return colors[type] || colors.success;
+};
 </script>
 
 <style scoped>

@@ -1001,6 +1001,7 @@ definePageMeta({
 });
 
 const route = useRoute();
+const authStore = useAuthStore();
 
 // Refs
 const textareaRef = ref(null);
@@ -1185,7 +1186,31 @@ const selectTemplate = (template) => {
 };
 
 // Pre-select template from query parameter
-onMounted(() => {
+onMounted(async () => {
+  // Handle Google OAuth token from query parameter
+  const token = route.query.token;
+  if (token) {
+    try {
+      await authStore.loginWithToken(token);
+      // Remove token from URL without page reload
+      const newQuery = { ...route.query };
+      delete newQuery.token;
+      await navigateTo(
+        {
+          path: route.path,
+          query: newQuery,
+        },
+        { replace: true }
+      );
+    } catch (error) {
+      console.error("Failed to authenticate with token:", error);
+      // Optionally show error message to user
+      showError.value = true;
+      errorMessage.value =
+        "Failed to authenticate. Please try logging in again.";
+    }
+  }
+
   const templateId = route.query.templateId;
   if (templateId) {
     const templateIdNum = parseInt(templateId, 10);
