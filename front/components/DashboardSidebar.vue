@@ -149,19 +149,18 @@
             v-if="isDropdownOpen && !isCollapsed"
             class="absolute bottom-full left-4 right-4 bg-sidebar-bg border border-sidebar-border rounded-lg shadow-lg overflow-hidden"
           >
-            <!-- Dark Mode Toggle -->
-            <button
-              @click="buyCredits"
+            <NuxtLink
+              to="/dashboard/credits"
               class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-sidebar-border transition-colors text-left"
             >
               <SidebarIcon name="credits" />
               <span class="text-sidebar-text-primary font-medium text-sm"
                 >Buy Credits</span
               >
-            </button>
+            </NuxtLink>
 
-            <button
-              @click="settings"
+            <NuxtLink
+              to="/dashboard/settings"
               class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-sidebar-border transition-colors text-left"
             >
               <svg
@@ -181,7 +180,7 @@
               <span class="text-sidebar-text-primary font-medium text-sm"
                 >Settings</span
               >
-            </button>
+            </NuxtLink>
 
             <!-- Divider -->
             <div class="border-t border-sidebar-border"></div>
@@ -310,17 +309,6 @@ export default {
       isDropdownOpen.value = !isDropdownOpen.value;
     };
 
-    const buyCredits = () => {
-      // TODO: Navigate to buy credits page
-      console.log("Buy credits");
-      isDropdownOpen.value = false;
-    };
-
-    const settings = () => {
-      navigateTo("/dashboard/settings");
-      isDropdownOpen.value = false;
-    };
-
     const handleLogout = async () => {
       try {
         await authStore.logout();
@@ -355,8 +343,6 @@ export default {
       userEmail,
       userInitials,
       toggleDropdown,
-      buyCredits,
-      settings,
       handleLogout,
       dropdownRef,
       isCollapsed,

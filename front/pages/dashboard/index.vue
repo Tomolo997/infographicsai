@@ -995,6 +995,8 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import apiClient from "~/client/apiClient";
+import { useAuthStore } from "~/stores/auth";
+import { useToastStore } from "~/stores/toast";
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
@@ -1002,7 +1004,7 @@ definePageMeta({
 
 const route = useRoute();
 const authStore = useAuthStore();
-
+const toastStore = useToastStore();
 // Refs
 const textareaRef = ref(null);
 
@@ -1533,7 +1535,6 @@ const handleGenerate = async () => {
         startPollingStatus(response.data.id);
       } else {
         // Complete failure - show error
-        console.error("❌ Cannot parse response!");
         showError.value = true;
         errorMessage.value =
           "Unexpected response format. Check console for details.";
@@ -1544,7 +1545,6 @@ const handleGenerate = async () => {
 
     return;
   } catch (error) {
-    console.error("Error creating infograph:", error);
     showError.value = true;
 
     // Better error handling
@@ -1566,6 +1566,8 @@ const handleGenerate = async () => {
     } else {
       errorMessage.value = "Network error. Please try again.";
     }
+
+    toastStore.error(errorMessage.value);
 
     isGenerating.value = false;
     hasResults.value = false;
@@ -1615,10 +1617,23 @@ const closeImageModal = () => {
   }
 };
 
-const handleDownload = (result) => {
-  console.log("Downloading:", result);
-  // Add download logic here
-  closeImageModal();
+const handleDownload = async (result) => {
+  try {
+    const response = await fetch(result.image_url);
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `infograph-${result.id}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+    closeImageModal();
+  } catch (error) {
+    toastStore.error("Failed to download infograph. Please try again.");
+    closeImageModal();
+  }
 };
 
 const handleEdit = (result) => {

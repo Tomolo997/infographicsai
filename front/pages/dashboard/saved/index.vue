@@ -557,7 +557,7 @@ const closeInfographModal = () => {
 
 const handleDownload = async () => {
   if (!selectedInfograph.value?.image_url) return;
-
+  console.log(selectedInfograph.value.image_url);
   try {
     // Fetch the image
     const response = await fetch(selectedInfograph.value.image_url);

@@ -11,7 +11,7 @@
     </div>
 
     <!-- Settings Grid -->
-    <div class="max-w-4xl space-y-6">
+    <div class="w-full space-y-6">
       <!-- Credits Balance Card -->
       <div class="bg-card-bg border border-card-border rounded-lg p-6">
         <div class="flex items-center justify-between mb-4">
