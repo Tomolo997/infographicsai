@@ -1,10 +1,13 @@
+import base64
 import json
 import logging
+from io import BytesIO
 
 from django.conf import settings
 
 import openai
 import trafilatura
+from PIL import Image
 from pypdf import PdfReader
 
 logger = logging.getLogger(__name__)
@@ -13,6 +16,105 @@ from infographs.infographs.exceptions import BlogContentNotFoundException
 
 
 class URLAnalyzer:
+    def _analyze_template_image(self, image_file):
+        """Analyze template image using GPT-4 Vision and extract design schema"""
+        logger.info("Starting template image analysis with GPT-4 Vision")
+        
+        try:
+            # Read and encode the image
+            if hasattr(image_file, 'read'):
+                image_data = image_file.read()
+                image_file.seek(0)  # Reset file pointer
+            else:
+                with open(image_file, 'rb') as f:
+                    image_data = f.read()
+            
+            # Encode image to base64
+            base64_image = base64.b64encode(image_data).decode('utf-8')
+            
+            logger.debug("Image encoded to base64")
+            
+            # Initialize OpenAI client
+            client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+            
+            prompt = """Analyze this infographic template and describe its visual structure. I need you to identify:
+
+The overall layout pattern - how is the content organized? Is it a grid, vertical sections, or something else?
+
+Color scheme - what are the primary colors used and how are they distributed across the design?
+
+Component structure - break down the major sections (header, body, footer) and describe what elements each contains
+
+Typography - what text hierarchy exists (titles, subtitles, labels)?
+
+Icon usage - where are icons placed, what size, what color?
+
+Spacing and alignment - how are elements positioned relative to each other?
+
+Any borders, shadows, or decorative elements
+
+The goal is to extract the design system and layout rules so I can recreate similar templates programmatically. Focus on the structural and visual properties, not the actual content.
+"""
+            
+            logger.debug("Sending request to GPT-4 Vision")
+            
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert in analyzing visual designs and extracting design specifications. You excel at identifying colors, layouts, typography, and visual patterns."
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens=2000,
+                temperature=0.3
+            )
+            
+            # Get the text description
+            template_description = response.choices[0].message.content
+            
+            if not template_description or template_description.strip() == "":
+                raise ValueError("Empty response from GPT-4 Vision")
+            
+            logger.info("Successfully analyzed template image with GPT-4 Vision")
+            logger.debug(f"Template description: {template_description[:200]}...")
+            
+            # Return as a simple dict with the description
+            template_design = {
+                "template": {
+                    "description": template_description
+                }
+            }
+            logger.info("Successfully analyzed template image with GPT-4 Vision")
+            logger.debug(f"Template schema: {json.dumps(template_design, indent=2)}")
+            
+            return template_design
+            
+        except Exception as e:
+            logger.error(f"Error analyzing template image: {str(e)}", exc_info=True)
+            # Return a default schema if analysis fails
+            return {
+                "template": {
+                    "body": {
+                        "layout": "grid",
+                        "textColor": "#000000",
+                        "colors": ["#2ECC71", "#F39C6B", "#5DADE2"]
+                    }
+                }
+            }
+    
     def _read_pdf(self, pdf_file):
         """Helper method to read PDF content"""
         logger.info("Starting to read PDF file")

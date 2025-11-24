@@ -114,6 +114,109 @@ def create_infograph_from_pdf(
 
 
 
+def create_infograph_from_own_template(
+  account: Account,
+  prompt: str,
+  template_image,
+  aspect_ratio: str,
+  resolution: str,
+  number_of_infographs: int,
+  type: str = 'infograph'
+) -> Dict[str, Any]:
+    """
+    Create infograph(s) from user's own template image.
+    Analyzes the template design and incorporates it into the generation.
+    
+    Returns immediately with infograph IDs and status.
+    Actual image generation happens in background.
+    """
+    credits_used = 1
+    if resolution == "4K":
+        credits_used += 1
+    
+    # Check if the account has enough credits
+    total_credits_needed = credits_used * number_of_infographs
+    if account.credit_balance < total_credits_needed:
+        raise NotEnoughCreditsException(
+            f"You need {total_credits_needed} credits but have {account.credit_balance}"
+        )
+    
+    # Analyze the template image to extract design schema
+    analyzer = URLAnalyzer()
+    template_design = analyzer._analyze_template_image(template_image)
+    
+    # Build the enhanced prompt with template design
+    enhanced_prompt = _build_prompt_with_template(prompt, template_design, type)
+    
+    # Initialize fal.ai client
+    fal_client = FalAI()
+    
+    # Create webhook URL for receiving results
+    webhook_base_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
+    
+    # Create infographs and submit generation jobs
+    infographs = []
+    for i in range(number_of_infographs):
+        # Create infograph record with PENDING status
+        infograph = Infograph.objects.create(
+            account=account,
+            blog_url=None,
+            blog_json={
+                "template_design": template_design,
+                "source": "own_template",
+                "type": type
+            },
+            resolution=resolution,
+            aspect_ratio=aspect_ratio,
+            credits_used=credits_used,
+            prompt=enhanced_prompt,
+            status=InfographStatus.PENDING,
+            type=type,
+        )
+        
+        try:
+            # Submit async generation job to fal.ai
+            webhook_url = f"{webhook_base_url}/api/infographs/webhook/{infograph.id}/"
+            result = fal_client.submit_generation_sync(
+                prompt=enhanced_prompt,
+                webhook_url=webhook_url,
+                aspect_ratio=aspect_ratio,
+            )
+            
+            # Update with request ID and mark as PROCESSING
+            infograph.fal_request_id = result["request_id"]
+            infograph.status = InfographStatus.PROCESSING
+            infograph.save()
+            
+            infographs.append({
+                "id": infograph.id,
+                "request_id": result["request_id"],
+                "status": infograph.status,
+                "status_url": result.get("status_url"),
+            })
+            
+        except Exception as e:
+            # Mark as failed if submission fails
+            infograph.status = InfographStatus.FAILED
+            infograph.error_message = str(e)
+            infograph.save()
+            infographs.append({
+                "id": infograph.id,
+                "status": InfographStatus.FAILED,
+                "error": str(e),
+            })
+    
+    # Deduct credits only after successful submission
+    account.credit_balance -= total_credits_needed
+    account.save()
+    
+    return {
+        "infographs": infographs,
+        "total_submitted": len(infographs),
+        "credits_used": total_credits_needed,
+    }
+
+
 def create_infograph(
   account: Account,
   prompt: str,
@@ -243,6 +346,28 @@ def _build_pdf_prompt(pdf_content: str, type: str) -> str:
     PDF Content:
     {pdf_content}
     """
+
+
+def _build_prompt_with_template(user_prompt: str, template_design: Dict[str, Any], type: str) -> str:
+    """Build enhanced prompt incorporating template design description."""
+    
+    # Extract the template description
+    template_schema = template_design.get("template", {})
+    template_description = template_schema.get("description", "")
+    
+    base_prompt = f"""Create a professional {type} with the following design specifications:
+
+User Content Request: {user_prompt}
+
+Design Template Analysis:
+{template_description}
+
+IMPORTANT: Use the design system, colors, layout, and visual style described above as inspiration for this new infographic.
+Maintain the visual hierarchy, color scheme, and structural patterns identified in the template analysis.
+Create a modern, professional design that follows these design principles while presenting the user's content.
+"""
+    
+    return base_prompt
 
 
 def _get_image_size(aspect_ratio: str, resolution: str) -> str:

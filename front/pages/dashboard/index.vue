@@ -1470,29 +1470,65 @@ const handleGenerate = async () => {
   // Show submitting state briefly
   isGenerating.value = true;
 
-  if (uploadedFilePreview.value) {
+  if (uploadedFile.value) {
     try {
+      const formData = new FormData();
+      formData.append("template_image", uploadedFile.value);
+      formData.append("prompt", prompt.value);
+      formData.append("aspect_ratio", selectedAspectRatio.value.value);
+      formData.append("resolution", selectedResolution.value);
+      formData.append("number_of_infographs", numberOfInfographs.value);
+      formData.append("type", selectedInfographType.value.value);
+
       const response = await apiClient.post(
-        "/infographs/create-own-template/",
+        "/infographs/create/own-template/",
+        formData,
         {
-          prompt: prompt.value,
-          blog_url: blogUrl.value,
-          aspect_ratio: selectedAspectRatio.value.value,
-          resolution: selectedResolution.value,
-          number_of_infographs: numberOfInfographs.value,
-          front_image: uploadedFilePreview.value,
-          type: selectedInfographType.value.value,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-      results.value = response.data;
-      isGenerating.value = false;
-      hasResults.value = true;
+
+      console.log("API Response:", response.data);
+
+      const infographsData =
+        response.data.infograph?.infographs || response.data.infographs;
+
+      if (
+        infographsData &&
+        Array.isArray(infographsData) &&
+        infographsData.length > 0
+      ) {
+        results.value = infographsData.map((infograph) => ({
+          id: infograph.id,
+          request_id: infograph.request_id,
+          status: infograph.status || "processing",
+          image_url: null,
+          image: null,
+        }));
+
+        isGenerating.value = false;
+        hasResults.value = true;
+
+        // Start polling for each infograph
+        infographsData.forEach((infograph) => {
+          startPollingStatus(infograph.id);
+        });
+      } else {
+        showError.value = true;
+        errorMessage.value = "Failed to process template. Please try again.";
+        isGenerating.value = false;
+      }
       return;
     } catch (error) {
-      console.error(error);
+      console.error("Error with own template:", error);
       isGenerating.value = false;
       showError.value = true;
-      errorMessage.value = "Failed to create infograph with template";
+      errorMessage.value =
+        error.response?.data?.message ||
+        "Failed to create infograph with template";
+      toastStore.error(errorMessage.value);
       return;
     }
   }

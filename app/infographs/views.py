@@ -124,6 +124,70 @@ class InfographCreateFromPDFAPIView(APIView):
             )
 
 
+class InfographCreateFromOwnTemplateAPIView(APIView):
+    """
+    Create infograph generation job(s) from user's own template image.
+    Analyzes the template and applies its design to the new infographic.
+    Returns immediately with job IDs - generation happens asynchronously.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Get template image file from request
+        template_image = request.FILES.get("template_image")
+        
+        if not template_image:
+            return Response(
+                {"message": "No template image provided"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file type
+        allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+        if template_image.content_type not in allowed_types:
+            return Response(
+                {"message": "File must be an image (JPEG, PNG, or WebP)"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file size (10MB max)
+        if template_image.size > 10 * 1024 * 1024:
+            return Response(
+                {"message": "File size must be less than 10MB"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get other parameters
+        data = {
+            "account": request.user.account,
+            "prompt": request.data.get("prompt", ""),
+            "template_image": template_image,
+            "aspect_ratio": request.data.get("aspect_ratio", "9:16"),
+            "resolution": request.data.get("resolution", "2K"),
+            "number_of_infographs": int(request.data.get("number_of_infographs", 1)),
+            "type": request.data.get("type", "infograph"),
+        }
+        
+        try:
+            result = infographs_service.create_infograph_from_own_template(**data)
+            return Response(result, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            return Response(
+                {"message": "Invalid data", "errors": e.messages}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except NotEnoughCreditsException as e:
+            return Response(
+                {"message": "Not enough credits"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"message": "Error creating infograph from template", "error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 class InfographStatusAPIView(APIView):
     """
     Check the status of an infograph generation job.
