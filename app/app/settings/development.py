@@ -29,6 +29,7 @@ GOOGLE_REDIRECT_URI_PUBLIC = os.environ.get('GOOGLE_REDIRECT_URI_PUBLIC')
 
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')  # Optional in dev
 
 FRONTEND_URL = 'http://localhost:3000'  # Update this to your actual frontend URL
 MAGIC_LINK_EXPIRY_MINUTES = 15

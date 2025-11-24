@@ -58,7 +58,7 @@
               v-if="!pack.isCustom"
               class="text-xs text-text-secondary mt-0.5"
             >
-              ${{ pack.pricePerCredit }}/credit
+              ${{ pack.price_per_credit }}/credit
             </div>
           </div>
 
@@ -102,68 +102,26 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useBillingStore } from "~/stores/billing";
-
+import apiClient from "~/client/apiClient";
+import { useToastStore } from "~/stores/toast";
+import { useRoute } from "vue-router";
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
 });
 
-const billingStore = useBillingStore();
 const isLoading = ref(false);
-
+const toastStore = useToastStore();
+const route = useRoute();
 // Credit packs configuration
-const creditPacks = ref([
-  {
-    id: "pack_10",
-    credits: 10,
-    price: 5,
-    pricePerCredit: "0.50",
-    stripePriceId: null, // Will be set after running the management command
-  },
-  {
-    id: "pack_50",
-    credits: 50,
-    price: 25,
-    pricePerCredit: "0.50",
-    stripePriceId: null,
-  },
-  {
-    id: "pack_100",
-    credits: 100,
-    price: 45,
-    pricePerCredit: "0.45",
-    stripePriceId: null,
-  },
-  {
-    id: "pack_200",
-    credits: 200,
-    price: 89,
-    pricePerCredit: "0.45",
-    stripePriceId: null,
-  },
-  {
-    id: "pack_custom",
-    isCustom: true,
-    credits: null,
-    price: null,
-  },
-]);
+const creditPacks = ref([]);
 
 // Fetch credit packs from API (with Stripe price IDs)
 const fetchCreditPacks = async () => {
   try {
-    const { $api } = useNuxtApp();
-    const packs = await $api("/billing/credits/packs/");
-    // Update credit packs with Stripe price IDs from API
-    packs.forEach((apiPack) => {
-      const localPack = creditPacks.value.find(
-        (p) => p.credits === apiPack.credits
-      );
-      if (localPack) {
-        localPack.stripePriceId = apiPack.stripe_price_id;
-      }
-    });
+    const packs = await apiClient.get("/account/credit-packs/");
+
+    creditPacks.value = packs.data;
   } catch (error) {
     console.error("Error fetching credit packs:", error);
     // Continue with default packs if API fails
@@ -183,46 +141,14 @@ const handlePurchase = async (pack) => {
 
   try {
     isLoading.value = true;
-    const { $api } = useNuxtApp();
 
     // Try to create checkout session with price ID if available
     let response;
-    if (pack.stripePriceId) {
-      try {
-        response = await $api("/billing/credits/checkout/", {
-          method: "POST",
-          body: {
-            price_id: pack.stripePriceId,
-            credits: pack.credits,
-          },
-        });
-      } catch (error) {
-        console.warn(
-          "Checkout endpoint not available, using purchase endpoint"
-        );
-        // Fallback to purchase endpoint
-        response = await billingStore.purchaseCredits(pack.credits);
-      }
-    } else {
-      // Use purchaseCredits method with credit amount
-      response = await billingStore.purchaseCredits(pack.credits);
-    }
-
-    // Redirect to checkout URL if provided
-    if (response?.checkout_url) {
-      window.location.href = response.checkout_url;
-    } else if (response?.url) {
-      // Alternative URL field
-      window.location.href = response.url;
-    } else if (response?.session_id) {
-      // If we have a session ID, construct checkout URL
-      // This assumes the backend provides a way to construct the URL
-      // Or you can redirect to a backend endpoint that handles the redirect
-      window.location.href = `/billing/credits/checkout/${response.session_id}`;
-    } else {
-      console.error("No checkout URL or session ID in response:", response);
-      alert("Failed to initiate checkout. Please contact support.");
-    }
+    response = await apiClient.post("/account/purchase-credits/", {
+      price_id: pack.stripe_price_id,
+    });
+    window.open(response.data.checkout_url, "_blank");
+    return;
   } catch (error) {
     console.error("Error purchasing credits:", error);
     alert(
@@ -237,6 +163,12 @@ const handlePurchase = async (pack) => {
 // Fetch credit packs on mount
 onMounted(() => {
   fetchCreditPacks();
+  if (route.query.success) {
+    toastStore.success("Credits purchased successfully");
+  }
+  if (route.query.canceled) {
+    toastStore.error("Purchase canceled");
+  }
 });
 </script>
 

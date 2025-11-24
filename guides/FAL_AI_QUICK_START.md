@@ -5,18 +5,20 @@
 You now have a **production-ready, non-blocking infographic generation system** using fal.ai!
 
 ### Key Features
+
 ✅ **Async/Non-blocking** - API responds immediately (no 30-60s wait)  
 ✅ **Webhook callbacks** - fal.ai notifies you when images are ready  
 ✅ **Status tracking** - Users can check generation progress  
 ✅ **Credit system** - Credits deducted after successful submission  
 ✅ **Error handling** - Failed jobs tracked with error messages  
-✅ **Scalable** - Handle hundreds of concurrent requests  
+✅ **Scalable** - Handle hundreds of concurrent requests
 
 ---
 
 ## 📁 Files Changed
 
 ### New Files
+
 - `app/infographs/infographs/client/fal_ai.py` - fal.ai client wrapper
 - `app/infographs/migrations/0002_*.py` - Database migration
 - `guides/FAL_AI_INTEGRATION_GUIDE.md` - Full documentation
@@ -24,6 +26,7 @@ You now have a **production-ready, non-blocking infographic generation system** 
 - `test_fal_client.py` - Test script
 
 ### Modified Files
+
 - `app/infographs/models.py` - Added status tracking fields
 - `app/infographs/views.py` - Added webhook + status endpoints
 - `app/infographs/urls.py` - Added new routes
@@ -92,6 +95,7 @@ Authorization: Token YOUR_TOKEN
 ```
 
 **Response**:
+
 ```json
 {
   "infographs": [
@@ -115,6 +119,7 @@ Authorization: Token YOUR_TOKEN
 ```
 
 **Response (Processing)**:
+
 ```json
 {
   "id": 123,
@@ -126,6 +131,7 @@ Authorization: Token YOUR_TOKEN
 ```
 
 **Response (Completed)**:
+
 ```json
 {
   "id": 123,
@@ -163,26 +169,25 @@ const isGenerating = ref(false)
 
 async function createInfograph() {
   isGenerating.value = true
-  
+
   try {
     // Submit generation job
     const response = await $api.post('/api/infographs/create/', {
       prompt: 'A modern infographic about AI',
       aspect_ratio: '16/9',
       resolution: '2K',
-      number_of_infographs: 1
+      number_of_infographs: 1,
     })
-    
+
     const infograph = response.data.infographs[0]
     infographs.value.push({
       id: infograph.id,
       status: 'processing',
-      image_url: null
+      image_url: null,
     })
-    
+
     // Start polling for status
     pollStatus(infograph.id)
-    
   } catch (error) {
     console.error('Failed to create infograph:', error)
   } finally {
@@ -193,23 +198,23 @@ async function createInfograph() {
 async function pollStatus(infographId) {
   const maxAttempts = 30
   let attempts = 0
-  
+
   const interval = setInterval(async () => {
     try {
       const response = await $api.get(`/api/infographs/status/${infographId}/`)
       const data = response.data
-      
+
       // Update UI
-      const infograph = infographs.value.find(i => i.id === infographId)
+      const infograph = infographs.value.find((i) => i.id === infographId)
       if (infograph) {
         infograph.status = data.status
         infograph.image_url = data.image_url
       }
-      
+
       // Stop polling if completed or failed
       if (data.status === 'completed' || data.status === 'failed') {
         clearInterval(interval)
-        
+
         if (data.status === 'completed') {
           // Show success notification
           showNotification('Infographic ready!', 'success')
@@ -217,13 +222,12 @@ async function pollStatus(infographId) {
           showNotification('Generation failed', 'error')
         }
       }
-      
+
       attempts++
       if (attempts >= maxAttempts) {
         clearInterval(interval)
         showNotification('Timeout: Generation took too long', 'warning')
       }
-      
     } catch (error) {
       console.error('Failed to check status:', error)
     }
@@ -236,18 +240,18 @@ async function pollStatus(infographId) {
     <button @click="createInfograph" :disabled="isGenerating">
       {{ isGenerating ? 'Submitting...' : 'Create Infograph' }}
     </button>
-    
+
     <div v-for="infograph in infographs" :key="infograph.id" class="infograph-item">
       <div v-if="infograph.status === 'processing'">
         <div class="spinner">⏳</div>
         <p>Generating your infographic...</p>
       </div>
-      
+
       <div v-else-if="infograph.status === 'completed'">
         <img :src="infograph.image_url" alt="Generated infographic" />
         <button @click="downloadImage(infograph.image_url)">Download</button>
       </div>
-      
+
       <div v-else-if="infograph.status === 'failed'">
         <p class="error">❌ Generation failed</p>
       </div>
@@ -306,6 +310,7 @@ result = fal_client.subscribe(
 ```
 
 **Problems**:
+
 - Blocks server thread
 - Can't handle concurrent requests
 - Timeout issues
@@ -325,6 +330,7 @@ request_id = handler.request_id  # Returns in ~0.2s ✅
 ```
 
 **Benefits**:
+
 - Returns immediately
 - Scales to 100s of requests
 - Great UX
@@ -343,13 +349,13 @@ class Infograph(models.Model):
     resolution = CharField()
     aspect_ratio = CharField()
     credits_used = IntegerField()
-    
+
     # NEW: Async tracking fields
     fal_request_id = CharField()  # Job ID from fal.ai
     status = CharField()  # pending → processing → completed/failed
     prompt = TextField()  # The full prompt used
     error_message = TextField()  # If failed
-    
+
     created_at = DateTimeField()
     updated_at = DateTimeField()
 ```
@@ -381,6 +387,7 @@ curl -X POST http://localhost:8000/api/infographs/create/ \
 ### 3. Add R2 Upload
 
 Currently, `image_url` contains fal.ai's URL. You should:
+
 1. Download image from fal.ai
 2. Upload to Cloudflare R2
 3. Replace URL with R2 URL
@@ -397,6 +404,7 @@ infograph.image_url = r2_url
 ### 4. Add User Notifications
 
 When generation completes:
+
 - Send email: "Your infographic is ready!"
 - WebSocket push notification
 - In-app notification
@@ -428,6 +436,7 @@ ngrok http 8000
 ### Issue: "Generation failed"
 
 **Check**:
+
 1. fal.ai API key valid?
 2. Prompt not too long?
 3. Check `error_message` in database
@@ -459,16 +468,15 @@ if infograph.status == InfographStatus.FAILED:
 
 You now have:
 
-| Feature | Status |
-|---------|--------|
-| Non-blocking API | ✅ |
-| Webhook support | ✅ |
-| Status tracking | ✅ |
-| Credit system | ✅ |
-| Error handling | ✅ |
-| Test suite | ✅ |
-| Documentation | ✅ |
-| Database migration | ✅ |
+| Feature            | Status |
+| ------------------ | ------ |
+| Non-blocking API   | ✅     |
+| Webhook support    | ✅     |
+| Status tracking    | ✅     |
+| Credit system      | ✅     |
+| Error handling     | ✅     |
+| Test suite         | ✅     |
+| Documentation      | ✅     |
+| Database migration | ✅     |
 
 **Next**: Integrate with frontend and add R2 upload!
-

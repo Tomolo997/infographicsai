@@ -13,6 +13,8 @@ from django.utils import timezone
 
 import stripe
 
+import account
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,7 +58,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         self._create_user_account()
 
     def _create_user_account(self):
-        """Create the associated Account with initial credits"""
         if not hasattr(self, "account"):
             Account.objects.create(user=self)
 
@@ -66,9 +67,39 @@ class Account(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     profile_picture_url = models.URLField(max_length=255, null=True, blank=True)
-    credit_balance = models.PositiveIntegerField(default=3)
-    created_at = models.DateTimeField(auto_now_add=True)
+    credit_balance = models.PositiveIntegerField(default=0)
+    is_trial_user = models.BooleanField(default=True)
 
 
     def __str__(self):
         return self.user.email
+    
+    def fill_credits(self, credits: int):
+        self.credit_balance += credits
+        self.is_trial_user = False
+        self.save()
+
+
+class CreditPack(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    credits = models.PositiveIntegerField()
+    price = models.PositiveIntegerField()
+    stripe_price_id = models.CharField(max_length=255, null=True, blank=True)
+    stripe_product_id = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+    
+    def get_stripe_price_id(self):
+        return self.stripe_price_id
+    
+class CreditPurchase(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    credit_pack = models.ForeignKey(CreditPack, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.account.user.email} purchased {self.quantity} credits from {self.credit_pack.name} for {self.price} at {self.created_at}"

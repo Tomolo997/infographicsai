@@ -25,4 +25,7 @@ urlpatterns = [
     path("google/login/", views.google_login, name="google_login"),
     path("google/callback/", views.google_callback, name="google_callback"),
     path("google/callback/public/", views.google_callback_public, name="google_callback_public"),
+    path("credit-packs/", views.CreditPackListAPIView.as_view(), name="credit_packs"),
+    path("purchase-credits/", views.PurchaseCreditsView.as_view(), name="purchase_credits"),
+    path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook"),
 ]

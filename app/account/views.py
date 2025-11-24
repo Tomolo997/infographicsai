@@ -11,6 +11,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 
 import requests
+import stripe
 from rest_framework import generics, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -22,8 +23,12 @@ from account.models import Account
 from account.serializers import AccountSerializer
 from file_upload.client import R2Client
 
-from .models import CustomUser
-from .serializers import CustomUserSerializer, UserSignupSerializer
+from .models import CreditPack, CustomUser
+from .serializers import (
+    CreditPackSerializer,
+    CustomUserSerializer,
+    UserSignupSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +62,8 @@ class AccountGetView(generics.RetrieveAPIView):
             response_data = {
                 "email": user.email,
                 "profile_picture_url": account.profile_picture_url,
+                "credit_balance": account.credit_balance,
+                "is_trial_user": account.is_trial_user,
             }
 
             return Response(response_data)
@@ -425,3 +432,151 @@ class ProfilePictureUploadView(APIView):
                 {"error": f"An error occurred: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class CreditPackListAPIView(generics.ListAPIView):
+    queryset = CreditPack.objects.all()
+    serializer_class = CreditPackSerializer
+
+
+class PurchaseCreditsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        price_id = request.data.get('price_id')
+        
+        if not price_id:
+            return Response(
+                {"message": "price_id is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            
+            frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+            
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price': price_id,
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=f'{frontend_url}/dashboard/credits?success=true',
+                cancel_url=f'{frontend_url}/dashboard/credits?canceled=true',
+                customer_email=request.user.email,
+                metadata={
+                    'user_email': request.user.email,
+                }
+            )
+            
+            return Response({
+                "checkout_url": checkout_session.url
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            logger.error(f"Error creating checkout session: {str(e)}")
+            return Response(
+                {"message": f"Failed to create checkout session: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class StripeWebhookView(APIView):
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self, request):
+        payload = request.body
+        sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+        
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        webhook_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
+
+        try:
+            # Verify webhook signature if secret is configured
+            if webhook_secret:
+                event = stripe.Webhook.construct_event(
+                    payload, sig_header, webhook_secret
+                )
+            else:
+                # Development mode - skip signature verification
+                import json
+                event = json.loads(payload)
+                logger.warning("Stripe webhook signature verification skipped (no STRIPE_WEBHOOK_SECRET)")
+
+            # Handle successful payment events
+            if event['type'] == 'checkout.session.completed':
+                session = event['data']['object']
+                # Only process if payment is actually paid (not pending)
+                if session.get('payment_status') == 'paid':
+                    self.handle_successful_payment(session)
+            
+            elif event['type'] == 'checkout.session.async_payment_succeeded':
+                # For async payment methods (bank transfers, etc.)
+                session = event['data']['object']
+                self.handle_successful_payment(session)
+
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            logger.error(f"Invalid payload: {e}")
+            return Response({'error': 'Invalid payload'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Webhook error: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def handle_successful_payment(self, session):
+        """Process successful payment and add credits to user account"""
+        try:
+            # Get user email from session
+            user_email = session.get('customer_email') or session.get('customer_details', {}).get('email')
+            
+            if not user_email:
+                logger.error("No email found in checkout session")
+                return
+
+            # Get the user and account
+            try:
+                user = CustomUser.objects.get(email=user_email)
+                account = Account.objects.get(user=user)
+            except CustomUser.DoesNotExist:
+                logger.error(f"User not found: {user_email}")
+                return
+            except Account.DoesNotExist:
+                logger.error(f"Account not found for user: {user_email}")
+                return
+
+            # Get the price ID from line items
+            line_items = stripe.checkout.Session.list_line_items(session['id'])
+            if not line_items.data:
+                logger.error("No line items in session")
+                return
+
+            price_id = line_items.data[0]['price']['id']
+            
+            # Find the credit pack by price ID
+            try:
+                from .models import CreditPack, CreditPurchase
+                credit_pack = CreditPack.objects.get(stripe_price_id=price_id)
+            except CreditPack.DoesNotExist:
+                logger.error(f"Credit pack not found for price_id: {price_id}")
+                return
+
+            # Add credits to account
+            account.fill_credits(credit_pack.credits)
+            
+            # Create purchase record
+            CreditPurchase.objects.create(
+                account=account,
+                credit_pack=credit_pack,
+                quantity=credit_pack.credits,
+                price=credit_pack.price
+            )
+            
+            logger.info(f"Successfully added {credit_pack.credits} credits to {user_email}")
+
+        except Exception as e:
+            logger.error(f"Error processing payment: {str(e)}")

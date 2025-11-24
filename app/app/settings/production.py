@@ -1,5 +1,6 @@
-from .base import *
 import os
+
+from .base import *
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -34,6 +35,7 @@ GOOGLE_REDIRECT_URI_PUBLIC = os.environ.get('GOOGLE_REDIRECT_URI_PUBLIC')
 
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')  # Required in production
 
 # Add production-specific security settings
 SECURE_SSL_REDIRECT = True

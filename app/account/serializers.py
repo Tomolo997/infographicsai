@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from email_client import services as email_services
 
-from .models import Account, CustomUser
+from .models import Account, CreditPack, CustomUser
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -55,3 +55,21 @@ class UserSignupSerializer(serializers.ModelSerializer):
         email_services.send_verification_email(user)
         
         return user
+    
+
+class CreditPackSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+    price_per_credit = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CreditPack
+        fields = ['id', 'name', 'description', 'credits', 'price', 'price_per_credit', 'stripe_price_id', 'stripe_product_id']
+
+    def get_price(self, obj):
+        # Convert cents to dollars
+        return obj.price / 100 if obj.price is not None else None
+
+    def get_price_per_credit(self, obj):
+        if obj.price is not None and obj.credits:
+            return round((obj.price / obj.credits) / 100, 2)
+        return None
