@@ -45,17 +45,16 @@
             </div>
             <div class="text-sm text-text-secondary">Available credits</div>
           </div>
-          <div class="text-right">
+          <!-- <div class="text-right">
             <div class="text-sm text-text-secondary mb-1">Last updated</div>
             <div class="text-sm font-medium text-text-primary">
-              {{ formatDate(lastUpdated) }}
-            </div>
-          </div>
+              {{ formatDate(user.value?.last_updated) }}
+            </div> -->
+          <!-- </div> -->
         </div>
       </div>
 
-      <!-- Password Change Card -->
-      <div class="bg-card-bg border border-card-border rounded-lg p-6">
+      <!-- <div class="bg-card-bg border border-card-border rounded-lg p-6">
         <h2 class="text-lg font-semibold text-text-primary mb-4">
           Change Password
         </h2>
@@ -266,37 +265,26 @@
             </button>
           </div>
         </form>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useBillingStore } from "~/stores/billing";
-
+import apiClient from "~/client/apiClient";
+import { useToastStore } from "~/stores/toast";
+import { useAuthStore } from "~/stores/auth";
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
 });
 
-const billingStore = useBillingStore();
-
+const toastStore = useToastStore();
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
 // State
 const creditBalance = ref(0);
-const lastUpdated = ref(new Date());
-const isChangingPassword = ref(false);
-
-// Password form
-const passwordForm = ref({
-  currentPassword: "",
-  newPassword: "",
-  confirmPassword: "",
-});
-
-const showCurrentPassword = ref(false);
-const showNewPassword = ref(false);
-const showConfirmPassword = ref(false);
 
 // Methods
 const formatDate = (date) => {
@@ -306,18 +294,6 @@ const formatDate = (date) => {
     day: "numeric",
     year: "numeric",
   });
-};
-
-const fetchUserData = async () => {
-  try {
-    const { $api } = useNuxtApp();
-    const response = await $api("/account/profile/");
-    creditBalance.value = response.credit_balance || 0;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    // Mock data for development
-    creditBalance.value = 50;
-  }
 };
 
 const handlePasswordChange = async () => {
@@ -369,9 +345,7 @@ const handlePasswordChange = async () => {
 
 // Fetch user data and credit balance on mount
 onMounted(async () => {
-  await fetchUserData();
-  await billingStore.fetchCreditBalance();
-  creditBalance.value = billingStore.creditBalance;
+  creditBalance.value = user.value?.credit_balance || 0;
 });
 </script>
 
