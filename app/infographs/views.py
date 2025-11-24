@@ -67,6 +67,60 @@ class InfographCreateAPIView(generics.CreateAPIView):
             )
 
 
+class InfographCreateFromPDFAPIView(APIView):
+    """
+    Create infograph generation job(s) from PDF upload.
+    Returns immediately with job IDs - generation happens asynchronously.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Get PDF file from request
+        pdf_file = request.FILES.get("pdf_file")
+        
+        if not pdf_file:
+            return Response(
+                {"message": "No PDF file provided"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file type
+        if not pdf_file.name.endswith('.pdf'):
+            return Response(
+                {"message": "File must be a PDF"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get other parameters
+        data = {
+            "account": request.user.account,
+            "prompt": request.data.get("prompt", ""),
+            "pdf_file": pdf_file,
+            "aspect_ratio": request.data.get("aspect_ratio", "9:16"),
+            "resolution": request.data.get("resolution", "2K"),
+            "number_of_infographs": int(request.data.get("number_of_infographs", 1)),
+        }
+        
+        try:
+            result = infographs_service.create_infograph_from_pdf(**data)
+            return Response(result, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            return Response(
+                {"message": "Invalid data", "errors": e.messages}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except NotEnoughCreditsException as e:
+            return Response(
+                {"message": "Not enough credits"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"message": "Error creating infograph from PDF", "error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 class InfographStatusAPIView(APIView):
     """
     Check the status of an infograph generation job.

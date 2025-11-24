@@ -6,6 +6,7 @@ urlpatterns = [
     # Infograph CRUD
     path("list/", views.InfographListAPIView.as_view(), name="infograph.list"),
     path("create/", views.InfographCreateAPIView.as_view(), name="infograph.create"),
+    path("create/pdf/", views.InfographCreateFromPDFAPIView.as_view(), name="infograph.create.pdf"),
     path("delete/<int:pk>/", views.InfographDeleteAPIView.as_view(), name="infograph.delete"),
     
     # Status and webhook endpoints

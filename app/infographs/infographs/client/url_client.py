@@ -5,6 +5,7 @@ from django.conf import settings
 
 import openai
 import trafilatura
+from pypdf import PdfReader
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,48 @@ from infographs.infographs.exceptions import BlogContentNotFoundException
 
 
 class URLAnalyzer:
+    def _read_pdf(self, pdf_file):
+        """Helper method to read PDF content"""
+        logger.info("Starting to read PDF file")
+
+        try:
+            # Read the PDF file
+            pdf_reader = PdfReader(pdf_file)
+            
+            # Extract text from all pages
+            text_content = []
+            for page_num, page in enumerate(pdf_reader.pages, start=1):
+                logger.debug(f"Extracting text from page {page_num}")
+                page_text = page.extract_text()
+                if page_text:
+                    text_content.append(page_text)
+            
+            # Combine all pages
+            full_text = "\n\n".join(text_content)
+            
+            if not full_text.strip():
+                logger.error("Could not extract text from PDF")
+                raise BlogContentNotFoundException(
+                    "Could not extract text from this PDF. The PDF might be empty, image-based, or protected."
+                )
+            
+            logger.info(f"Successfully extracted text from PDF. Total length: {len(full_text)}")
+            
+            result = {
+                "title": "PDF Document",
+                "meta_description": "",
+                "content": full_text,
+            }
+            return result
+            
+        except BlogContentNotFoundException:
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error while reading PDF: {str(e)}", exc_info=True)
+            raise BlogContentNotFoundException(
+                f"An error occurred while trying to read this PDF: {str(e)}"
+            )
+
     def _scrape_website(self, url):
         """Helper method to scrape website content using trafilatura"""
         logger.info(f"Starting to scrape website: {url}")
@@ -155,10 +198,6 @@ class URLAnalyzer:
                 "Successfully received structured JSON from GPT with icon suggestions"
             )
             logger.debug(f"JSON preview: {str(analysis_json)[:200]}...")
-
-            # Use the GPT-suggested keywords to find appropriate icons
-            analysis_json = assign_icons_using_keywords(analysis_json)
-            analysis_json = assign_vectors_using_keywords(analysis_json)
 
             return analysis_json
         except Exception as e:

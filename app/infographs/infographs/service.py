@@ -13,6 +13,105 @@ from account.models import Account
 from file_upload.client import R2Client
 
 
+def create_infograph_from_pdf(
+  account: Account,
+  prompt: str,
+  pdf_file,
+  aspect_ratio: str,
+  resolution: str,
+  number_of_infographs: int
+) -> Dict[str, Any]:
+    """
+    Create infograph(s) from PDF content and submit async generation jobs to fal.ai.
+    
+    Returns immediately with infograph IDs and status.
+    Actual image generation happens in background.
+    """
+    credits_used = 1
+    if resolution == "4K":
+        credits_used += 1
+    
+    # Check if the account has enough credits
+    total_credits_needed = credits_used * number_of_infographs
+    if account.credit_balance < total_credits_needed:
+        raise NotEnoughCreditsException(
+            f"You need {total_credits_needed} credits but have {account.credit_balance}"
+        )
+    
+    # Read the PDF and get the content
+    pdf_data = URLAnalyzer()._read_pdf(pdf_file)
+    pdf_content = pdf_data.get("content", "")
+    
+    # Build the enhanced prompt
+    enhanced_prompt = _build_pdf_prompt(pdf_content)
+    
+    # Initialize fal.ai client
+    fal_client = FalAI()
+    
+    # Create webhook URL for receiving results
+    webhook_base_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
+    print("enhanced_prompt", enhanced_prompt)
+    # Create infographs and submit generation jobs
+    infographs = []
+    for i in range(number_of_infographs):
+        # Create infograph record with PENDING status
+        infograph = Infograph.objects.create(
+            account=account,
+            blog_url=None,  # No URL for PDF uploads
+            blog_json={"content": pdf_content, "source": "pdf"} if pdf_content else None,
+            resolution=resolution,
+            aspect_ratio=aspect_ratio,
+            credits_used=credits_used,
+            prompt=enhanced_prompt,
+            status=InfographStatus.PENDING,
+        )
+        
+        try:
+            # Submit async generation job to fal.ai
+            webhook_url = f"{webhook_base_url}/api/infographs/webhook/{infograph.id}/"
+            print("webhook_url", webhook_url)
+            result = fal_client.submit_generation_sync(
+                prompt=enhanced_prompt,
+                webhook_url=webhook_url,
+                aspect_ratio=aspect_ratio,
+            )
+            
+            # Update with request ID and mark as PROCESSING
+            infograph.fal_request_id = result["request_id"]
+            infograph.status = InfographStatus.PROCESSING
+            infograph.save()
+            
+            infographs.append({
+                "id": infograph.id,
+                "request_id": result["request_id"],
+                "status": infograph.status,
+                "status_url": result.get("status_url"),
+            })
+            
+        except Exception as e:
+            # Mark as failed if submission fails
+            infograph.status = InfographStatus.FAILED
+            infograph.error_message = str(e)
+            infograph.save()
+            print("error", e)
+            infographs.append({
+                "id": infograph.id,
+                "status": InfographStatus.FAILED,
+                "error": str(e),
+            })
+    
+    # Deduct credits only after successful submission
+    account.credit_balance -= total_credits_needed
+    account.save()
+    
+    return {
+        "infographs": infographs,
+        "total_submitted": len(infographs),
+        "credits_used": total_credits_needed,
+    }
+
+
+
 def create_infograph(
   account: Account,
   prompt: str,
@@ -132,6 +231,14 @@ Blog Content Summary:
 Extract key information from the blog and present it visually in the infographic."""
     
     return base_prompt
+
+def _build_pdf_prompt(pdf_content: str) -> str:
+    """Build prompt for PDF content."""
+    return f"""
+    Build an infographic from the following PDF content:
+    PDF Content:
+    {pdf_content}
+    """
 
 
 def _get_image_size(aspect_ratio: str, resolution: str) -> str:
