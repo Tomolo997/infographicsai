@@ -376,3 +376,68 @@ class TemplateListAPIView(generics.ListAPIView):
         templates = templates.order_by('-created_at')
         serializer = TemplateSerializer(templates, many=True)
         return Response(serializer.data)
+
+
+class InfographCreateFromTemplateAPIView(APIView):
+    """
+    Create infograph generation job(s) from existing template.
+    Uses template's image_url to generate with fal.ai edit mode.
+    Returns immediately with job IDs - generation happens asynchronously.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Get template ID from request
+        template_id = request.data.get("template_id")
+        
+        if not template_id:
+            return Response(
+                {"message": "No template_id provided"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get the template
+        try:
+            template = Template.objects.get(id=template_id)
+        except Template.DoesNotExist:
+            return Response(
+                {"message": "Template not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Check if template has image_url
+        if not template.image_url:
+            return Response(
+                {"message": "Template has no image"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get other parameters
+        data = {
+            "account": request.user.account,
+            "prompt": request.data.get("prompt", ""),
+            "template": template,
+            "aspect_ratio": request.data.get("aspect_ratio", "9:16"),
+            "resolution": request.data.get("resolution", "2K"),
+            "number_of_infographs": int(request.data.get("number_of_infographs", 1)),
+            "type": request.data.get("type", "infograph"),
+        }
+        
+        try:
+            result = infographs_service.create_infograph_from_template(**data)
+            return Response(result, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            return Response(
+                {"message": "Invalid data", "errors": e.messages}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except NotEnoughCreditsException as e:
+            return Response(
+                {"message": "Not enough credits"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"message": "Error creating infograph from template", "error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -167,10 +167,9 @@
               class="w-full h-full flex items-center justify-center overflow-hidden rounded"
             >
               <img
-                :src="template.image"
+                :src="template.image_url"
                 :alt="template.name"
                 class="max-w-full max-h-full object-contain"
-                :style="{ aspectRatio: template.aspectRatio }"
               />
             </div>
           </div>
@@ -209,10 +208,9 @@
           >
             <div class="w-full flex items-center justify-center p-8">
               <img
-                :src="selectedTemplate.image"
+                :src="selectedTemplate.image_url"
                 :alt="selectedTemplate.name"
                 class="max-w-full max-h-[60vh] object-contain rounded"
-                :style="{ aspectRatio: selectedTemplate.aspectRatio }"
               />
             </div>
           </div>
@@ -273,6 +271,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import Modal from "~/components/Modal.vue";
+import apiClient from "~/client/apiClient";
 
 definePageMeta({
   layout: "dashboard",
@@ -286,80 +285,17 @@ const showTemplateModal = ref(false);
 const selectedTemplate = ref(null);
 
 // Mock templates with different aspect ratios
-const templates = ref([
-  {
-    id: 1,
-    name: "Modern Stats",
-    image: "https://picsum.photos/seed/template1/400/600",
-    aspectRatio: "9/16",
-  },
-  {
-    id: 2,
-    name: "Business Dashboard",
-    image: "https://picsum.photos/seed/template2/600/400",
-    aspectRatio: "16/9",
-  },
-  {
-    id: 3,
-    name: "Social Media Post",
-    image: "https://picsum.photos/seed/template3/400/400",
-    aspectRatio: "1/1",
-  },
-  {
-    id: 4,
-    name: "Instagram Story",
-    image: "https://picsum.photos/seed/template4/400/500",
-    aspectRatio: "4/5",
-  },
-  {
-    id: 5,
-    name: "Twitter Header",
-    image: "https://picsum.photos/seed/template5/600/286",
-    aspectRatio: "21/9",
-  },
-  {
-    id: 6,
-    name: "Pinterest Pin",
-    image: "https://picsum.photos/seed/template6/400/600",
-    aspectRatio: "2/3",
-  },
-  {
-    id: 7,
-    name: "Classic Post",
-    image: "https://picsum.photos/seed/template7/400/300",
-    aspectRatio: "4/3",
-  },
-  {
-    id: 8,
-    name: "Wide Banner",
-    image: "https://picsum.photos/seed/template8/600/400",
-    aspectRatio: "3/2",
-  },
-  {
-    id: 9,
-    name: "Vertical Story",
-    image: "https://picsum.photos/seed/template9/400/600",
-    aspectRatio: "9/16",
-  },
-  {
-    id: 10,
-    name: "Square Post",
-    image: "https://picsum.photos/seed/template10/400/400",
-    aspectRatio: "1/1",
-  },
-  {
-    id: 11,
-    name: "Landscape Banner",
-    image: "https://picsum.photos/seed/template11/600/400",
-    aspectRatio: "16/9",
-  },
-  {
-    id: 12,
-    name: "Portrait Feed",
-    image: "https://picsum.photos/seed/template12/400/500",
-    aspectRatio: "4/5",
-  },
-]);
+const templates = ref([]);
+
+// Fetch templates from API
+const fetchTemplates = async () => {
+  try {
+    const response = await apiClient.get("/infographs/templates/list/");
+    templates.value = response.data;
+  } catch (error) {
+    console.error("Error fetching templates:", error);
+  }
+};
 
 // Aspect Ratios with social media recommendations
 const aspectRatios = ref([
@@ -454,9 +390,7 @@ const handleAddTemplate = () => {
 
 const handleUseTemplate = () => {
   if (selectedTemplate.value) {
-    navigateTo(
-      `/dashboard/create/templates?templateId=${selectedTemplate.value.id}`
-    );
+    navigateTo(`/dashboard/?templateId=${selectedTemplate.value.id}`);
   }
   closeTemplateModal();
 };
@@ -475,6 +409,11 @@ if (typeof window !== "undefined") {
     }
   });
 }
+
+onMounted(() => {
+  console.log("Fetching templates");
+  fetchTemplates();
+});
 </script>
 
 <style scoped>

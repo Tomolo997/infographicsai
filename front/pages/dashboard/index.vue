@@ -1095,57 +1095,8 @@ const infographTypes = ref([
 ]);
 const selectedInfographType = ref(infographTypes.value[0]);
 
-// Mock templates with different aspect ratios
-const templates = ref([
-  {
-    id: 1,
-    name: "Modern Stats",
-    image: "https://picsum.photos/seed/template1/400/600",
-    aspectRatio: "9/16",
-  },
-  {
-    id: 2,
-    name: "Business Dashboard",
-    image: "https://picsum.photos/seed/template2/600/400",
-    aspectRatio: "16/9",
-  },
-  {
-    id: 3,
-    name: "Social Media Post",
-    image: "https://picsum.photos/seed/template3/400/400",
-    aspectRatio: "1/1",
-  },
-  {
-    id: 4,
-    name: "Instagram Story",
-    image: "https://picsum.photos/seed/template4/400/500",
-    aspectRatio: "4/5",
-  },
-  {
-    id: 5,
-    name: "Twitter Header",
-    image: "https://picsum.photos/seed/template5/600/286",
-    aspectRatio: "21/9",
-  },
-  {
-    id: 6,
-    name: "Pinterest Pin",
-    image: "https://picsum.photos/seed/template6/400/600",
-    aspectRatio: "2/3",
-  },
-  {
-    id: 7,
-    name: "Classic Post",
-    image: "https://picsum.photos/seed/template7/400/300",
-    aspectRatio: "4/3",
-  },
-  {
-    id: 8,
-    name: "Wide Banner",
-    image: "https://picsum.photos/seed/template8/600/400",
-    aspectRatio: "3/2",
-  },
-]);
+// Templates from API
+const templates = ref([]);
 
 // Aspect Ratios with social media recommendations
 const aspectRatios = ref([
@@ -1257,6 +1208,22 @@ const selectTemplate = (template) => {
   }, 100);
 };
 
+// Fetch templates from API
+const fetchTemplates = async () => {
+  try {
+    const response = await apiClient.get("/infographs/templates/list/");
+    templates.value = response.data.map((template) => ({
+      id: template.id,
+      name: template.name,
+      image: template.image_url,
+      aspectRatio: "9/16", // Default, could be added to template model
+    }));
+  } catch (error) {
+    console.error("Error fetching templates:", error);
+    toastStore.error("Failed to load templates");
+  }
+};
+
 // Pre-select template from query parameter
 onMounted(async () => {
   // Handle Google OAuth token from query parameter
@@ -1282,6 +1249,9 @@ onMounted(async () => {
         "Failed to authenticate. Please try logging in again.";
     }
   }
+
+  // Fetch templates from API
+  await fetchTemplates();
 
   const templateId = route.query.templateId;
   if (templateId) {
@@ -1535,24 +1505,54 @@ const handleGenerate = async () => {
 
   if (selectedTemplate.value) {
     try {
-      const response = await apiClient.post("/infographs/create-template/", {
+      const response = await apiClient.post("/infographs/create/template/", {
         prompt: prompt.value,
-        blog_url: blogUrl.value,
+        template_id: selectedTemplate.value.id,
         aspect_ratio: selectedAspectRatio.value.value,
         resolution: selectedResolution.value,
         number_of_infographs: numberOfInfographs.value,
-        selected_template: selectedTemplate.value.id,
         type: selectedInfographType.value.value,
       });
-      results.value = response.data;
-      isGenerating.value = false;
-      hasResults.value = true;
+
+      console.log("API Response:", response.data);
+
+      const infographsData =
+        response.data.infograph?.infographs || response.data.infographs;
+
+      if (
+        infographsData &&
+        Array.isArray(infographsData) &&
+        infographsData.length > 0
+      ) {
+        results.value = infographsData.map((infograph) => ({
+          id: infograph.id,
+          request_id: infograph.request_id,
+          status: infograph.status || "processing",
+          image_url: null,
+          image: null,
+        }));
+
+        isGenerating.value = false;
+        hasResults.value = true;
+
+        // Start polling for each infograph
+        infographsData.forEach((infograph) => {
+          startPollingStatus(infograph.id);
+        });
+      } else {
+        showError.value = true;
+        errorMessage.value = "Failed to create infograph with template";
+        isGenerating.value = false;
+      }
       return;
     } catch (error) {
       console.error(error);
       isGenerating.value = false;
       showError.value = true;
-      errorMessage.value = "Failed to create infograph with template";
+      errorMessage.value =
+        error.response?.data?.message ||
+        "Failed to create infograph with template";
+      toastStore.error(errorMessage.value);
       return;
     }
   }

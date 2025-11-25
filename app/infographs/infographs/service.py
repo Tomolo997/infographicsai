@@ -114,6 +114,118 @@ def create_infograph_from_pdf(
 
 
 
+def create_infograph_from_template(
+  account: Account,
+  prompt: str,
+  template,
+  aspect_ratio: str,
+  resolution: str,
+  number_of_infographs: int,
+  type: str = 'infograph'
+) -> Dict[str, Any]:
+    """
+    Create infograph(s) from existing template using fal.ai edit mode.
+    Uses template's image_url as reference for generation.
+    
+    Returns immediately with infograph IDs and status.
+    Actual image generation happens in background.
+    """
+    credits_used = 1
+    if resolution == "4K":
+        credits_used += 1
+    
+    # Check if the account has enough credits
+    total_credits_needed = credits_used * number_of_infographs
+    if account.credit_balance < total_credits_needed:
+        raise NotEnoughCreditsException(
+            f"You need {total_credits_needed} credits but have {account.credit_balance}"
+        )
+    
+    # Get template image URL
+    template_url = template.image_url
+    
+    if not template_url:
+        raise Exception("Template has no image URL")
+    
+    print(f"✅ Using template: {template.name} ({template_url})")
+    
+    # Build the prompt for the infographic
+    enhanced_prompt = f"Create a professional {type} with the following content: {prompt}. Use the provided template image as a style reference for colors, layout, and design."
+    
+    # Initialize fal.ai client
+    fal_client = FalAI()
+    
+    # Create webhook URL for receiving results
+    webhook_base_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
+    
+    # Create infographs and submit generation jobs
+    infographs = []
+    for i in range(number_of_infographs):
+        # Create infograph record with PENDING status
+        infograph = Infograph.objects.create(
+            account=account,
+            template=template,
+            blog_url=None,
+            blog_json={
+                "template_id": template.id,
+                "template_name": template.name,
+                "source": "template",
+                "type": type
+            },
+            resolution=resolution,
+            aspect_ratio=aspect_ratio,
+            credits_used=credits_used,
+            prompt=enhanced_prompt,
+            status=InfographStatus.PENDING,
+            type=type,
+        )
+        
+        try:
+            # Submit async edit generation job to fal.ai with template image
+            webhook_url = f"{webhook_base_url}/api/infographs/webhook/{infograph.id}/"
+            print(f"🎨 Submitting edit generation with template: {template.name}")
+            
+            result = fal_client.submit_edit_generation_sync(
+                prompt=enhanced_prompt,
+                image_urls=[template_url],
+                webhook_url=webhook_url,
+            )
+            
+            # Update with request ID and mark as PROCESSING
+            infograph.fal_request_id = result["request_id"]
+            infograph.status = InfographStatus.PROCESSING
+            infograph.save()
+            
+            infographs.append({
+                "id": infograph.id,
+                "request_id": result["request_id"],
+                "status": infograph.status,
+                "status_url": result.get("status_url"),
+            })
+            
+        except Exception as e:
+            # Mark as failed if submission fails
+            infograph.status = InfographStatus.FAILED
+            infograph.error_message = str(e)
+            infograph.save()
+            print(f"❌ Error submitting edit generation: {e}")
+            infographs.append({
+                "id": infograph.id,
+                "status": InfographStatus.FAILED,
+                "error": str(e),
+            })
+    
+    # Deduct credits only after successful submission
+    account.credit_balance -= total_credits_needed
+    account.save()
+    
+    return {
+        "infographs": infographs,
+        "total_submitted": len(infographs),
+        "credits_used": total_credits_needed,
+    }
+
+
 def create_infograph_from_own_template(
   account: Account,
   prompt: str,
