@@ -28,7 +28,7 @@
               from your Blog Posts
             </h1>
             <p
-              class="text-body-xl text-text-secondary mb-10 max-w-xl leading-relaxed"
+              class="text-body-xl text-gray-600 mb-10 max-w-xl leading-relaxed"
             >
               Transform your content into beautiful, engaging infographics that
               capture attention and drive results.
@@ -117,7 +117,7 @@
               Powerful Features,
               <span class="text-sidebar-orange">Simple</span> to Use
             </h2>
-            <p class="text-body-lg text-text-secondary mb-10 max-w-xl">
+            <p class="text-body-lg text-gray-600 mb-10 max-w-xl">
               Everything you need to create stunning infographics in one
               easy-to-use platform.
             </p>
@@ -305,7 +305,7 @@
           <h2 class="text-display-md mb-4">
             Our Beautiful Infographics Gallery
           </h2>
-          <p>
+          <p class="text-body-lg text-gray-600 max-w-3xl mx-auto">
             Explore our collection of beautiful infographics created for our
             users.
           </p>
@@ -369,7 +369,7 @@
             <span class="text-sidebar-orange italic">AInfographic</span>
             Generator?
           </h2>
-          <p class="text-body-lg text-text-secondary max-w-3xl mx-auto">
+          <p class="text-body-lg text-gray-600 max-w-3xl mx-auto">
             Transform complex information into stunning visuals
             <span class="text-green-600 font-semibold"
               >in minutes, not hours</span
@@ -843,7 +843,7 @@
         <div class="mb-24">
           <div class="text-center mb-12">
             <h2 class="text-display-md mb-4">Simple, Credit based pricing</h2>
-            <p class="text-body-lg text-text-secondary">
+            <p class="text-body-lg text-gray-600 max-w-3xl mx-auto">
               Choose the plan that fits your needs.
             </p>
           </div>
