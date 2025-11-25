@@ -124,8 +124,8 @@ def create_infograph_from_own_template(
   type: str = 'infograph'
 ) -> Dict[str, Any]:
     """
-    Create infograph(s) from user's own template image.
-    Analyzes the template design and incorporates it into the generation.
+    Create infograph(s) from user's own template image using fal.ai edit mode.
+    Uploads template to R2, then uses it as reference for generation.
     
     Returns immediately with infograph IDs and status.
     Actual image generation happens in background.
@@ -141,12 +141,40 @@ def create_infograph_from_own_template(
             f"You need {total_credits_needed} credits but have {account.credit_balance}"
         )
     
-    # Analyze the template image to extract design schema
-    analyzer = URLAnalyzer()
-    template_design = analyzer._analyze_template_image(template_image)
+    # Upload template image to R2 to get a public URL
+    try:
+        r2_client = R2Client()
+        
+        # Read the file
+        if hasattr(template_image, 'read'):
+            template_image.seek(0)
+            file_data = BytesIO(template_image.read())
+            template_image.seek(0)
+        else:
+            with open(template_image, 'rb') as f:
+                file_data = BytesIO(f.read())
+        
+        # Set content type
+        content_type = getattr(template_image, 'content_type', 'image/png')
+        file_data.content_type = content_type  # type: ignore[attr-defined]
+        file_data.seek(0)
+        
+        # Upload to R2
+        file_extension = content_type.split('/')[-1] if content_type else 'png'
+        template_filename = f"templates/{account.id}_template_{int(settings.TIME_ZONE.__hash__())}.{file_extension}"
+        template_url = r2_client.upload_file(file_data, template_filename)
+        
+        if not template_url:
+            raise Exception("Failed to upload template to R2")
+            
+        print(f"✅ Template uploaded to R2: {template_url}")
+        
+    except Exception as e:
+        print(f"❌ Error uploading template to R2: {e}")
+        raise Exception(f"Failed to upload template: {str(e)}")
     
-    # Build the enhanced prompt with template design
-    enhanced_prompt = _build_prompt_with_template(prompt, template_design, type)
+    # Build the prompt for the infographic
+    enhanced_prompt = f"Create a professional {type} with the following content: {prompt}. Use the provided template image as a style reference for colors, layout, and design."
     
     # Initialize fal.ai client
     fal_client = FalAI()
@@ -162,7 +190,7 @@ def create_infograph_from_own_template(
             account=account,
             blog_url=None,
             blog_json={
-                "template_design": template_design,
+                "template_url": template_url,
                 "source": "own_template",
                 "type": type
             },
@@ -175,12 +203,14 @@ def create_infograph_from_own_template(
         )
         
         try:
-            # Submit async generation job to fal.ai
+            # Submit async edit generation job to fal.ai with template image
             webhook_url = f"{webhook_base_url}/api/infographs/webhook/{infograph.id}/"
-            result = fal_client.submit_generation_sync(
+            print(f"🎨 Submitting edit generation with template: {template_url}")
+            
+            result = fal_client.submit_edit_generation_sync(
                 prompt=enhanced_prompt,
+                image_urls=[template_url],
                 webhook_url=webhook_url,
-                aspect_ratio=aspect_ratio,
             )
             
             # Update with request ID and mark as PROCESSING
@@ -200,6 +230,7 @@ def create_infograph_from_own_template(
             infograph.status = InfographStatus.FAILED
             infograph.error_message = str(e)
             infograph.save()
+            print(f"❌ Error submitting edit generation: {e}")
             infographs.append({
                 "id": infograph.id,
                 "status": InfographStatus.FAILED,
@@ -348,26 +379,6 @@ def _build_pdf_prompt(pdf_content: str, type: str) -> str:
     """
 
 
-def _build_prompt_with_template(user_prompt: str, template_design: Dict[str, Any], type: str) -> str:
-    """Build enhanced prompt incorporating template design description."""
-    
-    # Extract the template description
-    template_schema = template_design.get("template", {})
-    template_description = template_schema.get("description", "")
-    
-    base_prompt = f"""Create a professional {type} with the following design specifications:
-
-User Content Request: {user_prompt}
-
-Design Template Analysis:
-{template_description}
-
-IMPORTANT: Use the design system, colors, layout, and visual style described above as inspiration for this new infographic.
-Maintain the visual hierarchy, color scheme, and structural patterns identified in the template analysis.
-Create a modern, professional design that follows these design principles while presenting the user's content.
-"""
-    
-    return base_prompt
 
 
 def _get_image_size(aspect_ratio: str, resolution: str) -> str:

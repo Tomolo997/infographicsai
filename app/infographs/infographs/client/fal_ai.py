@@ -23,6 +23,7 @@ class FalAI:
     
     def __init__(self):
         self.model = "fal-ai/nano-banana-pro"
+        self.edit_model = "fal-ai/nano-banana-pro/edit"
     
     async def submit_generation(self, prompt: str, webhook_url: Optional[str] = None, **kwargs) -> Dict[str, str]:
         """
@@ -135,3 +136,59 @@ class FalAI:
         )
         
         return result
+    
+    async def submit_edit_generation(
+        self, 
+        prompt: str,
+        image_urls: list,
+        webhook_url: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, str]:
+        """
+        Submit an edit generation job using nano-banana-pro/edit (non-blocking).
+        Uses template images to guide the generation.
+        
+        Args:
+            prompt: The image generation prompt
+            image_urls: List of template image URLs to use as reference
+            webhook_url: Optional URL where fal.ai will POST results when ready
+            **kwargs: Additional arguments for the model
+            
+        Returns:
+            Dict with 'request_id' and 'status_url' for checking progress
+        """
+        handler = await fal_client.submit_async(
+            self.edit_model,
+            arguments={
+                "prompt": prompt,
+                "image_urls": image_urls,
+                **kwargs
+            },
+            webhook_url=webhook_url,
+        )
+        
+        return {
+            "request_id": handler.request_id,
+            "status_url": f"https://queue.fal.run/fal-ai/nano-banana-pro/edit/requests/{handler.request_id}/status"
+        }
+    
+    def submit_edit_generation_sync(
+        self, 
+        prompt: str,
+        image_urls: list,
+        webhook_url: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, str]:
+        """
+        Synchronous wrapper for submit_edit_generation.
+        Creates event loop if needed (for use in Django views).
+        """
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        return loop.run_until_complete(
+            self.submit_edit_generation(prompt, image_urls, webhook_url, **kwargs)
+        )
