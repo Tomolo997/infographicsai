@@ -1,7 +1,7 @@
 <template>
   <nav
     :class="[
-      'fixed left-0 right-0 z-50 transition-all duration-500 ease-out w-full flex w-ma justify-center items-center',
+      ' transition-all duration-500 ease-out w-full pt-2 bg-sidebar-orange-bg flex w-ma justify-center items-center',
       isScrolled ? 'top-2' : 'top-6',
     ]"
   >
@@ -11,20 +11,34 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <div
-            class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center"
+            class="w-8 h-8 bg-primary-500 rounded-md flex items-center justify-center"
           >
-            <span class="text-white font-bold text-sm">AI</span>
+            <Logo />
           </div>
-          <span class="text-text-primary">AInfographic</span>
+          <span class="text-text-primary font-bold text-lg mt-1"
+            >Ainfographics</span
+          >
         </div>
       </div>
-      <div class="flex items-center space-x-8">
-        <NuxtLink to="/#pricing" class="text-text-primary">Pricing</NuxtLink>
+      <div class="flex items-center space-x-2">
+        <NuxtLink
+          to="/#pricing"
+          class="text-text-primary mt-1 hover:bg-sidebar-border transition-all duration-300 px-4 py-2 rounded-full"
+          >Pricing</NuxtLink
+        >
         <!-- <NuxtLink to="/blog" class="text-text-primary font-bold text-sm"
           >Blog</NuxtLink
         > -->
-        <NuxtLink to="/#features" class="text-text-primary">Features</NuxtLink>
-        <NuxtLink to="/#contact" class="text-text-primary">Contact</NuxtLink>
+        <NuxtLink
+          to="/#features"
+          class="text-text-primary mt-1 hover:bg-sidebar-border transition-all duration-300 px-4 py-2 rounded-full"
+          >Features</NuxtLink
+        >
+        <NuxtLink
+          to="/#contact"
+          class="text-text-primary mt-1 hover:bg-sidebar-border transition-all duration-300 px-4 py-2 rounded-full"
+          >Contact</NuxtLink
+        >
       </div>
       <div
         class="flex items-center space-x-4 ml-auto"

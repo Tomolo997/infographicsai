@@ -1,11 +1,9 @@
 <template>
   <div class="min-h-screen">
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 overflow-hidden">
+    <section class="relative pt-12 pb-20 overflow-hidden">
       <!-- Background Effects -->
-      <div
-        class="absolute inset-0 bg-gradient-to-br from-sidebar-orange/5 via-background-primary to-sidebar-orange/10"
-      ></div>
+      <div class="absolute inset-0 bg-sidebar-orange-bg"></div>
       <div class="absolute inset-0 opacity-20">
         <div
           class="absolute inset-0"
@@ -24,12 +22,14 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <!-- Left side: Text content -->
           <div>
-            <h1 class="text-display-xl mb-6">
+            <h1 class="text-display-xl mb-2">
               Create Stunning
               <span class="text-sidebar-orange">Infographics</span>
               from your Blog Posts
             </h1>
-            <p class="text-body-xl text-text-secondary mb-10 max-w-xl">
+            <p
+              class="text-body-xl text-text-secondary mb-10 max-w-xl leading-relaxed"
+            >
               Transform your content into beautiful, engaging infographics that
               capture attention and drive results.
               <br />
@@ -42,7 +42,7 @@
                 Start Creating
               </NuxtLink>
             </div>
-            <div class="mt-8 flex items-center gap-4">
+            <!-- <div class="mt-8 flex items-center gap-4">
               <div class="flex -space-x-2">
                 <div
                   class="w-10 h-10 rounded-full bg-sidebar-orange/20 border-2 border-background-primary"
@@ -56,11 +56,11 @@
               </div>
               <div class="text-sm">
                 <div class="font-semibold text-text-primary">
-                  Trusted by 10,000+ creators
+                  Trusted by 100+ creators
                 </div>
                 <div class="text-text-secondary">⭐⭐⭐⭐⭐ 4.9/5 rating</div>
               </div>
-            </div>
+            </div> -->
           </div>
 
           <!-- Right side: 3 Infographs with depth effect -->
@@ -107,613 +107,729 @@
       </div>
     </section>
 
-    <!-- Video Demo Section -->
-    <section ref="videoSection" class="py-24 bg-background-secondary/30">
+    <!-- Features Section -->
+    <section class="py-24 bg-sidebar-orange-bg">
       <div class="container-custom">
-        <div class="text-center mb-12">
-          <h2 class="text-display-md mb-4">
-            See How Easy It Is to Create Stunning Infographics
-          </h2>
-          <p class="text-body-lg text-text-secondary max-w-2xl mx-auto">
-            Watch how our AI-powered platform transforms your content into
-            beautiful, professional infographics in just minutes.
-          </p>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <!-- Left Side: Title, Subtitle, and Feature Cards -->
+          <div>
+            <h2 class="text-display-md mb-4">
+              Powerful Features,
+              <span class="text-sidebar-orange">Simple</span> to Use
+            </h2>
+            <p class="text-body-lg text-text-secondary mb-10 max-w-xl">
+              Everything you need to create stunning infographics in one
+              easy-to-use platform.
+            </p>
 
-        <!-- Video Container -->
-        <div class="max-w-5xl mx-auto">
-          <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-            <!-- Video placeholder - Replace with your actual video -->
-            <div
-              class="relative bg-gradient-to-br from-sidebar-orange/10 to-purple-500/10 aspect-video"
-            >
-              <!-- Play button overlay -->
+            <!-- Feature Cards -->
+            <div class="grid grid-cols-2 gap-4">
               <div
-                class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm cursor-pointer hover:bg-black/30 transition-colors group"
+                v-for="(feature, index) in features"
+                :key="index"
+                @click="selectFeature(index)"
+                :class="[
+                  'flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-300 border-2',
+                  selectedFeatureIndex === index
+                    ? 'bg-card-bg border-sidebar-orange shadow-lg'
+                    : 'bg-card-bg/50 border-transparent hover:bg-card-bg hover:border-card-border',
+                ]"
               >
+                <!-- Icon -->
                 <div
-                  class="w-20 h-20 rounded-full bg-sidebar-orange flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-2xl"
+                  :class="[
+                    'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300',
+                    selectedFeatureIndex === index
+                      ? feature.gradientClass
+                      : 'bg-background-secondary',
+                  ]"
+                >
+                  <component
+                    :is="feature.icon"
+                    :class="[
+                      'w-6 h-6 transition-colors duration-300',
+                      selectedFeatureIndex === index
+                        ? 'text-white'
+                        : 'text-text-secondary',
+                    ]"
+                  />
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <h3
+                    :class="[
+                      'font-semibold mb-1 text-sm transition-colors duration-300',
+                      selectedFeatureIndex === index
+                        ? 'text-text-primary'
+                        : 'text-text-primary',
+                    ]"
+                  >
+                    {{ feature.title }}
+                  </h3>
+                  <p
+                    class="text-xs text-text-secondary leading-relaxed line-clamp-2"
+                  >
+                    {{ feature.subtitle }}
+                  </p>
+                </div>
+
+                <!-- Arrow indicator -->
+                <div
+                  :class="[
+                    'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300',
+                    selectedFeatureIndex === index
+                      ? 'bg-sidebar-orange text-white'
+                      : 'bg-transparent',
+                  ]"
                 >
                   <svg
-                    class="w-8 h-8 text-white ml-1"
-                    fill="currentColor"
+                    v-if="selectedFeatureIndex === index"
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
+                    stroke-width="2"
                   >
-                    <path d="M8 5v14l11-7z" />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </div>
-              <!-- Placeholder content -->
+            </div>
+          </div>
+
+          <!-- Right Side: Video/Demo Area -->
+          <div class="lg:sticky lg:top-24">
+            <div
+              class="relative bg-card-bg rounded-2xl border border-card-border overflow-hidden shadow-2xl"
+            >
+              <!-- Browser-like header -->
               <div
-                class="absolute inset-0 flex items-center justify-center text-text-secondary"
+                class="flex items-center gap-2 px-4 py-3 bg-background-secondary border-b border-card-border"
               >
-                <div class="text-center p-8">
-                  <div class="text-6xl mb-4">🎬</div>
-                  <p class="text-lg">Demo Video Coming Soon</p>
-                  <p class="text-sm mt-2 opacity-75">
-                    Replace this with your actual video URL
+                <div class="flex gap-1.5">
+                  <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <div
+                  class="flex-1 mx-4 px-3 py-1 bg-background-primary rounded-md text-xs text-text-secondary text-center"
+                >
+                  ainfographic.com/dashboard
+                </div>
+              </div>
+
+              <!-- Video/Image Content Area -->
+              <div class="relative aspect-[4/3] bg-background-secondary">
+                <!-- Placeholder for video - shows current feature demo -->
+                <transition name="fade" mode="out-in">
+                  <div
+                    :key="selectedFeatureIndex"
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <!-- Video element -->
+                    <video
+                      v-if="features[selectedFeatureIndex].videoUrl"
+                      :src="features[selectedFeatureIndex].videoUrl"
+                      class="w-full h-full"
+                      autoplay
+                      loop
+                      muted
+                      playsinline
+                    ></video>
+
+                    <!-- Fallback placeholder if no video -->
+                    <div
+                      v-else
+                      class="w-full h-full flex flex-col items-center justify-center p-8"
+                    >
+                      <div
+                        :class="[
+                          'w-20 h-20 rounded-2xl flex items-center justify-center mb-6',
+                          features[selectedFeatureIndex].gradientClass,
+                        ]"
+                      >
+                        <component
+                          :is="features[selectedFeatureIndex].icon"
+                          class="w-10 h-10 text-white"
+                        />
+                      </div>
+                      <h4 class="text-xl font-bold text-text-primary mb-2">
+                        {{ features[selectedFeatureIndex].title }}
+                      </h4>
+                      <p
+                        class="text-text-secondary text-center text-sm max-w-sm"
+                      >
+                        {{ features[selectedFeatureIndex].subtitle }}
+                      </p>
+                    </div>
+                  </div>
+                </transition>
+
+                <!-- Feature indicator dots -->
+                <div
+                  class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2"
+                >
+                  <button
+                    v-for="(_, index) in features"
+                    :key="index"
+                    @click="selectFeature(index)"
+                    :class="[
+                      'w-2 h-2 rounded-full transition-all duration-300',
+                      selectedFeatureIndex === index
+                        ? 'bg-sidebar-orange w-6'
+                        : 'bg-text-secondary/30 hover:bg-text-secondary/50',
+                    ]"
+                  ></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick stats below video -->
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Video Demo Section -->
+    <section
+      ref="templateGallerySection"
+      class="py-24 px-12 bg-sidebar-orange-bg"
+    >
+      <div class="container-custom">
+        <div class="text-center mb-12">
+          <h2 class="text-display-md mb-4">
+            Our Beautiful Infographics Gallery
+          </h2>
+          <p>
+            Explore our collection of beautiful infographics created for our
+            users.
+          </p>
+        </div>
+        <div
+          class="grid grid-cols-1 justify-center md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          <div class="w-full flex justify-center items-center">
+            <img
+              src="https://images.ainfographic.com/template_1_landing_page.png"
+              alt="Infograph 1"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="w-full flex justify-center items-center">
+            <img
+              src="https://images.ainfographic.com/template_2_landing_page.png"
+              alt="Infograph 2"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="w-full flex justify-center items-center">
+            <img
+              src="https://images.ainfographic.com/infographs_3_landing_page.png"
+              alt="Infograph 3"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="w-full flex justify-center items-center">
+            <img
+              src="https://images.ainfographic.com/templates/app_templates/template_3.webp"
+              alt="Infograph 3"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="w-full flex justify-center items-center">
+            <img
+              src="https://images.ainfographic.com/templates/app_templates/template_5.webp"
+              alt="Infograph 3"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="w-full flex justify-center items-center">
+            <img
+              src="https://images.ainfographic.com/templates/app_templates/template_6.webp"
+              alt="Infograph 3"
+              class="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Use AI Infographic Section -->
+    <section class="py-24 bg-sidebar-orange-bg">
+      <div class="container-custom">
+        <!-- Header -->
+        <div class="text-center mb-12">
+          <h2 class="text-display-md mb-4">
+            Why use an
+            <span class="text-sidebar-orange italic">AInfographic</span>
+            Generator?
+          </h2>
+          <p class="text-body-lg text-text-secondary max-w-3xl mx-auto">
+            Transform complex information into stunning visuals
+            <span class="text-green-600 font-semibold"
+              >in minutes, not hours</span
+            >. Skip the learning curve and
+            <span class="font-semibold">save 99% on design costs</span>.
+          </p>
+        </div>
+
+        <!-- Benefit Tags -->
+        <div class="flex flex-wrap justify-center gap-3 mb-16">
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-text-primary shadow-sm"
+          >
+            2-minute creation
+          </span>
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-text-primary shadow-sm"
+          >
+            Fraction of the cost
+          </span>
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-text-primary shadow-sm"
+          >
+            Professional quality
+          </span>
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-text-primary shadow-sm"
+          >
+            AI-powered design
+          </span>
+        </div>
+
+        <!-- Comparison Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <!-- Traditional Design Card -->
+          <div
+            class="bg-white rounded-2xl border border-gray-200 p-8 shadow-lg"
+          >
+            <!-- Card Header -->
+            <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary">
+                  Traditional Design Process
+                </h3>
+              </div>
+              <span
+                class="px-3 py-1 rounded-full bg-red-100 text-red-600 text-sm font-semibold"
+              >
+                9 hours
+              </span>
+            </div>
+
+            <!-- Steps -->
+            <div class="space-y-5">
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm font-bold"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                  >
+                    <!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE -->
+                    <g
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M14 18a2 2 0 0 0-4 0m9-7l-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11m-3 0h20"
+                      />
+                      <circle cx="17" cy="18" r="3" />
+                      <circle cx="7" cy="18" r="3" />
+                    </g>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h4 class="font-semibold text-text-primary">Research</h4>
+                      <p class="text-sm text-text-secondary">
+                        Understanding the topic and gathering relevant data
+                      </p>
+                    </div>
+                    <span class="text-sm text-red-500 font-medium"
+                      >2 hours</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm font-bold"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                  >
+                    <!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE -->
+                    <g
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                      />
+                      <path
+                        d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+                      />
+                    </g>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h4 class="font-semibold text-text-primary">
+                        Conceptualization
+                      </h4>
+                      <p class="text-sm text-text-secondary">
+                        Sketching ideas and planning the layout
+                      </p>
+                    </div>
+                    <span class="text-sm text-red-500 font-medium"
+                      >1.5 hours</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm font-bold"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                  >
+                    <!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE -->
+                    <g
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"
+                      />
+                      <path
+                        d="M14 2v4a2 2 0 0 0 2 2h4m-6.622 7.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"
+                      />
+                    </g>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h4 class="font-semibold text-text-primary">Design</h4>
+                      <p class="text-sm text-text-secondary">
+                        Creating and assembling visual elements
+                      </p>
+                    </div>
+                    <span class="text-sm text-red-500 font-medium"
+                      >4 hours</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm font-bold"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                  >
+                    <!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE -->
+                    <g
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M2.062 12.348a1 1 0 0 1 0-.696a10.75 10.75 0 0 1 19.876 0a1 1 0 0 1 0 .696a10.75 10.75 0 0 1-19.876 0"
+                      />
+                      <circle cx="12" cy="12" r="3" />
+                    </g>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h4 class="font-semibold text-text-primary">Review</h4>
+                      <p class="text-sm text-text-secondary">
+                        Checking accuracy and visual appeal
+                      </p>
+                    </div>
+                    <span class="text-sm text-red-500 font-medium">1 hour</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm font-bold"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                  >
+                    <!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE -->
+                    <g
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+                      />
+                      <path d="M14 2v4a2 2 0 0 0 2 2h4M8 16l2-2l-2-2m4 6h4" />
+                    </g>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h4 class="font-semibold text-text-primary">
+                        Finalization
+                      </h4>
+                      <p class="text-sm text-text-secondary">
+                        Final adjustments and export
+                      </p>
+                    </div>
+                    <span class="text-sm text-red-500 font-medium"
+                      >0.5 hours</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cost Footer -->
+            <div
+              class="mt-8 pt-6 border-t border-gray-200 flex justify-between items-end"
+            >
+              <div>
+                <p class="text-sm text-text-secondary">Designer Cost</p>
+                <p class="text-3xl font-bold text-text-primary">$315</p>
+              </div>
+              <p class="text-sm text-text-secondary">$35/hour × 9 hours</p>
+            </div>
+          </div>
+
+          <!-- AI-Powered Design Card -->
+          <div
+            class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200 p-8 shadow-lg relative overflow-hidden"
+          >
+            <!-- Decorative glow -->
+            <div
+              class="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl"
+            ></div>
+
+            <!-- Card Header -->
+            <div class="flex items-center justify-between mb-8 relative">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary">
+                  AI-Powered Design
+                </h3>
+              </div>
+              <span
+                class="px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm font-semibold"
+              >
+                2 minutes
+              </span>
+            </div>
+
+            <!-- AI Features -->
+            <div class="space-y-5 relative">
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-text-primary">
+                    Instant research
+                  </h4>
+                  <p class="text-sm text-green-600">
+                    AI analyzes and summarizes content in seconds
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-text-primary">
+                    Beautiful Templates
+                  </h4>
+                  <p class="text-sm text-green-600">
+                    Perfect visuals, zero effort
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-text-primary">Smart design</h4>
+                  <p class="text-sm text-green-600">
+                    Professional layouts automagically
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-4 h-4 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-text-primary">
+                    One-click export
+                  </h4>
+                  <p class="text-sm text-green-600">
+                    Download in any format instantly
                   </p>
                 </div>
               </div>
             </div>
-            <!-- Glow effect -->
-            <div
-              class="absolute -inset-4 bg-sidebar-orange/20 blur-3xl -z-10 rounded-[3rem]"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Infographic Gallery Mosaic -->
-    <section class="py-24">
-      <div class="container-custom">
-        <div class="text-center mb-12">
-          <h2 class="text-display-md mb-4">
-            Beautiful Infographics for Every Need
-          </h2>
-          <p class="text-body-lg text-text-secondary max-w-2xl mx-auto">
-            From social media posts to detailed reports, create infographics in
-            any format and style you need.
-          </p>
-        </div>
-
-        <!-- Mosaic Grid -->
-        <div class="grid grid-cols-12 gap-4 max-w-6xl mx-auto">
-          <!-- Large square - Top left -->
-          <div
-            class="col-span-12 md:col-span-6 lg:col-span-5 row-span-2 aspect-square"
-          >
+            <!-- Cost Footer -->
             <div
-              class="h-full bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer"
+              class="mt-8 pt-6 border-t border-green-200 flex justify-between items-end relative"
             >
-              <div class="p-8 h-full flex flex-col justify-between">
-                <div>
-                  <h3 class="text-white font-bold text-3xl mb-4">
-                    Market Analysis
-                  </h3>
-                  <p class="text-white/80">Q4 2024 Performance Report</p>
-                </div>
-                <div class="space-y-4">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                    <div class="text-white/60 text-sm mb-2">Revenue Growth</div>
-                    <div class="text-white font-bold text-2xl">+127%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tall rectangle - Top right -->
-          <div
-            class="col-span-6 md:col-span-3 lg:col-span-3 row-span-3 aspect-[9/16]"
-          >
-            <div
-              class="h-full bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer"
-            >
-              <div class="p-6 h-full flex flex-col justify-between">
-                <div>
-                  <h3 class="text-white font-bold text-xl mb-3">
-                    Social Stats
-                  </h3>
-                  <div class="space-y-3">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                      <div class="text-white/70 text-xs">Engagement</div>
-                      <div class="text-white font-bold text-lg">8.4K</div>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                      <div class="text-white/70 text-xs">Reach</div>
-                      <div class="text-white font-bold text-lg">124K</div>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                      <div class="text-white/70 text-xs">Shares</div>
-                      <div class="text-white font-bold text-lg">2.1K</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Wide rectangle - Far right -->
-          <div
-            class="col-span-6 md:col-span-3 lg:col-span-4 row-span-2 aspect-[4/5]"
-          >
-            <div
-              class="h-full bg-gradient-to-br from-sidebar-orange to-yellow-500 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer"
-            >
-              <div class="p-6 h-full flex flex-col justify-between">
-                <div>
-                  <h3 class="text-white font-bold text-2xl mb-4">
-                    Content Performance
-                  </h3>
-                  <div class="relative h-32">
-                    <svg
-                      viewBox="0 0 200 100"
-                      class="w-full h-full"
-                      preserveAspectRatio="none"
-                    >
-                      <path
-                        d="M 0,80 L 50,60 L 100,40 L 150,30 L 200,20"
-                        fill="none"
-                        stroke="white"
-                        stroke-width="3"
-                        opacity="0.8"
-                      />
-                      <path
-                        d="M 0,80 L 50,60 L 100,40 L 150,30 L 200,20 L 200,100 L 0,100 Z"
-                        fill="white"
-                        opacity="0.2"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                  <div class="text-white/70 text-sm mb-1">Avg. Views</div>
-                  <div class="text-white font-bold text-2xl">45.2K</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Medium rectangle - Middle left -->
-          <div
-            class="col-span-6 md:col-span-3 lg:col-span-3 row-span-2 aspect-[3/2]"
-          >
-            <div
-              class="h-full bg-gradient-to-br from-green-400 to-green-600 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer"
-            >
-              <div class="p-6 h-full flex flex-col justify-between">
-                <h3 class="text-white font-bold text-xl">Team Productivity</h3>
-                <div class="relative w-32 h-32 mx-auto">
-                  <svg viewBox="0 0 100 100" class="transform -rotate-90">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="white"
-                      stroke-width="8"
-                      opacity="0.2"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="white"
-                      stroke-width="8"
-                      stroke-dasharray="251.2"
-                      stroke-dashoffset="50.24"
-                    />
-                  </svg>
-                  <div
-                    class="absolute inset-0 flex items-center justify-center text-white font-bold text-2xl"
+              <div>
+                <p class="text-sm text-text-secondary">Cost Per Design</p>
+                <p class="text-3xl font-bold text-green-600">
+                  $0.50<span class="text-lg font-normal text-text-secondary">
+                    or less</span
                   >
-                    80%
-                  </div>
-                </div>
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-4xl font-bold text-green-600">99%</p>
+                <p class="text-sm text-text-secondary">cost savings</p>
               </div>
             </div>
-          </div>
-
-          <!-- Small square -->
-          <div class="col-span-6 md:col-span-3 lg:col-span-2 aspect-square">
-            <div
-              class="h-full bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer p-4 flex items-center justify-center"
-            >
-              <div class="text-center text-white">
-                <div class="text-4xl font-bold mb-2">92%</div>
-                <div class="text-sm opacity-80">Satisfaction</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Wide landscape -->
-          <div class="col-span-12 md:col-span-6 lg:col-span-7 aspect-[21/9]">
-            <div
-              class="h-full bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer"
-            >
-              <div class="p-6 h-full flex items-center justify-between">
-                <div>
-                  <h3 class="text-white font-bold text-2xl mb-2">
-                    Annual Growth Metrics
-                  </h3>
-                  <p class="text-white/70">2024 Year-End Summary</p>
-                </div>
-                <div class="flex gap-6">
-                  <div class="text-center">
-                    <div class="text-white font-bold text-3xl">$2.4M</div>
-                    <div class="text-white/70 text-sm">Revenue</div>
-                  </div>
-                  <div class="text-center">
-                    <div class="text-white font-bold text-3xl">156%</div>
-                    <div class="text-white/70 text-sm">Growth</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Medium portrait -->
-          <div
-            class="col-span-6 md:col-span-3 lg:col-span-3 row-span-2 aspect-[2/3]"
-          >
-            <div
-              class="h-full bg-gradient-to-br from-red-400 to-red-600 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer"
-            >
-              <div class="p-6 h-full flex flex-col justify-between">
-                <h3 class="text-white font-bold text-xl">Customer Insights</h3>
-                <div class="space-y-3">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                    <div class="flex justify-between items-center">
-                      <span class="text-white text-sm">Retention</span>
-                      <span class="text-white font-bold">94%</span>
-                    </div>
-                    <div class="w-full bg-white/20 rounded-full h-2 mt-2">
-                      <div
-                        class="bg-white rounded-full h-2"
-                        style="width: 94%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                    <div class="flex justify-between items-center">
-                      <span class="text-white text-sm">NPS Score</span>
-                      <span class="text-white font-bold">87</span>
-                    </div>
-                    <div class="w-full bg-white/20 rounded-full h-2 mt-2">
-                      <div
-                        class="bg-white rounded-full h-2"
-                        style="width: 87%"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Small rectangle -->
-          <div class="col-span-6 md:col-span-3 lg:col-span-2 aspect-[4/3]">
-            <div
-              class="h-full bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer p-4 flex flex-col justify-center"
-            >
-              <div class="text-white text-center">
-                <div class="text-3xl font-bold mb-1">15K+</div>
-                <div class="text-sm opacity-80">Active Users</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Benefits Section -->
-    <section class="py-24 bg-background-secondary/30">
-      <div class="container-custom">
-        <div class="text-center mb-16">
-          <h2 class="text-display-md mb-4">
-            Why Choose Our Infographic Platform?
-          </h2>
-          <p class="text-body-lg text-text-secondary max-w-2xl mx-auto">
-            Create visual content that captures attention and drives real
-            results for your business.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <!-- Benefit 1 -->
-          <div
-            class="card p-8 hover:border-sidebar-orange/50 transition-all duration-300 group"
-          >
-            <div
-              class="w-14 h-14 rounded-xl bg-sidebar-orange/10 flex items-center justify-center mb-6 group-hover:bg-sidebar-orange/20 transition-colors"
-            >
-              <svg
-                class="w-7 h-7 text-sidebar-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-4">10x More Views</h3>
-            <p class="text-text-secondary leading-relaxed">
-              Infographics get 3x more engagement than plain text content.
-              Capture attention and increase your reach across all platforms.
-            </p>
-          </div>
-
-          <!-- Benefit 2 -->
-          <div
-            class="card p-8 hover:border-sidebar-orange/50 transition-all duration-300 group"
-          >
-            <div
-              class="w-14 h-14 rounded-xl bg-sidebar-orange/10 flex items-center justify-center mb-6 group-hover:bg-sidebar-orange/20 transition-colors"
-            >
-              <svg
-                class="w-7 h-7 text-sidebar-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Boost Engagement</h3>
-            <p class="text-text-secondary leading-relaxed">
-              Visual content is processed 60,000x faster than text. Drive more
-              likes, shares, and comments with compelling infographics.
-            </p>
-          </div>
-
-          <!-- Benefit 3 -->
-          <div
-            class="card p-8 hover:border-sidebar-orange/50 transition-all duration-300 group"
-          >
-            <div
-              class="w-14 h-14 rounded-xl bg-sidebar-orange/10 flex items-center justify-center mb-6 group-hover:bg-sidebar-orange/20 transition-colors"
-            >
-              <svg
-                class="w-7 h-7 text-sidebar-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Simplify Complex Data</h3>
-            <p class="text-text-secondary leading-relaxed">
-              Transform complicated information into easy-to-understand visuals.
-              Make your message clear and memorable.
-            </p>
-          </div>
-
-          <!-- Benefit 4 -->
-          <div
-            class="card p-8 hover:border-sidebar-orange/50 transition-all duration-300 group"
-          >
-            <div
-              class="w-14 h-14 rounded-xl bg-sidebar-orange/10 flex items-center justify-center mb-6 group-hover:bg-sidebar-orange/20 transition-colors"
-            >
-              <svg
-                class="w-7 h-7 text-sidebar-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Increase Shareability</h3>
-            <p class="text-text-secondary leading-relaxed">
-              Infographics are shared 3x more than any other content type. Grow
-              your audience organically with viral-worthy visuals.
-            </p>
-          </div>
-
-          <!-- Benefit 5 -->
-          <div
-            class="card p-8 hover:border-sidebar-orange/50 transition-all duration-300 group"
-          >
-            <div
-              class="w-14 h-14 rounded-xl bg-sidebar-orange/10 flex items-center justify-center mb-6 group-hover:bg-sidebar-orange/20 transition-colors"
-            >
-              <svg
-                class="w-7 h-7 text-sidebar-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Save Time & Money</h3>
-            <p class="text-text-secondary leading-relaxed">
-              Create professional infographics in minutes, not hours. No need
-              for expensive designers or complex software.
-            </p>
-          </div>
-
-          <!-- Benefit 6 -->
-          <div
-            class="card p-8 hover:border-sidebar-orange/50 transition-all duration-300 group"
-          >
-            <div
-              class="w-14 h-14 rounded-xl bg-sidebar-orange/10 flex items-center justify-center mb-6 group-hover:bg-sidebar-orange/20 transition-colors"
-            >
-              <svg
-                class="w-7 h-7 text-sidebar-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Build Brand Authority</h3>
-            <p class="text-text-secondary leading-relaxed">
-              Position yourself as an expert with high-quality visual content.
-              Establish trust and credibility in your industry.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="py-24">
-      <div class="container-custom">
-        <div class="text-center mb-16">
-          <h2 class="text-display-md mb-4">Powerful Features, Simple to Use</h2>
-          <p class="text-body-lg text-text-secondary max-w-2xl mx-auto">
-            Everything you need to create stunning infographics in one
-            easy-to-use platform.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- Feature 1 -->
-          <div class="text-center group">
-            <div
-              class="relative mb-6 mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg"
-            >
-              <svg
-                class="w-10 h-10 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold mb-3">Create from Blog URL</h3>
-            <p class="text-text-secondary text-sm leading-relaxed">
-              Simply paste your blog URL and let our AI extract the key points
-              and create a beautiful infographic automatically.
-            </p>
-          </div>
-
-          <!-- Feature 2 -->
-          <div class="text-center group">
-            <div
-              class="relative mb-6 mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg"
-            >
-              <svg
-                class="w-10 h-10 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"
-                />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold mb-3">Choose from Templates</h3>
-            <p class="text-text-secondary text-sm leading-relaxed">
-              Browse our library of professional templates and customize them to
-              match your brand and message perfectly.
-            </p>
-          </div>
-
-          <!-- Feature 3 -->
-          <div class="text-center group">
-            <div
-              class="relative mb-6 mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-sidebar-orange to-yellow-500 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg"
-            >
-              <svg
-                class="w-10 h-10 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold mb-3">Bring Your Own Design</h3>
-            <p class="text-text-secondary text-sm leading-relaxed">
-              Upload your existing infographic template and let our AI populate
-              it with your content while maintaining your style.
-            </p>
-          </div>
-
-          <!-- Feature 4 -->
-          <div class="text-center group">
-            <div
-              class="relative mb-6 mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg"
-            >
-              <svg
-                class="w-10 h-10 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold mb-3">Create from Your Content</h3>
-            <p class="text-text-secondary text-sm leading-relaxed">
-              Write or paste your content directly and watch as our AI designs a
-              stunning infographic that tells your story.
-            </p>
           </div>
         </div>
       </div>
@@ -1310,7 +1426,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, h } from "vue";
 
 definePageMeta({
   layout: "default",
@@ -1323,6 +1439,190 @@ useSeoMeta({
 });
 
 const videoSection = ref(null);
+const selectedFeatureIndex = ref(0);
+
+// Icon components as render functions
+const LinkIcon = {
+  render() {
+    return h(
+      "svg",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        viewBox: "0 0 24 24",
+        strokeWidth: "2",
+      },
+      [
+        h("path", {
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          d: "M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1",
+        }),
+      ]
+    );
+  },
+};
+
+const DocumentIcon = {
+  render() {
+    return h(
+      "svg",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        viewBox: "0 0 24 24",
+        strokeWidth: "2",
+      },
+      [
+        h("path", {
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+        }),
+      ]
+    );
+  },
+};
+
+const ImageIcon = {
+  render() {
+    return h(
+      "svg",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        viewBox: "0 0 24 24",
+        strokeWidth: "2",
+      },
+      [
+        h("path", {
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          d: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
+        }),
+      ]
+    );
+  },
+};
+
+const ChartIcon = {
+  render() {
+    return h(
+      "svg",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        viewBox: "0 0 24 24",
+        strokeWidth: "2",
+      },
+      [
+        h("path", {
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+        }),
+      ]
+    );
+  },
+};
+
+const AspectRatioIcon = {
+  render() {
+    return h(
+      "svg",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        viewBox: "0 0 24 24",
+        strokeWidth: "2",
+      },
+      [
+        h("path", {
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          d: "M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z",
+        }),
+      ]
+    );
+  },
+};
+
+const ResolutionIcon = {
+  render() {
+    return h(
+      "svg",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        viewBox: "0 0 24 24",
+        strokeWidth: "2",
+      },
+      [
+        h("path", {
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+          d: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+        }),
+      ]
+    );
+  },
+};
+
+const features = ref([
+  {
+    title: "Create from Blog URL",
+    subtitle:
+      "Simply paste your blog URL and let our AI extract the key points and create a beautiful infographic automatically.",
+    icon: LinkIcon,
+    gradientClass: "bg-gradient-to-br from-blue-500 to-blue-600",
+    videoUrl:
+      "https://images.ainfographic.com/Screen%20Recording%202025-11-24%20at%2012.20.14.mov", // Add video URL when available
+  },
+  {
+    title: "Create from PDF",
+    subtitle:
+      "Upload any PDF document and transform it into a visually stunning infographic. Perfect for reports, whitepapers, and presentations.",
+    icon: DocumentIcon,
+    gradientClass: "bg-gradient-to-br from-red-500 to-pink-600",
+    videoUrl: null,
+  },
+  {
+    title: "Use Your Own Template",
+    subtitle:
+      "Upload your existing infographic template image and let our AI populate it with your content while maintaining your unique style.",
+    icon: ImageIcon,
+    gradientClass: "bg-gradient-to-br from-sidebar-orange to-yellow-500",
+    videoUrl: null,
+  },
+  {
+    title: "Multiple Visual Types",
+    subtitle:
+      "Create infographics, mindmaps, roadmaps, timelines, flowcharts, and organization charts. Choose the perfect format for your content.",
+    icon: ChartIcon,
+    gradientClass: "bg-gradient-to-br from-purple-500 to-purple-600",
+    videoUrl: null,
+  },
+  {
+    title: "Flexible Aspect Ratios",
+    subtitle:
+      "Choose from 8+ aspect ratios optimized for Instagram, TikTok, LinkedIn, Twitter, Pinterest, and more. Perfect for any platform.",
+    icon: AspectRatioIcon,
+    gradientClass: "bg-gradient-to-br from-green-500 to-emerald-600",
+    videoUrl: null,
+  },
+  {
+    title: "High Resolution Export",
+    subtitle:
+      "Export your infographics in 1K, 2K, or stunning 4K resolution. Perfect for print, presentations, and high-quality digital displays.",
+    icon: ResolutionIcon,
+    gradientClass: "bg-gradient-to-br from-cyan-500 to-blue-600",
+    videoUrl: null,
+  },
+]);
+
+const selectFeature = (index) => {
+  selectedFeatureIndex.value = index;
+};
 
 const faqs = ref([
   {
@@ -1367,9 +1667,34 @@ const toggleFaq = (index) => {
   faqs.value[index].isOpen = !faqs.value[index].isOpen;
 };
 
+const templateGallerySection = ref(null);
+
 const scrollToVideo = () => {
-  if (videoSection.value) {
-    videoSection.value.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (templateGallerySection.value) {
+    templateGallerySection.value.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   }
 };
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

@@ -9,11 +9,11 @@
     <div class="flex items-center justify-between p-4 border-sidebar-border">
       <div v-if="!isCollapsed" class="flex items-center space-x-2">
         <div
-          class="w-8 h-8 bg-sidebar-orange rounded-full flex items-center justify-center"
+          class="w-8 h-8 bg-sidebar-orange rounded-md flex items-center justify-center"
         >
-          <span class="text-sidebar-text-primary font-bold text-sm">AI</span>
+          <Logo />
         </div>
-        <span class="text-sidebar-text-primary font-semibold text-lg"
+        <span class="text-sidebar-text-primary font-semibold text-lg mt-1"
           >Ainfographic</span
         >
       </div>
@@ -21,7 +21,7 @@
         <div
           class="w-8 h-8 bg-sidebar-orange rounded-full flex items-center justify-center"
         >
-          <span class="text-sidebar-text-primary font-bold text-sm">AI</span>
+          <Logo />
         </div>
       </div>
     </div>
