@@ -653,15 +653,7 @@ const processFile = async (file) => {
 
 const selectTemplate = (template) => {
   selectedTemplate.value = template;
-  // Update aspect ratio based on template
-  const templateAspectRatio = aspectRatios.value.find(
-    (ar) => ar.value === template.aspectRatio.replace("/", ":")
-  );
-  if (templateAspectRatio) {
-    selectedAspectRatio.value = templateAspectRatio;
-  }
 };
-
 const selectInfographType = (type) => {
   selectedInfographType.value = type;
 };
@@ -726,11 +718,9 @@ const handleGenerate = async () => {
       isGenerating.value = false;
     }
   } catch (error) {
-    console.error("Error generating infographic:", error);
     showError.value = true;
     errorMessage.value =
-      error.response?.data?.message ||
-      "Failed to process PDF. Please try again.";
+      error.response?.data?.error || "Failed to process PDF. Please try again.";
     isGenerating.value = false;
     toastStore.error(errorMessage.value);
   }

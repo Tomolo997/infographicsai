@@ -17,5 +17,8 @@ urlpatterns = [
     
     # Download endpoint (proxy with CORS)
     path("download/<int:infograph_id>/", views.InfographDownloadAPIView.as_view(), name="infograph.download"),
+    
+    # Template endpoints
     path("templates/list/", views.TemplateListAPIView.as_view(), name="template.list"),
+    path("templates/create/", views.TemplateCreateAPIView.as_view(), name="template.create"),
 ]

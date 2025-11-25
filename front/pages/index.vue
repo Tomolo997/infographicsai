@@ -31,19 +31,15 @@
             </h1>
             <p class="text-body-xl text-text-secondary mb-10 max-w-xl">
               Transform your content into beautiful, engaging infographics that
-              capture attention and drive results. No
-              <span class="text-sidebar-orange">design skills</span> required.
+              capture attention and drive results.
+              <span class="text-white bg-sidebar-orange px-2 py-1 rounded-md"
+                >No design skills required.</span
+              >
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
               <NuxtLink to="/signup" class="btn-primary text-lg px-8 py-4">
-                Start Creating Free
+                Start Creating
               </NuxtLink>
-              <button
-                @click="scrollToVideo"
-                class="btn-outline text-lg px-8 py-4"
-              >
-                Watch Demo
-              </button>
             </div>
             <div class="mt-8 flex items-center gap-4">
               <div class="flex -space-x-2">
@@ -72,160 +68,33 @@
             <div
               class="absolute top-0 left-0 w-64 transform rotate-[-8deg] translate-x-[-20px] translate-y-[40px] z-10 transition-transform duration-300 hover:scale-105"
             >
-              <div
-                class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-2xl overflow-hidden aspect-[9/16]"
-              >
-                <div class="p-6 h-full flex flex-col justify-between">
-                  <div>
-                    <div
-                      class="text-white font-bold text-2xl mb-4 leading-tight"
-                    >
-                      Social Media Growth
-                    </div>
-                    <div class="space-y-3">
-                      <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                        <div class="text-white/80 text-xs mb-1">Instagram</div>
-                        <div class="text-white font-bold text-xl">+245%</div>
-                      </div>
-                      <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                        <div class="text-white/80 text-xs mb-1">TikTok</div>
-                        <div class="text-white font-bold text-xl">+189%</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="w-full h-32 relative">
-                    <svg
-                      viewBox="0 0 200 80"
-                      class="w-full h-full"
-                      preserveAspectRatio="none"
-                    >
-                      <polyline
-                        points="0,60 50,45 100,30 150,20 200,10"
-                        fill="none"
-                        stroke="white"
-                        stroke-width="3"
-                        opacity="0.6"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="https://images.ainfographic.com/template_1_landing_page.png"
+                alt="Infograph 1"
+                class="w-full h-full object-cover"
+              />
             </div>
 
             <!-- Front center infograph (main focus) -->
             <div
               class="absolute top-20 left-1/2 transform -translate-x-1/2 w-72 z-30 transition-transform duration-300 hover:scale-105"
             >
-              <div
-                class="bg-gradient-to-br from-sidebar-orange to-yellow-600 rounded-2xl shadow-2xl overflow-hidden aspect-[9/16]"
-              >
-                <div class="p-6 h-full flex flex-col">
-                  <div class="text-white font-bold text-3xl mb-6 leading-tight">
-                    Marketing ROI 2024
-                  </div>
-                  <div class="flex-1 flex items-center justify-center">
-                    <div class="relative w-40 h-40">
-                      <svg viewBox="0 0 100 100" class="transform -rotate-90">
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="white"
-                          stroke-width="8"
-                          opacity="0.2"
-                        />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="white"
-                          stroke-width="8"
-                          stroke-dasharray="251.2"
-                          stroke-dashoffset="62.8"
-                          stroke-linecap="round"
-                        />
-                      </svg>
-                      <div
-                        class="absolute inset-0 flex items-center justify-center"
-                      >
-                        <div class="text-center">
-                          <div class="text-white font-bold text-3xl">75%</div>
-                          <div class="text-white/80 text-sm">Success</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mt-6 space-y-2">
-                    <div class="flex justify-between text-white text-sm">
-                      <span class="opacity-80">Content Marketing</span>
-                      <span class="font-bold">$45K</span>
-                    </div>
-                    <div class="flex justify-between text-white text-sm">
-                      <span class="opacity-80">Social Ads</span>
-                      <span class="font-bold">$32K</span>
-                    </div>
-                    <div class="flex justify-between text-white text-sm">
-                      <span class="opacity-80">Email Campaigns</span>
-                      <span class="font-bold">$18K</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="https://images.ainfographic.com/template_1_landing_page.png"
+                alt="Infograph 1"
+                class="w-full h-full object-cover"
+              />
             </div>
 
             <!-- Back right infograph -->
             <div
               class="absolute top-0 right-0 w-64 transform rotate-[8deg] translate-x-[20px] translate-y-[40px] z-10 transition-transform duration-300 hover:scale-105"
             >
-              <div
-                class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-2xl overflow-hidden aspect-[9/16]"
-              >
-                <div class="p-6 h-full flex flex-col">
-                  <div class="text-white font-bold text-2xl mb-6 leading-tight">
-                    Top Performing Content
-                  </div>
-                  <div class="space-y-4 flex-1">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                      <div class="flex items-center justify-between mb-2">
-                        <span class="text-white text-sm">Blog Posts</span>
-                        <span class="text-white font-bold">85%</span>
-                      </div>
-                      <div class="w-full bg-white/20 rounded-full h-2">
-                        <div
-                          class="bg-white rounded-full h-2"
-                          style="width: 85%"
-                        ></div>
-                      </div>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                      <div class="flex items-center justify-between mb-2">
-                        <span class="text-white text-sm">Infographics</span>
-                        <span class="text-white font-bold">92%</span>
-                      </div>
-                      <div class="w-full bg-white/20 rounded-full h-2">
-                        <div
-                          class="bg-white rounded-full h-2"
-                          style="width: 92%"
-                        ></div>
-                      </div>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                      <div class="flex items-center justify-between mb-2">
-                        <span class="text-white text-sm">Videos</span>
-                        <span class="text-white font-bold">78%</span>
-                      </div>
-                      <div class="w-full bg-white/20 rounded-full h-2">
-                        <div
-                          class="bg-white rounded-full h-2"
-                          style="width: 78%"
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="https://images.ainfographic.com/template_1_landing_page.png"
+                alt="Infograph 1"
+                class="w-full h-full object-cover"
+              />
             </div>
 
             <!-- Glow effects -->

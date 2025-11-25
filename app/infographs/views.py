@@ -385,6 +385,98 @@ class TemplateListAPIView(generics.ListAPIView):
         return Response(serializer.data)
 
 
+class TemplateCreateAPIView(APIView):
+    """
+    Create a new template by uploading an image.
+    The image is uploaded to R2 storage and the template is saved to the database.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Get template image file from request
+        template_image = request.FILES.get("template_image")
+        
+        if not template_image:
+            return Response(
+                {"message": "No template image provided"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file type
+        allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+        if template_image.content_type not in allowed_types:
+            return Response(
+                {"message": "File must be an image (JPEG, PNG, or WebP)"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file size (10MB max)
+        if template_image.size > 10 * 1024 * 1024:
+            return Response(
+                {"message": "File size must be less than 10MB"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get template name and other parameters
+        template_name = request.data.get("name", "My Template")
+        aspect_ratio = request.data.get("aspect_ratio", "9/16")
+        # Convert aspect ratio from frontend format (9/16) to backend format (9:16)
+        aspect_ratio = aspect_ratio.replace("/", ":")
+        is_public = request.data.get("is_public", "false").lower() == "true"
+        
+        # Upload to R2
+        try:
+            import time
+            from io import BytesIO
+
+            from file_upload.client import R2Client
+            
+            r2_client = R2Client()
+            
+            # Read the file
+            template_image.seek(0)
+            file_data = BytesIO(template_image.read())
+            template_image.seek(0)
+            
+            # Set content type
+            content_type = template_image.content_type
+            file_data.content_type = content_type  # type: ignore[attr-defined]
+            file_data.seek(0)
+            
+            # Upload to R2
+            file_extension = content_type.split('/')[-1] if content_type else 'png'
+            template_filename = f"templates/{request.user.account.id}_template_{int(time.time())}.{file_extension}"
+            template_url = r2_client.upload_file(file_data, template_filename)
+            
+            if not template_url:
+                return Response(
+                    {"message": "Failed to upload template to storage"}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            # Create template in database
+            template = Template.objects.create(
+                name=template_name,
+                account=request.user.account,
+                image_url=template_url,
+                is_public=is_public,
+                aspect_ratio=aspect_ratio,
+                description_json={
+                    "created_from": "manual_upload"
+                }
+            )
+            
+            serializer = TemplateSerializer(template, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            print(f"❌ Error creating template: {e}")
+            return Response(
+                {"message": "Error creating template", "error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 class InfographCreateFromTemplateAPIView(APIView):
     """
     Create infograph generation job(s) from existing template.
