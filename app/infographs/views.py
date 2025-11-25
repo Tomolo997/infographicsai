@@ -96,6 +96,7 @@ class InfographCreateFromPDFAPIView(APIView):
         # Get other parameters
         data = {
             "account": request.user.account,
+            "template_id": request.data.get("template_id", None),
             "prompt": request.data.get("prompt", ""),
             "pdf_file": pdf_file,
             "aspect_ratio": request.data.get("aspect_ratio", "9:16"),
@@ -128,6 +129,7 @@ class InfographCreateFromOwnTemplateAPIView(APIView):
     """
     Create infograph generation job(s) from user's own template image.
     Analyzes the template and applies its design to the new infographic.
+    Optionally saves the template for future use.
     Returns immediately with job IDs - generation happens asynchronously.
     """
     permission_classes = [IsAuthenticated]
@@ -158,6 +160,9 @@ class InfographCreateFromOwnTemplateAPIView(APIView):
             )
         
         # Get other parameters
+        save_as_template = request.data.get("save_as_template", "false").lower() == "true"
+        template_name = request.data.get("template_name", "My Template")
+        
         data = {
             "account": request.user.account,
             "prompt": request.data.get("prompt", ""),
@@ -166,6 +171,8 @@ class InfographCreateFromOwnTemplateAPIView(APIView):
             "resolution": request.data.get("resolution", "2K"),
             "number_of_infographs": int(request.data.get("number_of_infographs", 1)),
             "type": request.data.get("type", "infograph"),
+            "save_as_template": save_as_template,
+            "template_name": template_name,
         }
         
         try:
@@ -374,7 +381,7 @@ class TemplateListAPIView(generics.ListAPIView):
             account=request.user.account
         )
         templates = templates.order_by('-created_at')
-        serializer = TemplateSerializer(templates, many=True)
+        serializer = TemplateSerializer(templates, many=True, context={'request': request})
         return Response(serializer.data)
 
 

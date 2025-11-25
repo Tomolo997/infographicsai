@@ -143,7 +143,7 @@
                   class="w-full h-full flex items-center justify-center overflow-hidden rounded"
                 >
                   <img
-                    :src="template.image"
+                    :src="template.image_url"
                     :alt="template.name"
                     class="max-w-full max-h-full object-contain"
                     :style="{ aspectRatio: template.aspectRatio }"
@@ -579,56 +579,7 @@ const infographTypes = ref([
 const selectedInfographType = ref(infographTypes.value[0]);
 
 // Mock templates
-const templates = ref([
-  {
-    id: 1,
-    name: "Modern Stats",
-    image: "https://picsum.photos/seed/template1/400/600",
-    aspectRatio: "9/16",
-  },
-  {
-    id: 2,
-    name: "Business Dashboard",
-    image: "https://picsum.photos/seed/template2/600/400",
-    aspectRatio: "16/9",
-  },
-  {
-    id: 3,
-    name: "Social Media Post",
-    image: "https://picsum.photos/seed/template3/400/400",
-    aspectRatio: "1/1",
-  },
-  {
-    id: 4,
-    name: "Instagram Story",
-    image: "https://picsum.photos/seed/template4/400/500",
-    aspectRatio: "4/5",
-  },
-  {
-    id: 5,
-    name: "Twitter Header",
-    image: "https://picsum.photos/seed/template5/600/286",
-    aspectRatio: "21/9",
-  },
-  {
-    id: 6,
-    name: "Pinterest Pin",
-    image: "https://picsum.photos/seed/template6/400/600",
-    aspectRatio: "2/3",
-  },
-  {
-    id: 7,
-    name: "Classic Post",
-    image: "https://picsum.photos/seed/template7/400/300",
-    aspectRatio: "4/3",
-  },
-  {
-    id: 8,
-    name: "Wide Banner",
-    image: "https://picsum.photos/seed/template8/600/400",
-    aspectRatio: "3/2",
-  },
-]);
+const templates = ref([]);
 
 const aspectRatios = ref([
   { value: "9:16", label: "9:16" },
@@ -648,7 +599,16 @@ onBeforeUnmount(() => {
   stopAllPolling();
 });
 
+onMounted(() => {
+  fetchTemplates();
+});
+
 // Methods
+const fetchTemplates = async () => {
+  const response = await apiClient.get("/infographs/templates/list/");
+  templates.value = response.data;
+};
+
 const triggerFileInput = () => {
   if (fileInput.value) {
     fileInput.value.click();
@@ -725,6 +685,9 @@ const handleGenerate = async () => {
     formData.append("resolution", selectedResolution.value);
     formData.append("number_of_infographs", numberOfInfographs.value);
     formData.append("type", selectedInfographType.value.value);
+    if (selectedTemplate.value) {
+      formData.append("template_id", selectedTemplate.value.id);
+    }
 
     const response = await apiClient.post("/infographs/create/pdf/", formData, {
       headers: {

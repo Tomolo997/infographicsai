@@ -1442,6 +1442,7 @@ const handleGenerate = async () => {
 
   if (uploadedFile.value) {
     try {
+      // Ask user if they want to save the template
       const formData = new FormData();
       formData.append("template_image", uploadedFile.value);
       formData.append("prompt", prompt.value);
@@ -1449,6 +1450,8 @@ const handleGenerate = async () => {
       formData.append("resolution", selectedResolution.value);
       formData.append("number_of_infographs", numberOfInfographs.value);
       formData.append("type", selectedInfographType.value.value);
+      formData.append("save_as_template", "true");
+      formData.append("template_name", "My Template");
 
       const response = await apiClient.post(
         "/infographs/create/own-template/",

@@ -7,7 +7,7 @@ import requests
 from infographs.infographs.client.fal_ai import FalAI
 from infographs.infographs.client.url_client import URLAnalyzer
 from infographs.infographs.exceptions import NotEnoughCreditsException
-from infographs.models import Infograph, InfographStatus
+from infographs.models import Infograph, InfographStatus, Template
 
 from account.models import Account
 from file_upload.client import R2Client
@@ -20,7 +20,8 @@ def create_infograph_from_pdf(
   aspect_ratio: str,
   resolution: str,
   number_of_infographs: int,
-  type: str = 'infograph'
+  type: str = 'infograph',
+  template_id: Optional[int] = None,    
 ) -> Dict[str, Any]:
     """
     Create infograph(s) from PDF content and submit async generation jobs to fal.ai.
@@ -39,19 +40,23 @@ def create_infograph_from_pdf(
             f"You need {total_credits_needed} credits but have {account.credit_balance}"
         )
     
+    if template_id:
+        template = Template.objects.get(id=template_id)
+        if not template.image_url:
+            raise Exception("Template has no image URL")
+    
     # Read the PDF and get the content
     pdf_data = URLAnalyzer()._read_pdf(pdf_file)
     pdf_content = pdf_data.get("content", "")
     
     # Build the enhanced prompt
-    enhanced_prompt = _build_pdf_prompt(pdf_content, type)
+    enhanced_prompt = _build_pdf_prompt(pdf_content, type, template_id)
     
     # Initialize fal.ai client
     fal_client = FalAI()
     
     # Create webhook URL for receiving results
     webhook_base_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
-    print("enhanced_prompt", enhanced_prompt)
     # Create infographs and submit generation jobs
     infographs = []
     for i in range(number_of_infographs):
@@ -71,12 +76,19 @@ def create_infograph_from_pdf(
         try:
             # Submit async generation job to fal.ai
             webhook_url = f"{webhook_base_url}/api/infographs/webhook/{infograph.id}/"
-            print("webhook_url", webhook_url)
-            result = fal_client.submit_generation_sync(
-                prompt=enhanced_prompt,
-                webhook_url=webhook_url,
-                aspect_ratio=aspect_ratio,
-            )
+            if template_id:
+                print("submitting with template", template.image_url)
+                result = fal_client.submit_edit_generation_sync(
+                    prompt=enhanced_prompt,
+                    image_urls=[template.image_url],
+                    webhook_url=webhook_url,
+                )
+            else:   
+                result = fal_client.submit_generation_sync(
+                    prompt=enhanced_prompt,
+                    webhook_url=webhook_url,
+                    aspect_ratio=aspect_ratio,
+                )
             
             # Update with request ID and mark as PROCESSING
             infograph.fal_request_id = result["request_id"]
@@ -233,11 +245,14 @@ def create_infograph_from_own_template(
   aspect_ratio: str,
   resolution: str,
   number_of_infographs: int,
-  type: str = 'infograph'
+  type: str = 'infograph',
+  save_as_template: bool = False,
+  template_name: str = 'My Template'
 ) -> Dict[str, Any]:
     """
     Create infograph(s) from user's own template image using fal.ai edit mode.
     Uploads template to R2, then uses it as reference for generation.
+    Optionally saves the template to the database for future use.
     
     Returns immediately with infograph IDs and status.
     Actual image generation happens in background.
@@ -273,7 +288,8 @@ def create_infograph_from_own_template(
         
         # Upload to R2
         file_extension = content_type.split('/')[-1] if content_type else 'png'
-        template_filename = f"templates/{account.id}_template_{int(settings.TIME_ZONE.__hash__())}.{file_extension}"
+        import time
+        template_filename = f"templates/{account.id}_template_{int(time.time())}.{file_extension}"
         template_url = r2_client.upload_file(file_data, template_filename)
         
         if not template_url:
@@ -284,6 +300,26 @@ def create_infograph_from_own_template(
     except Exception as e:
         print(f"❌ Error uploading template to R2: {e}")
         raise Exception(f"Failed to upload template: {str(e)}")
+    
+    # Save as template if requested
+    saved_template = None
+    if save_as_template:
+        from infographs.models import Template
+        try:
+            saved_template = Template.objects.create(
+                name=template_name,
+                account=account,
+                image_url=template_url,
+                is_public=False,
+                description_json={
+                    "aspect_ratio": aspect_ratio,
+                    "created_from": "own_template_upload"
+                }
+            )
+            print(f"✅ Template saved: {saved_template.name} (ID: {saved_template.id})")
+        except Exception as e:
+            print(f"⚠️ Failed to save template: {e}")
+            # Continue with generation even if template save fails
     
     # Build the prompt for the infographic
     enhanced_prompt = f"Create a professional {type} with the following content: {prompt}. Use the provided template image as a style reference for colors, layout, and design."
@@ -353,11 +389,21 @@ def create_infograph_from_own_template(
     account.credit_balance -= total_credits_needed
     account.save()
     
-    return {
+    response_data = {
         "infographs": infographs,
         "total_submitted": len(infographs),
         "credits_used": total_credits_needed,
     }
+    
+    # Include template info if saved
+    if saved_template:
+        response_data["template"] = {
+            "id": saved_template.id,
+            "name": saved_template.name,
+            "image_url": saved_template.image_url,
+        }
+    
+    return response_data
 
 
 def create_infograph(
@@ -482,13 +528,20 @@ Extract key information from the blog and present it visually in the infographic
     
     return base_prompt
 
-def _build_pdf_prompt(pdf_content: str, type: str) -> str:
+def _build_pdf_prompt(pdf_content: str, type: str, template_id: Optional[int] = None) -> str:
     """Build prompt for PDF content."""
-    return f"""
+    prompt = f"""
     Build a {type} from the following PDF content:
     PDF Content:
-    {pdf_content}
+    {pdf_content} 
+
     """
+    if template_id:
+        prompt += f"""
+        Use the following template as a style reference.
+        """
+
+    return prompt
 
 
 

@@ -44,6 +44,22 @@ class InfographSerializer(serializers.ModelSerializer):
     
 
 class TemplateSerializer(serializers.ModelSerializer):
+    is_owner = serializers.SerializerMethodField()
+    owner_email = serializers.SerializerMethodField()
+    
     class Meta:
         model = Template
-        fields = ['id', 'name', 'image_url', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'image_url', 'is_public', 'is_owner', 'owner_email', 'created_at', 'updated_at', 'aspect_ratio']
+    
+    def get_is_owner(self, obj):
+        """Check if the current user is the owner of this template"""
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            return obj.account == request.user.account if obj.account else False
+        return False
+    
+    def get_owner_email(self, obj):
+        """Get the owner's email (for admin/debugging purposes)"""
+        if obj.account and obj.account.user:
+            return obj.account.user.email
+        return "Public"

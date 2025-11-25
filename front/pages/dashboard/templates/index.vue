@@ -30,7 +30,45 @@
     </div>
 
     <!-- Filter Section -->
-    <div class="mb-6">
+    <div class="mb-6 flex items-center gap-4">
+      <!-- Ownership Filter Tabs -->
+      <div class="flex rounded-lg border border-card-border overflow-hidden">
+        <button
+          @click="selectedOwnershipFilter = 'all'"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors',
+            selectedOwnershipFilter === 'all'
+              ? 'bg-primary-500 text-white'
+              : 'bg-card-bg text-text-primary hover:bg-background-secondary',
+          ]"
+        >
+          All Templates
+        </button>
+        <button
+          @click="selectedOwnershipFilter = 'mine'"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors border-l border-card-border',
+            selectedOwnershipFilter === 'mine'
+              ? 'bg-primary-500 text-white'
+              : 'bg-card-bg text-text-primary hover:bg-background-secondary',
+          ]"
+        >
+          My Templates
+        </button>
+        <button
+          @click="selectedOwnershipFilter = 'public'"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors border-l border-card-border',
+            selectedOwnershipFilter === 'public'
+              ? 'bg-primary-500 text-white'
+              : 'bg-card-bg text-text-primary hover:bg-background-secondary',
+          ]"
+        >
+          Public Templates
+        </button>
+      </div>
+
+      <!-- Aspect Ratio Filter -->
       <div class="relative inline-block">
         <button
           @click="toggleAspectRatioFilter"
@@ -181,7 +219,7 @@
               {{ template.name }}
             </p>
             <p class="text-xs text-text-secondary text-center mt-1">
-              {{ getAspectRatioLabel(template.aspectRatio) }}
+              {{ getAspectRatioLabel(template.aspect_ratio) }}
             </p>
           </div>
         </div>
@@ -194,7 +232,7 @@
       :title="selectedTemplate?.name || ''"
       :subtitle="
         selectedTemplate
-          ? getAspectRatioLabel(selectedTemplate.aspectRatio)
+          ? getAspectRatioLabel(selectedTemplate.aspect_ratio)
           : ''
       "
       max-width="max-w-4xl"
@@ -221,7 +259,7 @@
                 >Aspect Ratio:</span
               >
               <span class="text-sm text-text-secondary ml-2">
-                {{ getAspectRatioLabel(selectedTemplate.aspectRatio) }}
+                {{ getAspectRatioLabel(selectedTemplate.aspect_ratio) }}
               </span>
             </div>
             <div>
@@ -229,7 +267,24 @@
                 >Platforms:</span
               >
               <span class="text-sm text-text-secondary ml-2">
-                {{ getPlatformsForAspectRatio(selectedTemplate.aspectRatio) }}
+                {{ getPlatformsForAspectRatio(selectedTemplate.aspect_ratio) }}
+              </span>
+            </div>
+            <div>
+              <span class="text-sm font-semibold text-text-primary"
+                >Ownership:</span
+              >
+              <span
+                v-if="selectedTemplate.is_owner"
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-500/10 text-primary-500 ml-2"
+              >
+                Your Template
+              </span>
+              <span
+                v-else-if="selectedTemplate.is_public"
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-500/10 text-green-500 ml-2"
+              >
+                Public Template
               </span>
             </div>
           </div>
@@ -244,6 +299,7 @@
             Use Template
           </button>
           <button
+            v-if="selectedTemplate?.is_owner"
             @click="handleEditTemplate"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-card-border bg-card-bg hover:bg-background-secondary transition-colors text-sm font-medium text-text-primary"
           >
@@ -281,6 +337,7 @@ definePageMeta({
 // State
 const showAspectRatioDropdown = ref(false);
 const selectedAspectRatioFilter = ref(null);
+const selectedOwnershipFilter = ref("all"); // 'all', 'mine', 'public'
 const showTemplateModal = ref(false);
 const selectedTemplate = ref(null);
 
@@ -343,14 +400,26 @@ const aspectRatios = ref([
 
 // Computed
 const filteredTemplates = computed(() => {
-  if (!selectedAspectRatioFilter.value) {
-    return templates.value;
+  let filtered = templates.value;
+
+  // Filter by ownership
+  if (selectedOwnershipFilter.value === "mine") {
+    filtered = filtered.filter((t) => t.is_owner);
+  } else if (selectedOwnershipFilter.value === "public") {
+    filtered = filtered.filter((t) => t.is_public && !t.is_owner);
   }
-  const selectedRatio = aspectRatios.value.find(
-    (r) => r.label === selectedAspectRatioFilter.value
-  );
-  if (!selectedRatio) return templates.value;
-  return templates.value.filter((t) => t.aspectRatio === selectedRatio.value);
+
+  // Filter by aspect ratio
+  if (selectedAspectRatioFilter.value) {
+    const selectedRatio = aspectRatios.value.find(
+      (r) => r.label === selectedAspectRatioFilter.value
+    );
+    if (selectedRatio) {
+      filtered = filtered.filter((t) => t.aspectRatio === selectedRatio.value);
+    }
+  }
+
+  return filtered;
 });
 
 // Methods
@@ -364,6 +433,7 @@ const selectAspectRatioFilter = (label) => {
 };
 
 const getAspectRatioLabel = (aspectRatio) => {
+  console.log("Aspect ratio:", aspectRatio);
   const ratio = aspectRatios.value.find((r) => r.value === aspectRatio);
   return ratio ? ratio.label : aspectRatio;
 };

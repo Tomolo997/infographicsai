@@ -276,11 +276,6 @@
     <Modal
       :is-open="showInfographModal"
       :title="selectedInfograph ? getInfographTitle(selectedInfograph) : ''"
-      :subtitle="
-        selectedInfograph
-          ? getAspectRatioLabel(selectedInfograph.aspect_ratio)
-          : ''
-      "
       max-width="max-w-4xl"
       @close="closeInfographModal"
     >
@@ -292,7 +287,7 @@
             class="relative rounded-lg overflow-hidden"
           >
             <div
-              class="w-full flex items-center justify-center p-8 max-h-[1200px]"
+              class="w-full flex items-center justify-center p-2 max-h-[1100px]"
             >
               <img
                 :src="selectedInfograph.image_url"

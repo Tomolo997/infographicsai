@@ -67,6 +67,7 @@ class Template(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_public = models.BooleanField(default=False)
+    aspect_ratio = models.CharField(max_length=255, choices=AspectRatio.choices, default=AspectRatio.NINE_ONE_SIX)
 
     def __str__(self):
         return f"{self.account.user.email} - {self.name}" if self.account else f"Public - {self.name}"
