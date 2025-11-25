@@ -20,57 +20,386 @@
         Create Infographic from PDF
       </h1>
 
-      <!-- Upload Section (shown when not generating and no results) -->
+      <!-- Input Section (shown when not generating and no results) -->
       <div v-if="!isGenerating && !hasResults" class="space-y-6">
-        <!-- PDF Upload Button -->
-        <div
-          class="bg-card-bg border-2 border-dashed border-card-border rounded-2xl p-12 text-center hover:border-primary-500 transition-colors cursor-pointer"
-          @click="triggerFileInput"
-          @dragover.prevent="isDragging = true"
-          @dragleave.prevent="isDragging = false"
-          @drop.prevent="handleDrop"
-          :class="{ 'border-primary-500 bg-primary-500/5': isDragging }"
-        >
-          <input
-            ref="fileInput"
-            type="file"
-            accept=".pdf"
-            class="hidden"
-            @change="handleFileSelect"
-          />
+        <!-- Hidden file input -->
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".pdf"
+          class="hidden"
+          @change="handleFileSelect"
+        />
 
-          <!-- Upload Icon -->
-          <div class="mb-4">
-            <svg
-              class="w-20 h-20 mx-auto text-text-secondary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M9 13h6m-3-3v6"
-              />
-            </svg>
+        <!-- Prompt Input -->
+        <div class="bg-card-bg border border-card-border rounded-2xl shadow-sm">
+          <!-- Text Area -->
+          <div class="py-4 px-6">
+            <textarea
+              ref="textareaRef"
+              v-model="prompt"
+              placeholder="Content of your infograph or additional context..."
+              class="w-full bg-transparent text-text-primary placeholder:text-text-secondary resize-none outline-none text-lg transition-all duration-300"
+              :disabled="isGenerating"
+              style="
+                line-height: 1.5;
+                min-height: 60px;
+                max-height: 300px;
+                overflow-y: auto;
+              "
+              @input="autoResize"
+            ></textarea>
           </div>
 
-          <h3 class="text-xl font-semibold text-text-primary mb-2">
-            Upload your PDF
-          </h3>
-          <p class="text-text-secondary text-sm mb-4">
-            Drag and drop your PDF file here, or click to browse
-          </p>
-          <p class="text-text-secondary text-xs">
-            Supported format: PDF (Max 10MB)
-          </p>
+          <!-- Toolbar -->
+          <div class="px-4 pb-2 flex items-center justify-between">
+            <div class="flex items-center gap-1">
+              <!-- PDF Upload Button with Gradient Border -->
+              <div class="relative group">
+                <!-- File preview (shown when file is uploaded) -->
+                <div
+                  v-if="selectedFile"
+                  class="flex items-center gap-2 animate-in"
+                >
+                  <div class="relative">
+                    <div
+                      class="h-9 px-3 pr-8 bg-gradient-to-r from-primary-500 to-sidebar-orange border-2 border-transparent rounded-md flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      <span
+                        class="text-sm text-white font-medium truncate max-w-[150px]"
+                      >
+                        {{ selectedFile.name }}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    @click="removeUploadedFile"
+                    class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-background-secondary transition-colors text-text-secondary hover:text-text-primary"
+                    :disabled="isGenerating"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Tooltip -->
+                <div
+                  v-if="!selectedFile"
+                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+                >
+                  Upload PDF File
+                </div>
+              </div>
+              <!-- Aspect Ratio Dropdown -->
+              <div class="relative group">
+                <button
+                  @click="toggleDropdown('aspectRatio')"
+                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                  :disabled="isGenerating"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="M12 9v11" />
+                    <path d="M2 9h13a2 2 0 0 1 2 2v9" />
+                  </svg>
+                  <span class="text-sm font-medium mt-0.5">{{
+                    selectedAspectRatio.label
+                  }}</span>
+                </button>
+                <!-- Dropdown -->
+                <div
+                  v-if="dropdowns.aspectRatio"
+                  class="absolute top-full left-0 mt-2 w-80 bg-card-bg border border-card-border rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto"
+                >
+                  <div
+                    class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
+                  >
+                    Aspect Ratio
+                  </div>
+                  <div
+                    v-for="ratio in aspectRatios"
+                    :key="ratio.value"
+                    @click="selectAspectRatio(ratio)"
+                    :class="[
+                      'p-3 cursor-pointer border-b border-card-border last:border-b-0 transition-colors flex items-center gap-2',
+                      selectedAspectRatio.value === ratio.value
+                        ? 'bg-primary-500/10'
+                        : 'hover:bg-background-secondary',
+                    ]"
+                  >
+                    <div class="flex-1 min-w-0">
+                      <div class="font-medium text-text-primary text-sm">
+                        {{ ratio.label }}
+                      </div>
+                      <div class="text-xs text-text-secondary mt-1">
+                        {{ ratio.platforms }}
+                      </div>
+                    </div>
+                    <svg
+                      v-if="selectedAspectRatio.value === ratio.value"
+                      class="h-5 w-5 text-primary-500 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Resolution Dropdown -->
+              <div class="relative group">
+                <button
+                  @click="toggleDropdown('resolution')"
+                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                  :disabled="isGenerating"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                  </svg>
+                  <span class="text-sm font-medium mt-0.5">{{
+                    selectedResolution
+                  }}</span>
+                </button>
+                <!-- Dropdown -->
+                <div
+                  v-if="dropdowns.resolution"
+                  class="absolute top-full left-0 mt-2 w-40 bg-card-bg border border-card-border rounded-lg shadow-xl z-50"
+                >
+                  <div
+                    class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
+                  >
+                    Resolution
+                  </div>
+                  <div
+                    v-for="res in resolutions"
+                    :key="res"
+                    @click="selectResolution(res)"
+                    :class="[
+                      'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
+                      selectedResolution === res
+                        ? 'bg-primary-500/10'
+                        : 'hover:bg-background-secondary',
+                    ]"
+                  >
+                    <span class="flex-1">{{ res }}</span>
+                    <svg
+                      v-if="selectedResolution === res"
+                      class="h-5 w-5 text-primary-500 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Number of Infographs Dropdown -->
+              <div class="relative group">
+                <button
+                  @click="toggleDropdown('count')"
+                  class="h-9 px-3 inline-flex items-center justify-center gap-2 rounded-md hover:bg-background-secondary transition-colors text-text-primary"
+                  :disabled="isGenerating"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="7" height="7" x="3" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="14" rx="1" />
+                    <rect width="7" height="7" x="3" y="14" rx="1" />
+                  </svg>
+                  <span class="text-sm font-medium mt-0.5">{{
+                    numberOfInfographs
+                  }}</span>
+                </button>
+                <!-- Dropdown -->
+                <div
+                  v-if="dropdowns.count"
+                  class="absolute top-full left-0 mt-2 w-48 bg-card-bg border border-card-border rounded-lg shadow-xl z-50"
+                >
+                  <div
+                    class="sticky top-0 bg-card-bg border-b border-card-border px-4 py-3 font-semibold text-text-primary text-sm"
+                  >
+                    Number of Infographs
+                  </div>
+                  <div
+                    v-for="num in [1, 2, 3, 4]"
+                    :key="num"
+                    @click="selectCount(num)"
+                    :class="[
+                      'p-3 cursor-pointer border-b border-card-border last:border-b-0 text-text-primary text-sm transition-colors flex items-center gap-2',
+                      numberOfInfographs === num
+                        ? 'bg-primary-500/10'
+                        : 'hover:bg-background-secondary',
+                    ]"
+                  >
+                    <span class="flex-1">{{ num }}</span>
+                    <svg
+                      v-if="numberOfInfographs === num"
+                      class="h-5 w-5 text-primary-500 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <!-- Upload button (shown when no file uploaded) -->
+              <button
+                v-if="!selectedFile"
+                @click="triggerFileInput"
+                class="relative h-9 px-4 inline-flex items-center justify-center gap-2 rounded-md overflow-hidden group transition-all duration-300"
+                :disabled="isGenerating"
+              >
+                <!-- Gradient border -->
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-primary-500 to-sidebar-orange rounded-md"
+                ></div>
+                <div
+                  class="absolute inset-[2px] bg-card-bg rounded-md group-hover:bg-background-secondary transition-colors"
+                ></div>
+                <!-- Content -->
+                <svg
+                  class="relative h-4 w-4 text-primary-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <span
+                  class="relative text-sm font-medium mt-0.5 bg-gradient-to-r from-primary-500 to-sidebar-orange bg-clip-text text-transparent"
+                >
+                  Upload Your PDF
+                </span>
+              </button>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="relative group">
+              <button
+                @click="handleGenerate"
+                :disabled="!selectedFile || isGenerating"
+                class="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg
+                  v-if="!isGenerating"
+                  class="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 10l7-7m0 0l7 7m-7-7v18"
+                  />
+                </svg>
+                <svg
+                  v-else
+                  class="w-5 h-5 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              </button>
+              <!-- Tooltip -->
+              <div
+                v-if="!isGenerating"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 transition-opacity pointer-events-none z-50"
+              >
+                Generate
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Infograph Type Selector -->
@@ -519,7 +848,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onBeforeUnmount } from "vue";
+import { ref, watch, onBeforeUnmount, nextTick } from "vue";
 import apiClient from "~/client/apiClient";
 import { useToastStore } from "~/stores/toast";
 
@@ -532,10 +861,12 @@ const toastStore = useToastStore();
 
 // Refs
 const fileInput = ref(null);
+const textareaRef = ref(null);
 
 // State
 const isDragging = ref(false);
 const selectedFile = ref(null);
+const prompt = ref("");
 const selectedResolution = ref("2K");
 const numberOfInfographs = ref(1);
 const isGenerating = ref(false);
@@ -547,6 +878,15 @@ const selectedTemplate = ref(null);
 const showError = ref(false);
 const errorMessage = ref("");
 const pollingIntervals = ref(new Map());
+
+// Dropdowns state
+const dropdowns = ref({
+  aspectRatio: false,
+  resolution: false,
+  count: false,
+});
+
+const resolutions = ref(["1K", "2K", "4K"]);
 
 // Infograph types with icons
 const infographTypes = ref([
@@ -582,14 +922,46 @@ const selectedInfographType = ref(infographTypes.value[0]);
 const templates = ref([]);
 
 const aspectRatios = ref([
-  { value: "9:16", label: "9:16" },
-  { value: "1:1", label: "1:1" },
-  { value: "4:5", label: "4:5" },
-  { value: "16:9", label: "16:9" },
-  { value: "21:9", label: "21:9" },
-  { value: "3:2", label: "3:2" },
-  { value: "4:3", label: "4:3" },
-  { value: "2:3", label: "2:3" },
+  {
+    value: "9:16",
+    label: "9:16",
+    platforms: "Instagram Story, TikTok, Facebook Story",
+  },
+  {
+    value: "1:1",
+    label: "1:1",
+    platforms: "Instagram Post, Facebook Post, LinkedIn Post",
+  },
+  {
+    value: "4:5",
+    label: "4:5",
+    platforms: "Instagram Portrait, Facebook Feed",
+  },
+  {
+    value: "16:9",
+    label: "16:9",
+    platforms: "YouTube Thumbnail, LinkedIn Cover, Twitter Header",
+  },
+  {
+    value: "21:9",
+    label: "21:9",
+    platforms: "Facebook Cover, Twitter Header (X Header)",
+  },
+  {
+    value: "3:2",
+    label: "3:2",
+    platforms: "Twitter Post (X Post), General Photography",
+  },
+  {
+    value: "4:3",
+    label: "4:3",
+    platforms: "Facebook Post, Classic Photography",
+  },
+  {
+    value: "2:3",
+    label: "2:3",
+    platforms: "Pinterest Pin, Instagram Portrait",
+  },
 ]);
 
 const selectedAspectRatio = ref(aspectRatios.value[0]);
@@ -601,12 +973,59 @@ onBeforeUnmount(() => {
 
 onMounted(() => {
   fetchTemplates();
+  // Initialize textarea height
+  nextTick(() => {
+    autoResize();
+  });
+});
+
+// Watch prompt to auto-resize textarea
+watch(prompt, () => {
+  nextTick(() => {
+    autoResize();
+  });
 });
 
 // Methods
 const fetchTemplates = async () => {
   const response = await apiClient.get("/infographs/templates/list/");
   templates.value = response.data;
+};
+
+const toggleDropdown = (dropdown) => {
+  // Close all dropdowns
+  Object.keys(dropdowns.value).forEach((key) => {
+    if (key !== dropdown) {
+      dropdowns.value[key] = false;
+    }
+  });
+  // Toggle the clicked dropdown
+  dropdowns.value[dropdown] = !dropdowns.value[dropdown];
+};
+
+const selectAspectRatio = (ratio) => {
+  selectedAspectRatio.value = ratio;
+  dropdowns.value.aspectRatio = false;
+};
+
+const selectResolution = (res) => {
+  selectedResolution.value = res;
+  dropdowns.value.resolution = false;
+};
+
+const selectCount = (num) => {
+  numberOfInfographs.value = num;
+  dropdowns.value.count = false;
+};
+
+const autoResize = () => {
+  const textarea = textareaRef.value;
+  if (textarea) {
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = "auto";
+    // Set the height to match the content
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
 };
 
 const triggerFileInput = () => {
@@ -647,15 +1066,30 @@ const processFile = async (file) => {
 
   selectedFile.value = file;
 
-  // Immediately upload and generate
-  await handleGenerate();
+  // Show success message
+  toastStore.success(
+    "PDF uploaded successfully. Click Generate to create your infographic."
+  );
 };
 
 const selectTemplate = (template) => {
-  selectedTemplate.value = template;
+  // Toggle selection: if clicking the same template, deselect it
+  if (selectedTemplate.value?.id === template.id) {
+    selectedTemplate.value = null;
+  } else {
+    selectedTemplate.value = template;
+  }
 };
+
 const selectInfographType = (type) => {
   selectedInfographType.value = type;
+};
+
+const removeUploadedFile = () => {
+  selectedFile.value = null;
+  if (fileInput.value) {
+    fileInput.value.value = "";
+  }
 };
 
 const handleGenerate = async () => {
@@ -870,9 +1304,50 @@ watch(showImageModal, (newValue) => {
     }
   }
 });
+
+// Close dropdowns when clicking outside
+if (typeof window !== "undefined") {
+  window.addEventListener("click", (e) => {
+    if (!e.target.closest("button")) {
+      Object.keys(dropdowns.value).forEach((key) => {
+        dropdowns.value[key] = false;
+      });
+    }
+  });
+}
 </script>
 
 <style scoped>
+/* Custom scrollbar for dropdowns */
+.max-h-96::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Animate in for file input */
+.animate-in {
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 /* Modal transition effects */
 .modal-enter-active,
 .modal-leave-active {

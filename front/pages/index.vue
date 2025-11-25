@@ -108,7 +108,7 @@
     </section>
 
     <!-- Features Section -->
-    <section class="py-24 bg-sidebar-orange-bg">
+    <section id="features" class="py-24 bg-sidebar-orange-bg">
       <div class="container-custom">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <!-- Left Side: Title, Subtitle, and Feature Cards -->
@@ -203,7 +203,7 @@
           </div>
 
           <!-- Right Side: Video/Demo Area -->
-          <div class="lg:sticky lg:top-24">
+          <div class="lg:sticky lg:top-48">
             <div
               class="relative bg-card-bg rounded-2xl border border-card-border overflow-hidden shadow-2xl"
             >
@@ -224,7 +224,7 @@
               </div>
 
               <!-- Video/Image Content Area -->
-              <div class="relative aspect-[4/3] bg-background-secondary">
+              <div class="relative aspect-[16/9] bg-background-secondary">
                 <!-- Placeholder for video - shows current feature demo -->
                 <transition name="fade" mode="out-in">
                   <div
@@ -235,7 +235,7 @@
                     <video
                       v-if="features[selectedFeatureIndex].videoUrl"
                       :src="features[selectedFeatureIndex].videoUrl"
-                      class="w-full h-full"
+                      class="w-full object-contain"
                       autoplay
                       loop
                       muted
@@ -297,6 +297,7 @@
     <!-- Video Demo Section -->
     <section
       ref="templateGallerySection"
+      id="gallery"
       class="py-24 px-12 bg-sidebar-orange-bg"
     >
       <div class="container-custom">
@@ -836,332 +837,110 @@
     </section>
 
     <!-- Pricing & FAQ Section -->
-    <section class="py-24 bg-background-secondary/30">
+    <section id="pricing" class="py-24 bg-sidebar-orange-bg">
       <div class="container-custom">
         <!-- Pricing -->
         <div class="mb-24">
           <div class="text-center mb-12">
-            <h2 class="text-display-md mb-4">Simple, Transparent Pricing</h2>
+            <h2 class="text-display-md mb-4">Simple, Credit based pricing</h2>
             <p class="text-body-lg text-text-secondary">
-              Choose the plan that fits your needs. No hidden fees.
+              Choose the plan that fits your needs.
             </p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <!-- Free Plan -->
-            <div class="card p-8 hover:border-sidebar-orange/50 transition-all">
-              <div class="mb-6">
-                <h3 class="text-2xl font-bold mb-2">Free</h3>
-                <div class="text-4xl font-bold mb-2">
-                  $0<span class="text-lg text-text-secondary">/month</span>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+          >
+            <!-- 10 Credits -->
+            <div
+              class="card p-6 bg-card-bg hover:border-sidebar-orange/50 transition-all flex flex-col"
+            >
+              <div class="mb-4">
+                <div class="text-3xl font-bold mb-1 text-text-primary">
+                  10 Credits
                 </div>
-                <p class="text-text-secondary text-sm">
-                  Perfect for trying out
-                </p>
+                <div class="text-3xl font-bold mb-2 text-sidebar-orange">
+                  $5
+                </div>
+                <p class="text-text-secondary text-xs">$0.50 per credit</p>
               </div>
-              <ul class="space-y-3 mb-8">
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">3 infographics per month</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Basic templates</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Standard resolution</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Watermark included</span>
-                </li>
-              </ul>
-              <NuxtLink to="/signup" class="btn-outline w-full text-center">
-                Get Started
+              <div class="flex-1"></div>
+              <NuxtLink
+                to="/dashboard"
+                class="btn-outline w-full text-center mt-4"
+              >
+                Buy Credits
               </NuxtLink>
             </div>
 
-            <!-- Pro Plan - Featured -->
+            <!-- 50 Credits -->
             <div
-              class="card p-8 relative border-2 border-sidebar-orange shadow-xl"
+              class="card p-6 bg-card-bg hover:border-sidebar-orange/50 transition-all flex flex-col"
+            >
+              <div class="mb-4">
+                <div class="text-3xl font-bold mb-1 text-text-primary">
+                  50 Credits
+                </div>
+                <div class="text-3xl font-bold mb-2 text-sidebar-orange">
+                  $25
+                </div>
+                <p class="text-text-secondary text-xs">$0.50 per credit</p>
+              </div>
+              <div class="flex-1"></div>
+              <NuxtLink
+                to="/dashboard"
+                class="btn-outline w-full text-center mt-4"
+              >
+                Buy Credits
+              </NuxtLink>
+            </div>
+
+            <!-- 100 Credits - Featured -->
+            <div
+              class="card p-6 bg-card-bg relative border-2 border-sidebar-orange shadow-xl flex flex-col"
             >
               <div
-                class="absolute -top-4 left-1/2 -translate-x-1/2 bg-sidebar-orange text-white px-4 py-1 rounded-full text-sm font-semibold"
+                class="absolute -top-3 left-1/2 -translate-x-1/2 bg-sidebar-orange text-white px-3 py-1 rounded-full text-xs font-semibold"
               >
-                Most Popular
+                Best Value
               </div>
-              <div class="mb-6">
-                <h3 class="text-2xl font-bold mb-2">Pro</h3>
-                <div class="text-4xl font-bold mb-2">
-                  $29<span class="text-lg text-text-secondary">/month</span>
+              <div class="mb-4 mt-2">
+                <div class="text-3xl font-bold mb-1 text-text-primary">
+                  100 Credits
                 </div>
-                <p class="text-text-secondary text-sm">For serious creators</p>
+                <div class="text-3xl font-bold mb-2 text-sidebar-orange">
+                  $45
+                </div>
+                <p class="text-text-secondary text-xs">$0.45 per credit</p>
               </div>
-              <ul class="space-y-3 mb-8">
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm font-medium"
-                    >50 infographics per month</span
-                  >
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">All premium templates</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">4K resolution</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">No watermark</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Custom branding</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Priority support</span>
-                </li>
-              </ul>
-              <NuxtLink to="/signup" class="btn-primary w-full text-center">
-                Start Free Trial
+              <div class="flex-1"></div>
+              <NuxtLink
+                to="/dashboard"
+                class="btn-primary w-full text-center mt-4"
+              >
+                Buy Credits
               </NuxtLink>
             </div>
 
-            <!-- Business Plan -->
-            <div class="card p-8 hover:border-sidebar-orange/50 transition-all">
-              <div class="mb-6">
-                <h3 class="text-2xl font-bold mb-2">Business</h3>
-                <div class="text-4xl font-bold mb-2">
-                  $99<span class="text-lg text-text-secondary">/month</span>
+            <!-- 200 Credits -->
+            <div
+              class="card p-6 bg-card-bg hover:border-sidebar-orange/50 transition-all flex flex-col"
+            >
+              <div class="mb-4">
+                <div class="text-3xl font-bold mb-1 text-text-primary">
+                  200 Credits
                 </div>
-                <p class="text-text-secondary text-sm">For teams & agencies</p>
+                <div class="text-3xl font-bold mb-2 text-sidebar-orange">
+                  $89
+                </div>
+                <p class="text-text-secondary text-xs">$0.45 per credit</p>
               </div>
-              <ul class="space-y-3 mb-8">
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm font-medium"
-                    >Unlimited infographics</span
-                  >
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">All Pro features</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Team collaboration</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">API access</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Dedicated account manager</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <svg
-                    class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span class="text-sm">Custom integrations</span>
-                </li>
-              </ul>
-              <NuxtLink to="/signup" class="btn-outline w-full text-center">
-                Contact Sales
+              <div class="flex-1"></div>
+              <NuxtLink
+                to="/dashboard"
+                class="btn-outline w-full text-center mt-4"
+              >
+                Buy Credits
               </NuxtLink>
             </div>
           </div>
@@ -1171,7 +950,7 @@
         <div class="max-w-3xl mx-auto">
           <div class="text-center mb-12">
             <h2 class="text-display-sm mb-4">Frequently Asked Questions</h2>
-            <p class="text-text-secondary">
+            <p class="text-gray-600 text-body-lg">
               Everything you need to know about our platform
             </p>
           </div>
@@ -1180,11 +959,11 @@
             <div
               v-for="(faq, index) in faqs"
               :key="index"
-              class="card p-0 overflow-hidden"
+              class="card bg-card-bg p-0 overflow-hidden"
             >
               <button
                 @click="toggleFaq(index)"
-                class="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-background-secondary/50 transition-colors"
+                class="w-full px-6 py-5 text-left flex justify-between items-center transition-colors"
               >
                 <span class="font-semibold text-lg pr-4">{{
                   faq.question
@@ -1206,7 +985,7 @@
               </button>
               <div
                 v-show="faq.isOpen"
-                class="px-6 pb-5 text-text-secondary leading-relaxed"
+                class="px-6 pb-5 text-gray-600 leading-relaxed"
               >
                 {{ faq.answer }}
               </div>
@@ -1217,216 +996,11 @@
     </section>
 
     <!-- Final CTA -->
-    <section class="py-24 relative overflow-hidden">
-      <div
-        class="absolute inset-0 bg-gradient-to-b from-sidebar-orange/5 to-sidebar-orange/20"
-      ></div>
-      <div
-        class="absolute inset-0 opacity-10"
-        style="
-          background-image: radial-gradient(
-            circle at 25px 25px,
-            rgba(186, 116, 8, 0.3) 2px,
-            transparent 0
-          );
-          background-size: 50px 50px;
-        "
-      ></div>
-
-      <div class="container-custom relative z-10 text-center">
-        <h2 class="text-display-md mb-6">
-          Ready to Create Stunning Infographics?
-        </h2>
-        <p class="text-body-xl text-text-secondary mb-10 max-w-2xl mx-auto">
-          Join thousands of creators, marketers, and businesses who are already
-          creating engaging visual content with our platform.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <NuxtLink to="/signup" class="btn-primary text-lg px-10 py-4">
-            Start Creating for Free
-          </NuxtLink>
-          <button @click="scrollToVideo" class="btn-outline text-lg px-10 py-4">
-            Watch Demo
-          </button>
-        </div>
-        <p class="text-text-secondary text-sm mt-6">
-          No credit card required • 3 free infographics • Cancel anytime
-        </p>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-background-secondary/50 border-t border-card-border">
-      <div class="container-custom py-12">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <!-- Brand -->
-          <div class="md:col-span-1">
-            <div class="flex items-center gap-2 mb-4">
-              <div
-                class="w-8 h-8 rounded-lg bg-sidebar-orange flex items-center justify-center"
-              >
-                <span class="text-white font-bold text-lg">AI</span>
-              </div>
-              <span class="text-xl font-bold">InfoGraphics</span>
-            </div>
-            <p class="text-text-secondary text-sm leading-relaxed">
-              Create beautiful infographics in minutes with AI-powered design.
-            </p>
-          </div>
-
-          <!-- Product -->
-          <div>
-            <h3 class="font-semibold mb-4">Product</h3>
-            <ul class="space-y-2 text-sm">
-              <li>
-                <NuxtLink
-                  to="/dashboard/create"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Create</NuxtLink
-                >
-              </li>
-              <li>
-                <NuxtLink
-                  to="/dashboard/create/templates"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Templates</NuxtLink
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Pricing</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Features</a
-                >
-              </li>
-            </ul>
-          </div>
-
-          <!-- Company -->
-          <div>
-            <h3 class="font-semibold mb-4">Company</h3>
-            <ul class="space-y-2 text-sm">
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >About Us</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Blog</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Careers</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Contact</a
-                >
-              </li>
-            </ul>
-          </div>
-
-          <!-- Legal -->
-          <div>
-            <h3 class="font-semibold mb-4">Legal</h3>
-            <ul class="space-y-2 text-sm">
-              <li>
-                <NuxtLink
-                  to="/privacy"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Privacy Policy</NuxtLink
-                >
-              </li>
-              <li>
-                <NuxtLink
-                  to="/terms"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Terms of Service</NuxtLink
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >Cookie Policy</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-text-secondary hover:text-sidebar-orange transition-colors"
-                  >GDPR</a
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Bottom bar -->
-        <div
-          class="pt-8 border-t border-card-border flex flex-col md:flex-row justify-between items-center gap-4"
-        >
-          <p class="text-text-secondary text-sm">
-            © 2024 AI Infographics. All rights reserved.
-          </p>
-          <div class="flex gap-6">
-            <a
-              href="#"
-              class="text-text-secondary hover:text-sidebar-orange transition-colors"
-            >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
-                />
-              </svg>
-            </a>
-            <a
-              href="#"
-              class="text-text-secondary hover:text-sidebar-orange transition-colors"
-            >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-                />
-              </svg>
-            </a>
-            <a
-              href="#"
-              class="text-text-secondary hover:text-sidebar-orange transition-colors"
-            >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
-                />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, h } from "vue";
+import { ref, shallowRef, h } from "vue";
 
 definePageMeta({
   layout: "default",
@@ -1568,15 +1142,14 @@ const ResolutionIcon = {
   },
 };
 
-const features = ref([
+const features = shallowRef([
   {
     title: "Create from Blog URL",
     subtitle:
       "Simply paste your blog URL and let our AI extract the key points and create a beautiful infographic automatically.",
     icon: LinkIcon,
     gradientClass: "bg-gradient-to-br from-blue-500 to-blue-600",
-    videoUrl:
-      "https://images.ainfographic.com/Screen%20Recording%202025-11-24%20at%2012.20.14.mov", // Add video URL when available
+    videoUrl: "https://images.ainfographic.com/video_presentation.mp4", // Add video URL when available
   },
   {
     title: "Create from PDF",
@@ -1584,7 +1157,7 @@ const features = ref([
       "Upload any PDF document and transform it into a visually stunning infographic. Perfect for reports, whitepapers, and presentations.",
     icon: DocumentIcon,
     gradientClass: "bg-gradient-to-br from-red-500 to-pink-600",
-    videoUrl: null,
+    videoUrl: "https://images.ainfographic.com/pdf_presentation.mp4",
   },
   {
     title: "Use Your Own Template",
@@ -1592,7 +1165,7 @@ const features = ref([
       "Upload your existing infographic template image and let our AI populate it with your content while maintaining your unique style.",
     icon: ImageIcon,
     gradientClass: "bg-gradient-to-br from-sidebar-orange to-yellow-500",
-    videoUrl: null,
+    videoUrl: "https://images.ainfographic.com/own_template_presentation.mp4",
   },
   {
     title: "Multiple Visual Types",
@@ -1628,37 +1201,37 @@ const faqs = ref([
   {
     question: "How does the AI infographic generator work?",
     answer:
-      "Our AI analyzes your content, extracts key information, and automatically designs a professional infographic that matches your chosen template and brand style. You can customize colors, fonts, and layouts with just a few clicks.",
+      "Our AI analyzes your content, extracts key information, and automatically designs a professional infographic that matches your chosen template and brand style.",
     isOpen: false,
   },
   {
     question: "Can I use my own templates and branding?",
     answer:
-      "Yes! Pro and Business plans allow you to upload your own templates and add custom branding including logos, colors, and fonts. You can maintain complete brand consistency across all your infographics.",
+      "Yes! You can upload your own templates. You can maintain complete brand consistency across all your infographics.",
     isOpen: false,
   },
   {
     question: "What formats can I export my infographics in?",
     answer:
-      "You can export your infographics in PNG, JPG, PDF, and SVG formats. Pro users get access to 4K resolution exports perfect for print and high-quality digital displays.",
+      "You can export your infographics in PNG, in the future we will support also JPEG. You get access to 4K resolution exports perfect for print and high-quality digital displays.",
     isOpen: false,
   },
   {
     question: "Do I need design experience to use this?",
     answer:
-      "Not at all! Our platform is designed for everyone, regardless of design experience. The AI handles the design work while you focus on your content. Simply choose a template, add your content, and let the AI do the rest.",
+      "Not at all! Our platform is designed for everyone, regardless of design experience. The AI handles the design work while you focus on your content. Simply choose a template, add your content, and let the AI do the rest. We also provide a lot of templates to choose from.",
     isOpen: false,
   },
   {
-    question: "Can I cancel my subscription anytime?",
+    question: "Can I cancel my credits anytime?",
     answer:
-      "Yes, you can cancel your subscription at any time with no penalties. You'll continue to have access to your plan benefits until the end of your billing period.",
+      "Yes, you can cancel your credits at any time. You'll continue to have access to your credits until you use them all.",
     isOpen: false,
   },
   {
     question: "Is there a free trial for paid plans?",
     answer:
-      "Yes! We offer a 14-day free trial for our Pro plan. No credit card required to start. You can explore all Pro features and create unlimited infographics during your trial period.",
+      "No, we offer credit based pricing. You can buy credits and use them to create infographics.",
     isOpen: false,
   },
 ]);

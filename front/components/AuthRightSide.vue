@@ -1,14 +1,12 @@
 <template>
   <div
-    class="w-1/2 h-screen bg-card-bg flex items-center justify-center p-8 overflow-y-auto"
+    class="w-1/2 h-screen bg-card-bg items-center justify-center p-8 overflow-y-auto hidden md:flex"
   >
     <div class="max-w-xl w-full space-y-12 border-sidebar-border">
       <!-- Infographics Section -->
       <div class="flex justify-center items-center gap-4 relative">
         <!-- Left Infographic -->
-        <div
-          class="w-32 aspect-[9/16] rounded-2xl overflow-hidden shadow-lg relative z-10"
-        >
+        <div class="w-32 aspect-[9/16] overflow-hidden shadow-lg relative z-10">
           <img
             v-if="infographicImages[0]"
             :src="infographicImages[0]"
@@ -22,9 +20,7 @@
         </div>
 
         <!-- Middle Infographic (in front) -->
-        <div
-          class="w-40 aspect-[9/16] rounded-2xl overflow-hidden shadow-xl relative z-20"
-        >
+        <div class="w-40 aspect-[9/16] overflow-hidden shadow-xl relative z-20">
           <img
             v-if="infographicImages[1]"
             :src="infographicImages[1]"
@@ -38,9 +34,7 @@
         </div>
 
         <!-- Right Infographic -->
-        <div
-          class="w-32 aspect-[9/16] rounded-2xl overflow-hidden shadow-lg relative z-10"
-        >
+        <div class="w-32 aspect-[9/16] overflow-hidden shadow-lg relative z-10">
           <img
             v-if="infographicImages[2]"
             :src="infographicImages[2]"
@@ -99,15 +93,13 @@
 
         <!-- Trust Badge -->
         <div class="space-y-2">
-          <p class="text-text-secondary text-base">
-            Trusted by 27,000+ creators
-          </p>
+          <p class="text-text-secondary text-base">Trusted by 100+ creators</p>
         </div>
 
         <!-- Main Heading -->
         <div class="space-y-3">
           <h2 class="text-2xl font-bold text-text-primary">
-            Join Thousands Of Content Creators
+            Join hundreds of Content Creators
           </h2>
           <p class="text-base text-text-secondary max-w-md mx-auto">
             Who use ainfographic to create and share their stories.
@@ -125,20 +117,13 @@ const tailImageSrc = ref("");
 const videoSrc = ref("");
 
 // Array of user avatars (can be populated with real image URLs)
-const userAvatars = ref([
-  "", // Add real avatar URLs here
-  "",
-  "",
-  "",
-  "",
-  "",
-]);
+const userAvatars = ref([]);
 
 // Array of infographic images (can be populated with real image URLs)
 const infographicImages = ref([
-  "https://picsum.photos/seed/infographic-left/360/640", // Left infographic (9:16)
-  "https://picsum.photos/seed/infographic-middle/360/640", // Middle infographic (will be in front) (9:16)
-  "https://picsum.photos/seed/infographic-right/360/640", // Right infographic (9:16)
+  "https://images.ainfographic.com/infographs_3_36.png", // Left infographic (9:16)
+  "https://images.ainfographic.com/infograph-42.png", // Middle infographic (will be in front) (9:16)
+  "https://images.ainfographic.com/infographs_3_50.png", // Right infographic (9:16)
 ]);
 </script>
 

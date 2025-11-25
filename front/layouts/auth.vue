@@ -6,3 +6,4 @@
     <AuthRightSide />
   </div>
 </template>
+
