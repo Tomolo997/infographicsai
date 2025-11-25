@@ -9,7 +9,7 @@ from infographs.api import service as infographs_api_service
 from infographs.infographs import service as infographs_service
 from infographs.infographs.exceptions import NotEnoughCreditsException
 from infographs.models import Infograph, Template
-from infographs.serializers import InfographSerializer
+from infographs.serializers import InfographSerializer, TemplateSerializer
 from marshmallow import ValidationError
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -360,3 +360,19 @@ class InfographDownloadAPIView(APIView):
                 {"message": "Error downloading infograph", "error": str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
+class TemplateListAPIView(generics.ListAPIView):
+    queryset = Template.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # INSERT_YOUR_CODE
+        # Show all templates that are public or belong to this user's account
+        templates = self.get_queryset().filter(
+            is_public=True
+        ) | self.get_queryset().filter(
+            account=request.user.account
+        )
+        templates = templates.order_by('-created_at')
+        serializer = TemplateSerializer(templates, many=True)
+        return Response(serializer.data)

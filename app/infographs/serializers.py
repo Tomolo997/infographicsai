@@ -1,4 +1,10 @@
-from infographs.models import AspectRatio, Infograph, InfographType, Resolution, Template
+from infographs.models import (
+    AspectRatio,
+    Infograph,
+    InfographType,
+    Resolution,
+    Template,
+)
 from rest_framework import serializers
 
 
@@ -40,4 +46,4 @@ class InfographSerializer(serializers.ModelSerializer):
 class TemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
-        fields = ['id', 'name', 'image_url', 'aspect_ratio', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'image_url', 'created_at', 'updated_at']

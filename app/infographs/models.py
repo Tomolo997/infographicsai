@@ -61,8 +61,13 @@ class Infograph(models.Model):
 
 class Template(models.Model):
     name = models.CharField(max_length=255)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True)
     image_url = models.URLField(null=True, blank=True)
-    aspect_ratio = models.CharField(max_length=255, choices=AspectRatio.choices, default=AspectRatio.NINE_ONE_SIX)
     description_json = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_public = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.account.user.email} - {self.name}" if self.account else f"Public - {self.name}"
+    
