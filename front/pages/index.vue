@@ -27,11 +27,12 @@
             <h1 class="text-display-xl mb-6">
               Create Stunning
               <span class="text-sidebar-orange">Infographics</span>
-              in Minutes
+              from your Blog Posts
             </h1>
             <p class="text-body-xl text-text-secondary mb-10 max-w-xl">
               Transform your content into beautiful, engaging infographics that
-              capture attention and drive results. No design skills required.
+              capture attention and drive results. No
+              <span class="text-sidebar-orange">design skills</span> required.
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
               <NuxtLink to="/signup" class="btn-primary text-lg px-8 py-4">
