@@ -32,6 +32,7 @@
             <p class="text-body-xl text-text-secondary mb-10 max-w-xl">
               Transform your content into beautiful, engaging infographics that
               capture attention and drive results.
+              <br />
               <span class="text-white bg-sidebar-orange px-2 py-1 rounded-md"
                 >No design skills required.</span
               >
@@ -80,7 +81,7 @@
               class="absolute top-20 left-1/2 transform -translate-x-1/2 w-72 z-30 transition-transform duration-300 hover:scale-105"
             >
               <img
-                src="https://images.ainfographic.com/template_1_landing_page.png"
+                src="https://images.ainfographic.com/template_2_landing_page.png"
                 alt="Infograph 1"
                 class="w-full h-full object-cover"
               />
@@ -91,7 +92,7 @@
               class="absolute top-0 right-0 w-64 transform rotate-[8deg] translate-x-[20px] translate-y-[40px] z-10 transition-transform duration-300 hover:scale-105"
             >
               <img
-                src="https://images.ainfographic.com/template_1_landing_page.png"
+                src="https://images.ainfographic.com/infographs_3_landing_page.png"
                 alt="Infograph 1"
                 class="w-full h-full object-cover"
               />
