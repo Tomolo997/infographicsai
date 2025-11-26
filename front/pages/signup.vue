@@ -6,14 +6,27 @@
           class="w-10 h-10 bg-sidebar-orange flex items-center justify-center rounded-lg"
         >
           <svg
-            class="w-6 h-6 text-background-primary"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
             viewBox="0 0 24 24"
-            fill="currentColor"
           >
-            <path d="M8 5v14l11-7z" />
+            <!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE -->
+            <g
+              fill="none"
+              stroke="white"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            >
+              <rect width="7" height="9" x="3" y="3" rx="1" />
+              <rect width="7" height="5" x="14" y="3" rx="1" />
+              <rect width="7" height="9" x="14" y="12" rx="1" />
+              <rect width="7" height="5" x="3" y="16" rx="1" />
+            </g>
           </svg>
         </div>
-        <span class="text-2xl font-bold text-text-primary">ainfographic</span>
+        <span class="text-2xl font-bold text-text-primary">Ainfographic</span>
       </div>
     </div>
     <h1 class="text-2xl font-bold text-text-primary">Create your account</h1>
