@@ -323,3 +323,4 @@ This creates/updates products and prices in Stripe and syncs the `stripe_price_i
 - Stripe Docs: https://stripe.com/docs/webhooks
 - Stripe CLI: https://stripe.com/docs/stripe-cli
 - Test Cards: https://stripe.com/docs/testing
+

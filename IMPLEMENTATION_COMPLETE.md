@@ -616,3 +616,4 @@ You now have a **production-ready, scalable, non-blocking infographic generation
 
 Time to integrate with your frontend and start generating amazing infographics! 🚀
 
+

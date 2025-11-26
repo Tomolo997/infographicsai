@@ -454,3 +454,4 @@ payment_intent.payment_failed
 **Current Status:** ✅ Handling `checkout.session.completed` - sufficient for most cases!
 
 **Next Steps:** Consider adding `checkout.session.async_payment_succeeded` for better coverage.
+

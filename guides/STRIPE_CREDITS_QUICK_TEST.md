@@ -161,3 +161,4 @@ Note: This won't have real line items, so it will fail at finding the price_id.
    - Added `STRIPE_WEBHOOK_SECRET` to dev/prod settings
 
 That's it! No database changes, no frontend changes.
+

@@ -387,3 +387,4 @@ The system provides a **modern, responsive experience** where:
 - Check manually for updates
 
 Everything just **works automatically**! 🎉
+

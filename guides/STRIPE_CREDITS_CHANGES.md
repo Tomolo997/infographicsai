@@ -231,3 +231,4 @@ All dependencies already installed:
 - Django, DRF (already configured)
 
 No new packages needed!
+

@@ -480,3 +480,4 @@ You now have:
 | Database migration | ✅     |
 
 **Next**: Integrate with frontend and add R2 upload!
+

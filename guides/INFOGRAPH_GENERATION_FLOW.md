@@ -360,3 +360,4 @@ The system provides a **seamless, real-time experience** where:
 5. Clean resource management (no memory leaks)
 
 Both the **Dashboard** and **Saved** pages use polling to keep users informed of generation progress without any manual intervention.
+

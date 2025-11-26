@@ -146,3 +146,4 @@ Image Complete:
 - Better perceived performance
 
 🎉 **Users no longer wonder "is it working?"** - they can see it!
+

@@ -290,3 +290,4 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx  # From Stripe CLI or Dashboard
 **Implementation Status:** ✅ COMPLETE
 
 Ready for testing! See `guides/STRIPE_CREDITS_QUICK_TEST.md` to get started.
+

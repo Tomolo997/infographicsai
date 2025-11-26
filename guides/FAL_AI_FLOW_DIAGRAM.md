@@ -367,3 +367,4 @@ Instead of polling, use WebSockets for real-time updates:
 - `FAL_AI_INTEGRATION_GUIDE.md`: Complete documentation
 - `test_fal_client.py`: Test suite
 
+

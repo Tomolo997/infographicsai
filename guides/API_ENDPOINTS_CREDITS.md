@@ -462,3 +462,4 @@ for p in purchases:
 ---
 
 **Ready to test!** See `guides/STRIPE_CREDITS_QUICK_TEST.md` for step-by-step testing guide.
+

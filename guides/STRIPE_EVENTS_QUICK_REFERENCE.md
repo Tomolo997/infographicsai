@@ -155,3 +155,4 @@ stripe trigger checkout.session.async_payment_succeeded
 ---
 
 **Current Status:** ✅ Handling both required events for complete coverage!
+
