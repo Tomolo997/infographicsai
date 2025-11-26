@@ -48,10 +48,27 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { hid: 'description', name: 'description', content: 'SaaS MVP - Your next big idea starts here' }
+        { name: 'description', content: 'SaaS MVP - Your next big idea starts here' },
+        // Open Graph / Facebook
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Ainfographic' },
+        { property: 'og:description', content: 'AI-powered infographic generator' },
+        { property: 'og:image', content: 'https://yourdomain.com/og-image.jpg' }, // Update with your actual image URL
+        { property: 'og:url', content: 'https://yourdomain.com' }, // Update with your actual domain
+        // Twitter
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'ainfographic' },
+        { name: 'twitter:description', content: 'SaaS MVP - Your next big idea starts here' },
+        { name: 'twitter:image', content: 'https://yourdomain.com/og-image.jpg' } // Update with your actual image URL
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      ],
+      script: [
+        {
+          src: 'https://scripts.simpleanalyticscdn.com/latest.js',
+          async: true
+        }
       ]
     }
   },

@@ -1010,6 +1010,14 @@ useSeoMeta({
   title: "AI Infographics - Create Stunning Infographics in Minutes",
   description:
     "Transform your content into beautiful, engaging infographics with AI-powered design. No design skills required. Start creating for free.",
+  ogTitle: "Ainfographic",
+  ogDescription: "AI-powered infographic generator",
+  ogImage: "https://images.ainfographic.com/og-image.jpg",
+  ogUrl: "https://ainfographic.com",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Ainfographic",
+  twitterDescription: "AI-powered infographic generator",
+  twitterImage: "https://images.ainfographic.com/og-image.jpg",
 });
 
 const videoSection = ref(null);

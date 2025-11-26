@@ -271,7 +271,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import apiClient from "~/client/apiClient";
 import { useToastStore } from "~/stores/toast";
 import { useAuthStore } from "~/stores/auth";
@@ -283,8 +283,15 @@ definePageMeta({
 const toastStore = useToastStore();
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
-// State
-const creditBalance = ref(0);
+// State - make creditBalance reactive to user changes
+const creditBalance = computed(() => user.value?.credit_balance || 0);
+
+// Ensure user data is loaded on mount
+onMounted(async () => {
+  if (!user.value && authStore.token) {
+    await authStore.fetchUser();
+  }
+});
 
 // Methods
 const formatDate = (date) => {
@@ -342,11 +349,6 @@ const handlePasswordChange = async () => {
     isChangingPassword.value = false;
   }
 };
-
-// Fetch user data and credit balance on mount
-onMounted(async () => {
-  creditBalance.value = user.value?.credit_balance || 0;
-});
 </script>
 
 <style scoped>
