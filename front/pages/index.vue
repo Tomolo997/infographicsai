@@ -1007,12 +1007,13 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "AI Infographics - Create Stunning Infographics in Minutes",
+  title: "Ainfographic - Create Stunning Infographics in Minutes",
   description:
     "Transform your content into beautiful, engaging infographics with AI-powered design. No design skills required. Start creating for free.",
   ogTitle: "Ainfographic",
   ogDescription: "AI-powered infographic generator",
-  ogImage: "https://images.ainfographic.com/og-image.jpg",
+  ogImage:
+    "https://images.ainfographic.com/Screenshot%202025-11-26%20at%2014.21.11.png",
   ogUrl: "https://ainfographic.com",
   twitterCard: "summary_large_image",
   twitterTitle: "Ainfographic",

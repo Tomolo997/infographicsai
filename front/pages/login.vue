@@ -204,8 +204,8 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Sign In - SaaS MVP",
-  description: "Sign in to your SaaS MVP account",
+  title: "Sign In - Ainfographic",
+  description: "Sign in to your Ainfographic account",
 });
 
 const authStore = useAuthStore();

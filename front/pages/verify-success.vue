@@ -91,7 +91,7 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Email Verified - ainfographic",
+  title: "Email Verified - Ainfographic",
 });
 
 const route = useRoute();

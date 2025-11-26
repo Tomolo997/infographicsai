@@ -167,8 +167,8 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Sign Up - ainfographic",
-  description: "Create your ainfographic account and get started",
+  title: "Sign Up - Ainfographic",
+  description: "Create your Ainfographic account and get started",
 });
 
 const authStore = useAuthStore();

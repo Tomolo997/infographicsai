@@ -176,8 +176,8 @@
 
 <script setup>
 useSeoMeta({
-  title: 'Privacy Policy - SaaS MVP',
-  description: 'Privacy Policy for SaaS MVP platform. Learn how we collect, use, and protect your personal information.'
+  title: 'Privacy Policy - Ainfographic',
+  description: 'Privacy Policy for Ainfographic platform. Learn how we collect, use, and protect your personal information.'
 })
 
 const lastUpdated = ref('January 1, 2024')

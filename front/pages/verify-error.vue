@@ -72,6 +72,6 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Verification Failed - ainfographic",
+  title: "Verification Failed - Ainfographic",
 });
 </script>

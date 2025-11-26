@@ -78,6 +78,6 @@ const route = useRoute();
 const email = computed(() => route.query.email || "your email");
 
 useSeoMeta({
-  title: "Verify Your Email - ainfographic",
+  title: "Verify Your Email - Ainfographic",
 });
 </script>

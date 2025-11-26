@@ -134,8 +134,8 @@
 
 <script setup>
 useSeoMeta({
-  title: 'Terms of Service - SaaS MVP',
-  description: 'Terms of Service for SaaS MVP platform. Learn about our terms and conditions for using our service.'
+  title: 'Terms of Service - Ainfographic',
+  description: 'Terms of Service for Ainfographic platform. Learn about our terms and conditions for using our service.'
 })
 
 const lastUpdated = ref('January 1, 2024')

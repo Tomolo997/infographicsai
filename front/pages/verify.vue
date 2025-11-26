@@ -36,8 +36,8 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Verifying Email - ainfographic",
-  description: "Verifying your ainfographic account",
+  title: "Verifying Email - Ainfographic",
+  description: "Verifying your Ainfographic account",
 });
 
 const route = useRoute();
