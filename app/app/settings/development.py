@@ -111,3 +111,5 @@ REST_FRAMEWORK = {
         'user': '10000/day'  # High limit for authenticated users in development
     }
 }
+
+SITE_URL = 'http://localhost:8000'

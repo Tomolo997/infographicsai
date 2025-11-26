@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -9,14 +11,14 @@ from django.utils.http import urlsafe_base64_encode
 
 import resend
 
+logger = logging.getLogger(__name__)
 
 def send_verification_email(user):
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     
     # Use proper URL based on environment
-    backend_url = getattr(settings, 'API_URL', 'http://localhost:8000')
-    verification_link = f"{backend_url}/api/account/verify/{uid}/{token}/"
+    verification_link = f"{settings.SITE_URL}/api/account/verify/{uid}/{token}/"
     
     # Set Resend API key
     resend.api_key = settings.RESEND_API
@@ -39,9 +41,9 @@ def send_verification_email(user):
     # Send email using Resend
     try:
         email_response = resend.Emails.send(params=params)
-        print(f"✅ Verification email sent to {user.email}")
-        print(f"🔗 Verification link: {verification_link}")
+        logger.info(f"✅ Verification email sent to {user.email}")
+        logger.info(f"🔗 Verification link: {verification_link}")
         return email_response
     except Exception as e:
-        print(f"❌ Error sending verification email: {e}")
+        logger.error(f"❌ Error sending verification email: {e}")
         return None
