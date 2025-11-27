@@ -59,6 +59,11 @@
             class="text-text-primary mt-1 hover:bg-sidebar-border transition-all duration-300 px-4 py-2 rounded-full"
             >Templates</NuxtLink
           >
+          <NuxtLink
+            to="/blog"
+            class="text-text-primary mt-1 hover:bg-sidebar-border transition-all duration-300 px-4 py-2 rounded-full"
+            >Blog</NuxtLink
+          >
         </div>
 
         <!-- Desktop Auth Buttons -->
