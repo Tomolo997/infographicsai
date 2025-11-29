@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = True
 SECRET_KEY = 'django-insecure-j=#8bsh4ywzr_br0-5p84hlm1i6$=2dg(04n=-!00q()%fqp@k'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'b4124e117e7b.ngrok-free.app', '*.b4124e117e7b.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0dd7a6a07359.ngrok-free.app', '*.0dd7a6a07359.ngrok-free.app']
 
 # Add CORS settings for static files
 

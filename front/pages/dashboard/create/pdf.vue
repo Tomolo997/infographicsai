@@ -750,6 +750,151 @@
       </div>
     </div>
 
+    <!-- Credits Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="showCreditsModal"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          @click.self="closeCreditsModal"
+        >
+          <!-- Blurred backdrop -->
+          <div
+            class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            @click="closeCreditsModal"
+          ></div>
+
+          <!-- Modal content -->
+          <div
+            class="relative max-w-5xl w-full bg-card-bg border border-card-border rounded-2xl shadow-2xl overflow-hidden"
+          >
+            <!-- Close button -->
+            <button
+              type="button"
+              class="absolute top-4 right-4 z-10 text-text-secondary hover:text-text-primary transition-colors p-2 rounded-md hover:bg-background-secondary"
+              @click="closeCreditsModal"
+              aria-label="Close modal"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-card-border">
+              <h2 class="text-2xl font-bold text-primary mb-2">
+                Purchase Credits
+              </h2>
+              <p class="text-text-secondary">
+                You need credits to generate infographics. Choose a pack below to continue.
+              </p>
+            </div>
+
+            <!-- Credits Grid -->
+            <div class="p-6 max-h-[60vh] overflow-y-auto">
+              <div
+                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              >
+                <div
+                  v-for="pack in creditPacks"
+                  :key="pack.id"
+                  @click="handleModalPurchase(pack)"
+                  :class="[
+                    'group cursor-pointer rounded-lg border transition-all duration-300 bg-card-bg',
+                    pack.isCustom
+                      ? 'border-card-border hover:shadow-md'
+                      : 'border-card-border hover:shadow-lg hover:border-primary-500',
+                  ]"
+                >
+                  <!-- Pack Content -->
+                  <div class="p-4">
+                    <!-- Credits Count -->
+                    <div class="text-center mb-3">
+                      <div
+                        v-if="!pack.isCustom"
+                        class="text-2xl font-bold text-primary mb-1"
+                      >
+                        {{ pack.credits }}
+                      </div>
+                      <div v-else class="text-xl font-bold text-text-primary mb-1">
+                        Custom
+                      </div>
+                      <div class="text-xs text-text-secondary">
+                        {{ pack.isCustom ? "Bulk pricing" : "Credits" }}
+                      </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="text-center mb-3">
+                      <div
+                        v-if="!pack.isCustom"
+                        class="text-2xl font-bold text-text-primary"
+                      >
+                        ${{ pack.price }}
+                      </div>
+                      <div v-else class="text-sm font-semibold text-text-primary">
+                        Contact us
+                      </div>
+                      <div
+                        v-if="!pack.isCustom"
+                        class="text-xs text-text-secondary mt-0.5"
+                      >
+                        ${{ pack.price_per_credit }}/credit
+                      </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <button
+                      :class="[
+                        'w-full py-2 rounded-md text-sm font-medium transition-colors',
+                        pack.isCustom
+                          ? 'border border-primary-500 text-primary-500 hover:bg-primary-500/10'
+                          : 'bg-primary-500 text-white hover:bg-primary-600',
+                      ]"
+                      :disabled="isPurchasing"
+                    >
+                      <span v-if="!isPurchasing">
+                        {{ pack.isCustom ? "Contact" : "Purchase" }}
+                      </span>
+                      <span v-else class="inline-flex items-center gap-1">
+                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                          ></circle>
+                          <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        <span class="text-xs">Processing</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Image Preview Modal -->
     <Teleport to="body">
       <Transition name="modal">
@@ -848,7 +993,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onBeforeUnmount, nextTick } from "vue";
+import { ref, watch, onBeforeUnmount, onMounted, nextTick } from "vue";
 import apiClient from "~/client/apiClient";
 import { useToastStore } from "~/stores/toast";
 
@@ -878,6 +1023,9 @@ const selectedTemplate = ref(null);
 const showError = ref(false);
 const errorMessage = ref("");
 const pollingIntervals = ref(new Map());
+const showCreditsModal = ref(false);
+const creditPacks = ref([]);
+const isPurchasing = ref(false);
 
 // Dropdowns state
 const dropdowns = ref({
@@ -1098,6 +1246,23 @@ const handleGenerate = async () => {
     return;
   }
 
+  // Check credit balance first
+  try {
+    const creditsResponse = await apiClient.get("/account/credits-user/");
+    const creditBalance = creditsResponse.data.credit_balance;
+
+    if (creditBalance === 0) {
+      // Show credits modal
+      await fetchCreditPacks();
+      showCreditsModal.value = true;
+      return;
+    }
+  } catch (error) {
+    console.error("Error checking credits:", error);
+    toastStore.error("Failed to check credit balance. Please try again.");
+    return;
+  }
+
   resetError();
   results.value = [];
   hasResults.value = false;
@@ -1285,6 +1450,64 @@ const handleEdit = (result) => {
   closeImageModal();
 };
 
+// Fetch credit packs from API
+const fetchCreditPacks = async () => {
+  try {
+    const packs = await apiClient.get("/account/credit-packs/");
+    creditPacks.value = packs.data;
+  } catch (error) {
+    console.error("Error fetching credit packs:", error);
+    toastStore.error("Failed to load credit packs");
+  }
+};
+
+// Handle purchase from modal
+const handleModalPurchase = async (pack) => {
+  if (pack.isCustom) {
+    // Handle custom pack - open email client
+    window.open(
+      "mailto:support@ainfographic.com?subject=Custom Credit Pack Inquiry",
+      "_blank"
+    );
+    return;
+  }
+
+  try {
+    isPurchasing.value = true;
+
+    const response = await apiClient.post("/account/purchase-credits/", {
+      price_id: pack.stripe_price_id,
+    });
+    
+    // Open checkout in new window
+    window.open(response.data.checkout_url, "_blank");
+    
+    // Show message to user
+    toastStore.success("Redirecting to checkout. Complete your purchase and return here.");
+    
+    // Close modal after a short delay
+    setTimeout(() => {
+      closeCreditsModal();
+    }, 1500);
+  } catch (error) {
+    console.error("Error purchasing credits:", error);
+    toastStore.error(
+      error.response?.data?.message ||
+        "Failed to initiate purchase. Please try again."
+    );
+  } finally {
+    isPurchasing.value = false;
+  }
+};
+
+// Close credits modal
+const closeCreditsModal = () => {
+  showCreditsModal.value = false;
+  if (typeof document !== "undefined") {
+    document.body.style.overflow = "";
+  }
+};
+
 // Watch for modal state
 watch(showImageModal, (newValue) => {
   if (newValue) {
@@ -1301,6 +1524,26 @@ watch(showImageModal, (newValue) => {
     if (window._imageModalEscapeHandler) {
       document.removeEventListener("keydown", window._imageModalEscapeHandler);
       delete window._imageModalEscapeHandler;
+    }
+  }
+});
+
+// Watch for credits modal state
+watch(showCreditsModal, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = "hidden";
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeCreditsModal();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    window._creditsModalEscapeHandler = handleEscape;
+  } else {
+    document.body.style.overflow = "";
+    if (window._creditsModalEscapeHandler) {
+      document.removeEventListener("keydown", window._creditsModalEscapeHandler);
+      delete window._creditsModalEscapeHandler;
     }
   }
 });

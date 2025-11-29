@@ -16,8 +16,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-# Create your views here.
-
 class InfographListAPIView(generics.ListAPIView):
     queryset = Infograph.objects.all()
     permission_classes = [IsAuthenticated]

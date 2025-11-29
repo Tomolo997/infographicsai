@@ -28,4 +28,5 @@ urlpatterns = [
     path("credit-packs/", views.CreditPackListAPIView.as_view(), name="credit_packs"),
     path("purchase-credits/", views.PurchaseCreditsView.as_view(), name="purchase_credits"),
     path("stripe-webhook/", views.StripeWebhookView.as_view(), name="stripe_webhook"),
+    path("credits-user/", views.CreditsUserView.as_view(), name="credits_user")
 ]

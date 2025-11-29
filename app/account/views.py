@@ -580,3 +580,21 @@ class StripeWebhookView(APIView):
 
         except Exception as e:
             logger.error(f"Error processing payment: {str(e)}")
+
+
+class CreditsUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            account = Account.objects.get(user=user)
+            return Response({
+                "credit_balance": account.credit_balance,
+                "is_trial_user": account.is_trial_user
+            }, status=status.HTTP_200_OK)
+        except Account.DoesNotExist:
+            return Response(
+                {"error": "Account not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
